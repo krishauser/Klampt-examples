@@ -496,7 +496,10 @@ def simulation_template(world):
 #Code for the QT template
 from klampt.vis import glinit
 if glinit._PyQtAvailable:
-    from PyQt5.QtWidgets import *
+    if glinit._PyQt5Available:
+        from PyQt5.QtWidgets import *
+    else:
+        from PyQt4.QtGui import *
     class MyQtMainWindow(QMainWindow):
         def __init__(self,klamptGLWindow):
             """When called, this be given a QtGLWidget object(found in klampt.vis.qtbackend).
@@ -526,10 +529,14 @@ if glinit._PyQtAvailable:
             self.setCentralWidget(self.splitter)
 
         def closeEvent(self,event):
-            reply = QMessageBox.question(self, "Confirm quit", "Do you really want to quit?",
-                                    QMessageBox.Yes|QMessageBox.No);
-            if reply == QMessageBox.Yes:
-                vis.show(False)
+            if self.isVisible():
+                reply = QMessageBox.question(self, "Confirm quit", "Do you really want to quit?",
+                                        QMessageBox.Yes|QMessageBox.No);
+                if reply == QMessageBox.Yes:
+                    vis.show(False)
+                    QMainWindow.close(self)
+            else:
+                QMainWindow.closeEvent(self,event)
 
 def qt_template(world):
     """Runs a custom Qt frame around a visualization window"""
