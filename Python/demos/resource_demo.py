@@ -4,7 +4,8 @@ from klampt.model.trajectory import *
 from klampt import *
 import sys
 
-MULTITHREADED = False
+#set this to True to test multi-threaded visualization, False to test single-threaded
+MULTITHREADED = vis.multithreaded()
 
 def config_edit_template(world):
     """Shows how to edit Config, Configs, and Trajectory resources"""
