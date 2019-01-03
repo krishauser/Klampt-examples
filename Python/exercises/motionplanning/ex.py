@@ -247,7 +247,7 @@ if __name__=='__main__':
         start=(0.1,0.1,0.0)
         goal=(0.9,0.9,6.20)
     program = CSpaceObstacleProgram(space,start,goal)
-    program.name = "Lab 5"
     program.view.w = program.view.h = 640
+    program.name = "Motion planning test"
     program.run()
     
