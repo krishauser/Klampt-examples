@@ -12,8 +12,8 @@ from klampt.vis import GLSimulationPlugin
 import time
 import math
 
-#set this to True to test multi-threaded visualization
-MULTITHREADED = False
+#set this to True to test multi-threaded visualization, False to test single-threaded
+MULTITHREADED = vis.multithreaded()
 #set this to True to demonstrate the code for manually animating a path
 MANUAL_ANIMATION = False
 #set this to True to demonstrate the code for manually setting up editing widgets in a GLPluginInterface
