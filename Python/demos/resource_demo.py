@@ -1,7 +1,7 @@
+import klampt
 from klampt.io import resource
-from klampt.vis import visualization
-from klampt.model.trajectory import *
-from klampt import *
+from klampt import vis
+from klampt.model.trajectory import Trajectory,RobotTrajectory
 import sys
 
 #set this to True to test multi-threaded visualization, False to test single-threaded
@@ -69,38 +69,38 @@ def thumbnail_template(world):
 def vis_interaction_test(world):
     """Run some tests of visualization module interacting with the resource module"""
     print "Showing robot in modal dialog box"
-    visualization.add("robot",world.robot(0))
-    visualization.add("ee",world.robot(0).link(11).getTransform())
-    visualization.dialog()
+    vis.add("robot",world.robot(0))
+    vis.add("ee",world.robot(0).link(11).getTransform())
+    vis.dialog()
     
     config = resource.get("resourcetest1.config",description="Should show up without a hitch...",doedit=True,editor='visual',world=world)
 
     import time
     if MULTITHREADED:
         print "Showing threaded visualization (this will fail on GLUT or Mac OS)"
-        visualization.show()
+        vis.show()
         for i in range(3):
-            visualization.lock()
+            vis.lock()
             q = world.robot(0).getConfig()
             q[9] = 3.0
             world.robot(0).setConfig(q)
-            visualization.unlock()
+            vis.unlock()
             time.sleep(1.0)
-            if not visualization.shown():
+            if not vis.shown():
                 break
-            visualization.lock()
+            vis.lock()
             q = world.robot(0).getConfig()
             q[9] = -1.0
             world.robot(0).setConfig(q)
-            visualization.unlock()
+            vis.unlock()
             time.sleep(1.0)
-            if not visualization.shown():
+            if not vis.shown():
                 break
         print "Hiding visualization window"
-        visualization.show(False)
+        vis.show(False)
     else:
         print "Showing single-threaded visualization for 5s"
-        visualization.spin(5.0)
+        vis.spin(5.0)
 
     config = resource.get("resourcetest1.config",description="Should show up without a hitch...",doedit=True,editor='visual',world=world)
     
@@ -116,7 +116,7 @@ if __name__ == '__main__':
     worldfile = "../../data/athlete_plane.xml"
     if len(sys.argv) > 1:
         worldfile = sys.argv[1]
-    world = WorldModel()
+    world = klampt.WorldModel()
     if not world.readFile(worldfile):
         print "Usage: python resource_demo.py [world file]"
         exit(1)
@@ -143,4 +143,4 @@ if __name__ == '__main__':
     templates[entry](world)
 
     #this is needed to avoid a Ctrl+C to kill the visualization thread
-    visualization.kill()
+    vis.kill()

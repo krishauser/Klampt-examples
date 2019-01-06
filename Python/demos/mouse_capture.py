@@ -1,6 +1,6 @@
-from klampt import *
+import klampt
 from klampt import vis
-from klampt.vis.glinterface import *
+from klampt.vis.glinterface import GLPluginInterface
 
 class MouseCapture(GLPluginInterface):
     def __init__(self,world):
@@ -26,7 +26,7 @@ if __name__ == "__main__":
     ========================================================================
     """
 
-    world = WorldModel()
+    world = klampt.WorldModel()
     res = world.readFile("../../data/tx90blocks.xml")
     if not res:
         raise RuntimeError("Unable to load world")

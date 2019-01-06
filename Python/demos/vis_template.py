@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 import sys
-from klampt import *
+import klampt
 from klampt import vis
 from klampt.robotsim import setRandomSeed
 from klampt.vis.glcommon import GLWidgetPlugin
@@ -35,14 +35,14 @@ def basic_template(world):
     vis.add("line",trajectory.Trajectory([0,1],[[0,0,0],[1,1,1]]))
     vis.setAttribute("line","width",1.0)
 
-    sphere = GeometricPrimitive()
+    sphere = klampt.GeometricPrimitive()
     sphere.setSphere([1.5,1,1],0.2)
     vis.add("sphere",sphere)
     vis.setColor("sphere",0,0,1,0.5)
 
-    box = GeometricPrimitive()
+    box = klampt.GeometricPrimitive()
     box.setAABB([-1,-1,0],[-0.9,-0.9,0.2])
-    g = Geometry3D(box)
+    g = klampt.Geometry3D(box)
     vis.add("box",g)
     vis.setColor("box",0,0,1,0.5)
 
@@ -285,7 +285,7 @@ def modification_template(world):
 
     #run the visualizer, which runs in a separate thread
     vis.setWindowTitle("Manual animation visualization test")
-    class change_callback:
+    class MyCallback:
         def __init__(self):
             self.iteration = 0
         def __call__(self):
@@ -317,13 +317,14 @@ def modification_template(world):
                 vis.addText("text2","Text added back again")
                 vis.setColor("text2",1,0,0)
             self.iteration += 1
+    callback = MyCallback()
 
     if not MULTITHREADED:
-        vis.loop(callback=change_callback,setup=vis.show)
+        vis.loop(callback=callback,setup=vis.show)
     else:
         vis.show()
         while vis.shown():
-            change_callback()
+            callback()
             time.sleep(0.01)
     
     #use this to remove a plot
@@ -576,7 +577,7 @@ if __name__ == "__main__":
         exit()
 
     #creates a world and loads all the items on the command line
-    world = WorldModel()
+    world = klampt.WorldModel()
     for fn in sys.argv[1:]:
         res = world.readFile(fn)
         if not res:
