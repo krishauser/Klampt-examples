@@ -50,6 +50,9 @@ def simplify(robot):
 #vis.dialog() below to examine whether the simplified robot looks
 #ok
 if DO_SIMPLIFY:
+    print("#########################################")
+    print("Simplifying robot to bounding boxes")
+    print("#########################################")
     simplify(robot)
 
 #add the world elements individually to the visualization
@@ -60,8 +63,13 @@ for i in range(world.numRigidObjects()):
     vis.add("rigidObject"+str(i),world.rigidObject(i))
 for i in range(world.numTerrains()):
     vis.add("terrain"+str(i),world.terrain(i))
+
 #if you want to just see the robot in a pop up window...
 if DO_SIMPLIFY and DEBUG_SIMPLIFY:
+    print("#########################################")
+    print("Showing the simplified robot")
+    print("#########################################")
+    vis.setWindowTitle("Simplified robot")
     vis.dialog()
 
 #Automatic construction of space
@@ -87,6 +95,9 @@ else:
     space.setup()
 
 #Generate some waypoint configurations using the resource editor
+print("#########################################")
+print("Editing the waypoints")
+print("#########################################")
 configs = resource.get("planningtest.configs","Configs",default=[],world=world,doedit=False)
 cindex = 0
 while True:

@@ -1,6 +1,5 @@
-from klampt import *
+import klampt
 from klampt.vis import GLRealtimeProgram
-import numpy as np
 
 class GLTest(GLRealtimeProgram):
     def __init__(self,world,sim):
@@ -25,10 +24,10 @@ if __name__ == "__main__":
     print()
     print("   The demo simulates a world and reads a force sensor")
     print("================================================================")
-    world = WorldModel()
+    world = klampt.WorldModel()
     res = world.readFile("../../data/hubo_plane.xml")
     if not res:
         raise RuntimeError("Unable to load world")
-    sim = Simulator(world)
+    sim = klampt.Simulator(world)
     GLTest(world,sim).run()
 

@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 import sys
-from klampt import *
+import klampt
 from klampt import vis
 from klampt.robotsim import setRandomSeed
 from klampt.vis.glcommon import GLWidgetPlugin
@@ -12,8 +12,8 @@ from klampt.vis import GLSimulationPlugin
 import time
 import math
 
-#set this to True to test multi-threaded visualization
-MULTITHREADED = False
+#set this to True to test multi-threaded visualization, False to test single-threaded
+MULTITHREADED = vis.multithreaded()
 #set this to True to demonstrate the code for manually animating a path
 MANUAL_ANIMATION = False
 #set this to True to demonstrate the code for manually setting up editing widgets in a GLPluginInterface
@@ -35,14 +35,14 @@ def basic_template(world):
     vis.add("line",trajectory.Trajectory([0,1],[[0,0,0],[1,1,1]]))
     vis.setAttribute("line","width",1.0)
 
-    sphere = GeometricPrimitive()
+    sphere = klampt.GeometricPrimitive()
     sphere.setSphere([1.5,1,1],0.2)
     vis.add("sphere",sphere)
     vis.setColor("sphere",0,0,1,0.5)
 
-    box = GeometricPrimitive()
+    box = klampt.GeometricPrimitive()
     box.setAABB([-1,-1,0],[-0.9,-0.9,0.2])
-    g = Geometry3D(box)
+    g = klampt.Geometry3D(box)
     vis.add("box",g)
     vis.setColor("box",0,0,1,0.5)
 
@@ -126,7 +126,8 @@ def animation_template(world):
         #automatic animation, just call vis.animate
         vis.animate(robotPath,traj)
     if not MULTITHREADED:
-        def callback():
+        #need to set up references to function-local variables manually, and the easiest way is to use a default argument
+        def callback(robot=robot):
             if MANUAL_ANIMATION:
                 #with manual animation, you just set the robot's configuration based on the current time.
                 t = vis.animationTime()
@@ -173,7 +174,7 @@ def coordinates_template(world):
     else:
         vis.edit(("world",world.robot(0).getName()))
         if not MULTITHREADED:
-            def callback():
+            def callback(coordinates=coordinates):
                 coordinates.updateFromWorld()
             vis.loop(callback=callback,setup=vis.show)
         else:
@@ -284,43 +285,46 @@ def modification_template(world):
 
     #run the visualizer, which runs in a separate thread
     vis.setWindowTitle("Manual animation visualization test")
-    iteration = 0
-    def change_callback():
-        vis.lock()
-        #TODO: you may modify the world here.  This line tests a sin wave.
-        pt[2] = 1 + math.sin(iteration*0.03)
-        vis.unlock()
-        #changes to the visualization with vis.X functions can done outside the lock
-        if (iteration % 100) == 0:
-            if (iteration / 100)%2 == 0:
-                vis.hide("some blinking transform")
-                vis.addText("text4","The transform was hidden")
-                vis.logPlotEvent('plot','hide')
-            else:
-                vis.hide("some blinking transform",False)
-                vis.addText("text4","The transform was shown")
-                vis.logPlotEvent('plot','show')
-        #this is another way of changing the point's data without needing a lock/unlock
-        #vis.add("some point",[2,5,1 + math.sin(iteration*0.03)],keepAppearance=True)
-        #or
-        #vis.setItemConfig("some point",[2,5,1 + math.sin(iteration*0.03)])
+    class MyCallback:
+        def __init__(self):
+            self.iteration = 0
+        def __call__(self):
+            vis.lock()
+            #TODO: you may modify the world here.  This line tests a sin wave.
+            pt[2] = 1 + math.sin(self.iteration*0.03)
+            vis.unlock()
+            #changes to the visualization with vis.X functions can done outside the lock
+            if (self.iteration % 100) == 0:
+                if (self.iteration / 100)%2 == 0:
+                    vis.hide("some blinking transform")
+                    vis.addText("text4","The transform was hidden")
+                    vis.logPlotEvent('plot','hide')
+                else:
+                    vis.hide("some blinking transform",False)
+                    vis.addText("text4","The transform was shown")
+                    vis.logPlotEvent('plot','show')
+            #this is another way of changing the point's data without needing a lock/unlock
+            #vis.add("some point",[2,5,1 + math.sin(iteration*0.03)],keepAppearance=True)
+            #or
+            #vis.setItemConfig("some point",[2,5,1 + math.sin(iteration*0.03)])
 
-        if iteration == 200:
-            vis.addText("text2","Going to hide the text for a second...")
-        if iteration == 400:
-            #use this to remove text
-            vis.clearText()
-        if iteration == 500:
-            vis.addText("text2","Text added back again")
-            vis.setColor("text2",1,0,0)
-        iteration += 1
+            if self.iteration == 200:
+                vis.addText("text2","Going to hide the text for a second...")
+            if self.iteration == 400:
+                #use this to remove text
+                vis.clearText()
+            if self.iteration == 500:
+                vis.addText("text2","Text added back again")
+                vis.setColor("text2",1,0,0)
+            self.iteration += 1
+    callback = MyCallback()
 
     if not MULTITHREADED:
-        vis.loop(callback=change_callback,setup=vis.show)
+        vis.loop(callback=callback,setup=vis.show)
     else:
         vis.show()
         while vis.shown():
-            change_callback()
+            callback()
             time.sleep(0.01)
     
     #use this to remove a plot
@@ -392,7 +396,7 @@ def plugin_template(world):
     vis.setWindowTitle("GLPluginInterface template")
     #run the visualizer 
     if not MULTITHREADED:
-        def callback():
+        def callback(plugin=plugin):
             if plugin.quit:
                 vis.show(False)
         vis.loop(callback=callback,setup=vis.show)
@@ -496,7 +500,10 @@ def simulation_template(world):
 #Code for the QT template
 from klampt.vis import glinit
 if glinit._PyQtAvailable:
-    from PyQt5.QtWidgets import *
+    if glinit._PyQt5Available:
+        from PyQt5.QtWidgets import *
+    else:
+        from PyQt4.QtGui import *
     class MyQtMainWindow(QMainWindow):
         def __init__(self,klamptGLWindow):
             """When called, this be given a QtGLWidget object(found in klampt.vis.qtbackend).
@@ -526,10 +533,14 @@ if glinit._PyQtAvailable:
             self.setCentralWidget(self.splitter)
 
         def closeEvent(self,event):
-            reply = QMessageBox.question(self, "Confirm quit", "Do you really want to quit?",
-                                    QMessageBox.Yes|QMessageBox.No);
-            if reply == QMessageBox.Yes:
-                vis.show(False)
+            if self.isVisible():
+                reply = QMessageBox.question(self, "Confirm quit", "Do you really want to quit?",
+                                        QMessageBox.Yes|QMessageBox.No);
+                if reply == QMessageBox.Yes:
+                    vis.show(False)
+                    QMainWindow.close(self)
+            else:
+                QMainWindow.closeEvent(self,event)
 
 def qt_template(world):
     """Runs a custom Qt frame around a visualization window"""
@@ -566,7 +577,7 @@ if __name__ == "__main__":
         exit()
 
     #creates a world and loads all the items on the command line
-    world = WorldModel()
+    world = klampt.WorldModel()
     for fn in sys.argv[1:]:
         res = world.readFile(fn)
         if not res:

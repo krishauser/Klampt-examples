@@ -1,8 +1,8 @@
+import klampt
 from klampt import vis
 from klampt.vis.glinterface import GLPluginInterface
 from klampt.io import resource
 from klampt.model import trajectory
-from klampt import *
 import time
 import sys
 
@@ -10,7 +10,7 @@ import sys
 fn = "../../data/robots/jaco.rob"
 if len(sys.argv) > 1:
     fn = sys.argv[1]
-world = WorldModel()
+world = klampt.WorldModel()
 res = world.readFile(fn)
 if not res:
     print("Unable to read file",fn)
@@ -67,17 +67,17 @@ def setParabolic():
     vis.animate("robot",traj)
     vis.addText("label","Parabolic velocity profile")
 def setMinJerk():
-    traj = trajectory.path_to_trajectory(traj0,velocities='minimum-jerk',timing='Linf',speed=1.0,zerotol=0.0)
+    traj = trajectory.path_to_trajectory(traj0,velocities='minimum-jerk',timing='Linf',speed=1.0,stoptol=0.0)
     print("*** Resulting duration",traj.endTime(),"***")
     vis.animate("robot",traj)
     vis.addText("label","Start/stop minimum-jerk velocity profile")
 def setStartStop():
-    traj = trajectory.path_to_trajectory(traj0,velocities='trapezoidal',timing='Linf',speed=1.0,zerotol=0.0)
+    traj = trajectory.path_to_trajectory(traj0,velocities='trapezoidal',timing='Linf',speed=1.0,stoptol=0.0)
     print("*** Resulting duration",traj.endTime(),"***")
     vis.animate("robot",traj)
     vis.addText("label","Start/stop trapezoidal velocity profile")
 def setCosine():
-    traj = trajectory.path_to_trajectory(traj0,velocities='cosine',timing='Linf',speed=1.0,zerotol=0.0)
+    traj = trajectory.path_to_trajectory(traj0,velocities='cosine',timing='Linf',speed=1.0,stoptol=0.0)
     print("*** Resulting duration",traj.endTime(),"***")
     vis.animate("robot",traj)
     vis.addText("label","Start/stop cosine velocity profile")
@@ -88,7 +88,7 @@ def setHermite():
     dtraj = ltraj.discretize(0.1)
     dtraj = trajectory.RobotTrajectory(robot,dtraj.times,dtraj.milestones)
     traj = trajectory.path_to_trajectory(dtraj,velocities='constant',timing='limited',smoothing=None,
-        zerotol=10.0,vmax=robot.getVelocityLimits(),amax=robot.getAccelerationLimits(),
+        stoptol=10.0,vmax=robot.getVelocityLimits(),amax=robot.getAccelerationLimits(),
         speed=1.0,)
     print("*** Resulting duration",traj.endTime(),"***")
     #vis.animate("robot",ltraj)

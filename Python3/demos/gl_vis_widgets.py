@@ -2,7 +2,7 @@
 
 import sys
 import math
-from klampt import *
+import klampt
 from klampt import PointPoser,RobotPoser
 from klampt.vis.glcommon import GLWidgetPlugin
 from klampt import vis
@@ -41,7 +41,7 @@ if __name__ == "__main__":
     print("==============================================================================")
     if len(sys.argv)<=1:
         exit()
-    world = WorldModel()
+    world = klampt.WorldModel()
     for fn in sys.argv[1:]:
         res = world.readFile(fn)
         if not res:

@@ -1,7 +1,7 @@
+import klampt
 from klampt import vis
-from klampt import *
 from klampt.math import so3,se3,vectorops
-from klampt.vis.glcommon import *
+from klampt.vis.glinterface import GLPluginInterface
 from klampt.model import sensing
 import time
 import random
@@ -36,14 +36,14 @@ def processDepthSensor(sensor):
 	rgb,depth = sensing.camera_to_images(sensor)
 	return rgb,depth
 
-world = WorldModel()
+world = klampt.WorldModel()
 world.readFile("../../data/simulation_test_worlds/sensortest.xml")
 #world.readFile("../../data/tx90scenario0.xml")
 robot = world.robot(0)
 
 vis.add("world",world)
 
-sim = Simulator(world)
+sim = klampt.Simulator(world)
 sensor = sim.controller(0).sensor("rgbd_camera")
 print("sensor.getSetting('link'):",sensor.getSetting("link"))
 print("sensor.getSetting('Tsensor'):",sensor.getSetting("Tsensor"))
@@ -88,7 +88,7 @@ class SensorTestWorld (GLPluginInterface):
 			self.compute_pc = not self.compute_pc
 		def save_point_cloud():
 			if self.pc != None:
-				if isinstance(self.pc,Geometry3D):
+				if isinstance(self.pc,klampt.Geometry3D):
 					print("Saving to sensortest_temp.pcd")
 					self.pc.saveFile("sensortest_temp.pcd")
 				else:
@@ -155,7 +155,7 @@ class SensorTestWorld (GLPluginInterface):
 		if self.pc is not None and self.compute_pc:
 			#manual drawing of native or numpy point clouds
 			t0 = time.time()
-			if isinstance(self.pc,Geometry3D):
+			if isinstance(self.pc,klampt.Geometry3D):
 				#Geometry3D drawing
 				self.pc_appearance.drawWorldGL(self.pc)
 			else:

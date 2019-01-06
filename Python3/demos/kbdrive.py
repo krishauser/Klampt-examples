@@ -1,9 +1,10 @@
 #!/usr/bin/python
 
 import sys
-from klampt import *
-from klampt.vis.glrobotprogram import *
+import klampt
+from klampt.vis.glrobotprogram import GLSimulationPlugin
 from klampt import vis
+from klampt.math import vectorops
 
 #FOR DEFAULT JOINT-BY-JOINT KEYMAP: set keymap=None
 keymap = None
@@ -109,7 +110,7 @@ if __name__ == "__main__":
     if len(sys.argv)<=1:
         print("USAGE: kbdrive.py [world_file]")
         exit()
-    world = WorldModel()
+    world = klampt.WorldModel()
     for fn in sys.argv[1:]:
         res = world.readFile(fn)
         if not res:
