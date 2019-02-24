@@ -1,11 +1,13 @@
 //This program will read objective functions from a socket via the
 //objective function serialization interface and run real-time planning
 //to avoid obstacles.  The robot will be simulated.
-#include "Interface/UserInterface.h"
-#include "Interface/RobotInterface.h"
-#include "Main/SimViewProgram.h"
+#include <Klampt/Interface/UserInterface.h>
+#include <Klampt/Interface/RobotInterface.h>
+#include <Klampt/Interface/SimViewProgram.h>
 #include <KrisLibrary/utils/AnyCollection.h>
 #include <KrisLibrary/utils/SmartPointer.h>
+#include <KrisLibrary/GLdraw/drawextra.h>
+#include <KrisLibrary/GLdraw/GLUTString.h>
 #include <GL/glui.h>
 #include <fstream>
 using namespace Math3D;
