@@ -68,6 +68,8 @@ class MyGLViewer(GLSimulationPlugin):
             (qmin,qmax) = self.world.robot(r).getJointLimits()
             for i in xrange(len(qdes)):
                 qdes[i] = min(qmax[i],max(qdes[i],qmin[i]))
+                if qdes[i] == qmax or qdes[i] == qmin[i]:
+                    rvels[r][i] = 0
             robotController.setPIDCommand(qdes,rvels[r])
         return
 
@@ -95,8 +97,7 @@ class MyGLViewer(GLSimulationPlugin):
             self.print_help()
             return True
         else:
-            GLSimulationPlugin.keyboardfunc(self,c,x,y)
-            return True
+            return GLSimulationPlugin.keyboardfunc(self,c,x,y)
         self.refresh()
 
     def keyboardupfunc(self,c,x,y):
