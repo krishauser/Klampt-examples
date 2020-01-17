@@ -8,9 +8,9 @@ from klampt.vis.glcommon import GLWidgetPlugin
 from klampt.math import vectorops,so2,so3,se3
 import random
 
-#problem = "1"
+problem = "1"
 #problem = "2"
-problem = "3"
+#problem = "3"
 
 
 class Circle:
@@ -147,13 +147,19 @@ class CSpaceObstacleProgram(GLProgram):
 
         #do you want an edge cost?
         def edgeCost(a,b):
-            return (0.0+(0.5*(a[1]+b[1]) - 0.1)**2)*vectorops.distance(a,b)
+            return (0.0+(0.5*(a[1]+b[1]) - 0.1)**2)*space.cspace.distance(a,b)
+        def monotonicImprovementCost(a,b):
+            if vectorops.distance(a,goal) < vectorops.distance(b,goal):
+                return float('inf')
+            else:
+                return space.cspace.distance(a,b)
         costFunction = edgeCost
+        #costFunction = monotonicImprovementCost
 
         goalcond = goal
         #testing planning to a set
         def inball(x):
-            return vectorops.distance(goal,x) < 0.2
+            return space.cspace.distance(goal,x) < 0.2
         def ballsample():
             return [random.uniform(goal[i]-0.2,goal[i]+0.2) for i in range(len(self.space.bound))]
         #goalcond = inball
