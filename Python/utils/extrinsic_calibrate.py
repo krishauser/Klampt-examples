@@ -472,7 +472,7 @@ if __name__=="__main__":
     
     import sys
     import random
-    robot_fn = "../Klampt/data/robots/baxter_col.rob"
+    robot_fn = "../data/robots/baxter_col.rob"
     world = WorldModel()
     if not world.readFile(robot_fn):
         exit(1)
