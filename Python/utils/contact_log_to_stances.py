@@ -36,7 +36,7 @@ def load_contact_log(fn):
 def sort_trajectories(trajectories):
     """Given a trajectory list, sorts their entries in time-wise fashion"""
     allpts = sum(trajectories,[])
-    return sorted(allpts,key=lambda(x):x[0])
+    return sorted(allpts,key=lambda x:x[0])
 
 def flatten_trajectories(traj_dict):
     """Converts a dict of form body:[(time1,contact1),...,(timen,contactn)]
