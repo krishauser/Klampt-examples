@@ -1,16 +1,17 @@
 /** This program provides a user interface for controlling a (real) robot 
  * via the Klamp't socket communication protocol.
  */
-#include "Interface/UserInterface.h"
-#include "Interface/RobotInterface.h"
-#include "Control/SerialControlledRobot.h"
-#include "Main/WorldViewProgram.h"
+#include <Klampt/Interface/UserInterface.h>
+#include <Klampt/Interface/RobotInterface.h>
+#include <Klampt/Control/SerialControlledRobot.h>
+#include <Klampt/Interface/WorldViewProgram.h>
+#include <KrisLibrary/GLdraw/drawextra.h>
+#include <KrisLibrary/GLdraw/GLUTString.h>
 #if defined (__APPLE__) || defined (MACOSX)
 #include <glui.h>
 #else
 #include <GL/glui.h>
 #endif //__APPLE__ || MACOSX
-#include <KrisLibrary/GLdraw/GLUTString.h>
 #include <fstream>
 using namespace Math3D;
 using namespace GLDraw;
@@ -421,7 +422,7 @@ public:
 };
 
 
-int main(int argc, char** argv)
+int main(int argc, const char** argv)
 {
   if(argc < 2) {
     printf("USAGE: UserTrials XML_file\n");
@@ -433,6 +434,8 @@ int main(int argc, char** argv)
   world.lights[0].setDirectionalLight(Vector3(0.2,-0.4,1));
   world.lights[0].setColor(GLColor(1,1,1));
 
+  LoadWorldCommandLine(world,argc,argv);
+  /*
   XmlWorld xmlWorld;
   for(int i=1;i<argc;i++) {
     const char* ext=FileExtension(argv[i]);
@@ -469,7 +472,7 @@ int main(int argc, char** argv)
       return 1;
     }
   }
-
+  */
   UserTrialProgram program(&world);
   return program.Run();
 }

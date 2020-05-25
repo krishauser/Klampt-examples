@@ -1,7 +1,10 @@
-#include "Interface/UserInterface.h"
-#include "Interface/RobotInterface.h"
-#include "Main/SimViewProgram.h"
+#include <Klampt/Interface/UserInterface.h>
+#include <Klampt/Interface/RobotInterface.h>
+#include <Klampt/Interface/SimViewProgram.h>
+#include <Klampt/IO/XmlWorld.h>
 #include <KrisLibrary/utils/StatCollector.h>
+#include <KrisLibrary/GLdraw/drawextra.h>
+#include <KrisLibrary/GLdraw/GLUTString.h>
 #if defined (__APPLE__) || defined (MACOSX)
 #include <glui.h>
 #else

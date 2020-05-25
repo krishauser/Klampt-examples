@@ -6,7 +6,9 @@ from klampt import *
 from klampt import RobotPoser
 from klampt.vis.glcommon import GLWidgetPlugin
 from klampt import vis
+from klampt.math import vectorops,so3,se3
 from klampt.model.subrobot import SubRobotModel
+from klampt.model import ik
 from klampt.plan import robotplanning
 from klampt.vis import editors
 
@@ -30,7 +32,13 @@ class MyGLViewer(GLWidgetPlugin):
     def keyboardfunc(self,c,x,y):
         #Put your keyboard handler here
         #the current example prints the config when [space] is pressed
-        if c == ' ':
+        if c == 'h' or c == '?':
+            print "Controls:"
+            print "- [space]: print the widget's sub-robot configuration"
+            print "- r: randomize the sub-robot configuration"
+            print "- p: plan to the widget's sub-robot configuration"
+            print "- i: test the IK functions"
+        elif c == ' ':
             config = self.robotWidget.get()
             subconfig = self.subrobots[0].fromfull(config)
             print "Config:",subconfig
@@ -48,6 +56,15 @@ class MyGLViewer(GLWidgetPlugin):
                                   **settings)
             plan.planMore(1000)
             print plan.getPath()
+        elif c == 'i':
+            link = self.subrobots[0].link(self.subrobots[0].numLinks()-1)
+            print "IK solve for ee to go 10cm upward..."
+            obj = ik.objective(link,local=[0,0,0],world=vectorops.add(link.getWorldPosition([0,0,0]),[0,0,0.1]))
+            solver = ik.solver(obj)
+            res = solver.solve()
+            print "  result",res
+            print "  residual",solver.getResidual()
+            print self.robotWidget.set(self.robot.getConfig())
         else:
             GLWidgetPlugin.keyboardfunc(self,c,x,y)
 

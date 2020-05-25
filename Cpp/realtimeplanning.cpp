@@ -1,10 +1,10 @@
-#include "Interface/UserInterface.h"
-#include "Interface/SimulationGUI.h"
-#include "Interface/GLUIGUI.h"
-#include "Interface/SimTestGUI.h"
-#include "Control/LoggingController.h"
-#include "Control/FeedforwardController.h"
-#include "Control/PathController.h"
+#include <Klampt/Interface/UserInterface.h>
+#include <Klampt/Interface/SimulationGUI.h>
+#include <Klampt/Interface/GLUIGUI.h>
+#include <Klampt/Interface/SimTestGUI.h>
+#include <Klampt/Control/LoggingController.h>
+#include <Klampt/Control/FeedforwardController.h>
+#include <Klampt/Control/PathController.h>
 #include <KrisLibrary/GLdraw/GLScreenshotProgram.h>
 #include <KrisLibrary/utils/StatCollector.h>
 #include <KrisLibrary/GLdraw/drawextra.h>
