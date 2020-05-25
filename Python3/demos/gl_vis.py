@@ -1,7 +1,9 @@
 import klampt
+from klampt import vis
 from klampt.vis import GLRealtimeProgram
 
 class GLTest(GLRealtimeProgram):
+    """Define hooks into the GUI loop to draw and update the simulation"""
     def __init__(self,world,sim):
         GLRealtimeProgram.__init__(self,"GLTest")
         self.world = world
@@ -29,5 +31,6 @@ if __name__ == "__main__":
     if not res:
         raise RuntimeError("Unable to load world")
     sim = klampt.Simulator(world)
-    GLTest(world,sim).run()
-
+    print("STARTING vis.run()")
+    vis.run(GLTest(world,sim))
+    print("END OF vis.run()")
