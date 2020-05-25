@@ -8,9 +8,14 @@ from klampt.vis.glcommon import GLWidgetPlugin
 from klampt import RobotPoser
 from klampt.model import ik,coordinates,config,trajectory,collide
 from klampt.math import vectorops,so3,se3
-from klampt.vis import GLSimulationPlugin
+from klampt.vis import GLSimulationPlugin,glinit
 import time
 import math
+
+#Can choose 'PyQt', 'PyQt5', 'PyQt4', or 'GLUT'.  This will be passed to vis.init()
+BACKEND = None  
+#BACKEND = 'GLUT'
+vis.init(BACKEND)
 
 #set this to True to test multi-threaded visualization, False to test single-threaded
 MULTITHREADED = vis.multithreaded()
@@ -48,12 +53,14 @@ def basic_template(world):
 
     vis.setWindowTitle("Basic visualization test")
     if not MULTITHREADED:
+        print("Running vis loop in single-threaded mode with vis.loop()")
         #single-threaded code
         def callback():
             #TODO: you may modify the world here.      
             pass
         vis.loop(setup=vis.show, callback=callback)   
     else:
+        print("Running vis loop in multithreaded mode")
         #multithreaded code
         vis.show()
         while vis.shown():
@@ -206,6 +213,27 @@ def viewport_template(world):
 def multiwindow_template(world):
     """Tests multiple windows and views."""
     vis.add("world",world)
+    vp = vis.getViewport()
+    vp.w,vp.h = 400,600
+    vis.setViewport(vp)
+    vis.addText("label1","This is Window 1",(20,20))
+    vis.setWindowTitle("Window 1")
+    vis.show()
+    id1 = vis.getWindow()
+    print("First window ID:",id1)
+    
+    id2 = vis.createWindow("Window 2")
+    vis.add("Lone point",[0,0,0])
+    vis.setViewport(vp)
+    vis.addText("label1","This is Window 2",(20,20))
+    print("Second window ID:",vis.getWindow())
+    vis.setWindow(id2)
+    vis.spin(float('inf'))
+
+    #restore back to 1 window, clear the text
+    vis.setWindow(id1)
+    vis.clearText()
+
     vp = vis.getViewport()
     vp.w,vp.h = 800,800
     vis.setViewport(vp)
@@ -498,12 +526,18 @@ def simulation_template(world):
     vis.kill()
 
 #Code for the QT template
-from klampt.vis import glinit
-if glinit._PyQtAvailable:
-    if glinit._PyQt5Available:
-        from PyQt5.QtWidgets import *
-    else:
+global _qt_available
+_qt_available = False
+try:
+    from PyQt5.QtWidgets import *
+    _qt_available = True
+except ImportError:
+    try:
         from PyQt4.QtGui import *
+        _qt_available = True
+    except ImportError:
+        pass
+if _qt_available:
     class MyQtMainWindow(QMainWindow):
         def __init__(self,klamptGLWindow):
             """When called, this be given a QtGLWidget object(found in klampt.vis.qtbackend).
@@ -544,7 +578,7 @@ if glinit._PyQtAvailable:
 
 def qt_template(world):
     """Runs a custom Qt frame around a visualization window"""
-    if not glinit._PyQtAvailable:
+    if not glinit.available('PyQt5'):
         print("PyQt5 is not available on your system, try sudo apt-get install python-qt5")
         return
     
@@ -567,8 +601,8 @@ def qt_template(world):
 
 if __name__ == "__main__":
     print("""================================================================================
-    vis_template.py: Demonstrates examples about how to run the visualization framework.
-    """)
+vis_template.py: Demonstrates examples about how to run the visualization
+framework.""")
     if len(sys.argv)<=1:
         print("USAGE: vis_template.py [world_file]")
         print("   (Try python vis_template.py ../../data/athlete_plane.xml)")
