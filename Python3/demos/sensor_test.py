@@ -5,6 +5,7 @@ from klampt.vis.glinterface import GLPluginInterface
 from klampt.model import sensing
 import time
 import random
+import math
 
 try:
 	import matplotlib.pyplot as plt
