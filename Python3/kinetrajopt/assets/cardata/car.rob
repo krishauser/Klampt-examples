@@ -1,0 +1,40 @@
+links “base_x_link" "base_y_link" "torso_link" 
+
+parents -1 0 1 
+
+axis 1 0 0  0 1 0   0 0 1  
+
+jointtype p p r 
+
+Tparent 1 0 0 0 1 0 0 0 1 0 0 0 \
+1 0 0 0 1 0 0 0 1 0 0 0 \
+1 0 0 0 1 0 0 0 1 0 0 0 \
+
+q 0 0 0 
+qmin -10 -10 -10 
+qmax 10 10 10 
+geometry "" "" "base_link.off" 
+
+mass 0.0001 0.0001 68
+com 0 0 0  0 0 0  0 0 0.18 
+
+automass 
+
+torquemax 100 100 100 
+
+velmax 2 2 1 
+
+accmax 2 2 1  
+
+joint normal 0
+joint normal 1
+joint normal 2
+driver normal 1
+driver normal 2
+driver normal 0
+
+servoP 5000 5000 5000
+servoI 100 100 100 
+servoD 200 200 200 
+dryFriction 0 0 0 
+viscousFriction 25 25 25 

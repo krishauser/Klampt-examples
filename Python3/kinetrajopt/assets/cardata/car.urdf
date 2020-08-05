@@ -1,0 +1,48 @@
+<robot name="myfirst">
+  <link name="base_link">
+    <inertial>
+    <mass value="3.473082"/>
+    <origin xyz="0 0 0.07"/>
+    <inertia ixx="0.012411765597" ixy="-0.000711733678" ixz="0.00050272983" iyy="0.015218160428" iyz="-0.000004273467" izz="0.011763977943"/>
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="base_link.off"/>
+      </geometry>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+    </visual>
+    <collision>
+    <origin rpy="0 0 0" xyz="0 0 0"/>
+    <geometry>
+    <mesh filename="base_link.off"/>
+    </geometry>
+    </collision>
+  </link>
+
+  <link name="bases_link">
+    <inertial>
+    <mass value="3.473082"/>
+    <origin xyz="0 0 0.07"/>
+    <inertia ixx="0.012411765597" ixy="-0.000711733678" ixz="0.00050272983" iyy="0.015218160428" iyz="-0.000004273467" izz="0.011763977943"/>
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="base_link.off"/>
+      </geometry>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+    </visual>
+    <collision>
+    <origin rpy="0 0 0" xyz="0 0 0"/>
+    <geometry>
+    <mesh filename="base_link.off"/>
+    </geometry>
+    </collision>
+  </link>
+
+  <joint name="car_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="bases_link"/>
+    <origin xyz="0 0 0"/>
+  </joint>
+
+</robot>

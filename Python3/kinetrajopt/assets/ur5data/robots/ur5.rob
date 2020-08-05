@@ -1,0 +1,64 @@
+links	"base_link" "shoulder_link" "upper_arm_link" "forearm_link" "wrist_1_link" "wrist_2_link" "wrist_3_link" "ee_link" 
+
+parents	-1 0 1 2 3 4 5 6 
+
+axis	0 0 1	0 0 1	0 1 0	0 1 0	0 1 0	0 0 1	0 1 0	0 0 1	
+
+jointtype	r r r r r r r r 
+
+Tparent	1 0 0	0 1 0	0 0 1	0 0 0 \
+1 0 0	0 1 0	0 0 1	0 0 0.089159 \
+1.7949e-09 0 1	0 1 0	-1 0 1.7949e-09	0 0.13585 0 \
+1 0 0	0 1 0	0 0 1	0 -0.1197 0.425 \
+1.7949e-09 0 1	0 1 0	-1 0 1.7949e-09	0 0 0.39225 \
+1 0 0	0 1 0	0 0 1	0 0.093 0 \
+1 0 0	0 1 0	0 0 1	0 0 0.09465 \
+1.7949e-09 -1 0	1 1.7949e-09 0	0 0 1	0 0.0823 0
+
+q	0 0 0 0 0 0 0 0 
+
+qmin	0 -6.28319 -6.28319 -6.28319 -6.28319 -6.28319 -6.28319 0 
+
+qmax	0 6.28319 6.28319 6.28319 6.28319 6.28319 6.28319 0 
+
+geometry    "ur5/base_link.off" "ur5/shoulder_link.off" "ur5/upper_arm_link.off" "ur5/forearm_link.off" "ur5/wrist_1_link.off" "ur5/wrist_2_link.off" "ur5/wrist_3_link.off" "ur5/ee_link.off" 
+
+mass	4 3.7 8.393 2.275 1.219 1.219 0.1879 0.0001 
+
+com	0 0 0	0 0 0	0 0 0.28	0 0 0.25	0 0 0	0 0 0	0 0 0	0 0 0	
+
+inertia	0.00443333 0 0 0 0.00443333 0 0 0 0.0072	0.0102675 0 0 0 0.0102675 0 0 0 0.00666	0.226891 0 0 0 0.226891 0 0 0 0.0151074	0.0494433 0 0 0 0.0494433 0 0 0 0.004095	0.111173 0 0 0 0.111173 0 0 0 0.21942	0.111173 0 0 0 0.111173 0 0 0 0.21942	0.0171365 0 0 0 0.0171365 0 0 0 0.033822	1e-08 0 0 0 1e-08 0 0 0 1e-08	
+
+torquemax	inf 150 150 150 28 28 28 inf 
+
+velmax	0 3.15 3.15 3.15 3.2 3.2 3.2 0 
+
+accmax	0 10 10 10 10 10 10 0 
+
+joint weld 0
+joint normal 1
+joint normal 2
+joint normal 3
+joint normal 4
+joint normal 5
+joint normal 6
+joint weld 7
+
+
+driver normal 1
+driver normal 2
+driver normal 3
+driver normal 4
+driver normal 5
+driver normal 6
+
+
+
+servoP	5000 20000 5000 2000 1500 250 
+servoI	0 0 0 0 0 0 
+servoD	500 800 500 50 50 10 
+
+dryFriction	0 0 0 0 0 0 
+viscousFriction	25 100 100 0.5 0.5 0.5 
+
+noselfcollision 0 2    4 6  
