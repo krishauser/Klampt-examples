@@ -87,7 +87,7 @@ while vis.shown():
         except Exception as e:
             print "Exception encountered:",e
             continue
-        if res < 0:
+        if res.d < 0:
             vis.setColor('B',1,1,0,0.5)
         else:
             vis.setColor('B',0,1,0,0.5)
