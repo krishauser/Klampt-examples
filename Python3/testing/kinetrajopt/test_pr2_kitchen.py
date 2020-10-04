@@ -10,7 +10,7 @@ from xml.dom import minidom
 from klampt import WorldModel, vis
 from klampt.model import create, trajectory
 
-from klampt.plan.kinetrajopt import KineTrajOpt, TrajOptConfig
+from klampt.plan.kinetrajopt import KineTrajOpt, TrajOptSettings
 
 
 def main():
@@ -27,7 +27,7 @@ def main():
     n_grid = 10  # resolution
     guess = np.linspace(joint_start, joint_target, n_grid)
     # create trajopt instance
-    config = TrajOptConfig(cvxpy_args={'solver': 'GUROBI'}, limit_joint=False)
+    config = TrajOptSettings(cvxpy_args={'solver': 'GUROBI'}, limit_joint=False)
     trajopt = KineTrajOpt(world, robot, joint_start, joint_target, config=config, link_index=link_index,
                           geom_index=geom_index, obs_index=obs_index)
     # create some stuff for visualization

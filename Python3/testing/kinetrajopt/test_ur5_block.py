@@ -18,7 +18,7 @@ from klampt.plan import cspace, robotplanning
 from klampt.plan.robotplanning import makeSpace
 from klampt import vis
 from klampt.math import vectorops as vo, so3
-from klampt.plan.kinetrajopt import KineTrajOpt, TrajOptConfig
+from klampt.plan.kinetrajopt import KineTrajOpt, TrajOptSettings
 
 
 def main():
@@ -39,7 +39,7 @@ def main():
     # guess += np.random.uniform(-0.1, 0.1, size=guess.shape)
     vis.add("world", world)
     # this one has no additional constraint so it should be easy to solve...
-    config = TrajOptConfig(cvxpy_args={'solver': 'GUROBI'})
+    config = TrajOptSettings(cvxpy_args={'solver': 'GUROBI'})
     trajopt = KineTrajOpt(world, robot, q0, qf, config=config, link_index=link_index, obs_index=obs_index, geom_index=geom_index)
     rst = trajopt.optimize(guess)
     sol = rst['sol']

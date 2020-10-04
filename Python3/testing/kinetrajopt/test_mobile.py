@@ -6,14 +6,14 @@ import numpy as np
 
 from klampt import WorldModel, vis
 from klampt.model import create
-from klampt.plan.kinetrajopt import KineTrajOpt, TrajOptConfig
+from klampt.plan.kinetrajopt import KineTrajOpt, TrajOptSettings
 
 
 def main():
     world, robot, link_index, geom_index, obs_index = create_world()
     q0 = [0, -2, 0]
     qf = [3, 1, 3.14]
-    config = TrajOptConfig(cvxpy_args={'solver': 'GUROBI'}, limit_joint=False)
+    config = TrajOptSettings(cvxpy_args={'solver': 'GUROBI'}, limit_joint=False)
     trajopt = KineTrajOpt(world, robot, q0=q0, qf=qf, config=config, link_index=link_index, geom_index=geom_index, obs_index=obs_index)
     # create guess and solve
     n_grid = 10

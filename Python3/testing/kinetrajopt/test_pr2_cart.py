@@ -9,7 +9,7 @@ import numpy as np
 from xml.dom import minidom
 from klampt import WorldModel, vis
 from klampt.model import create, trajectory
-from klampt.plan.kinetrajopt import KineTrajOpt, TrajOptConfig
+from klampt.plan.kinetrajopt import KineTrajOpt, TrajOptSettings
 
 
 def main():
@@ -24,7 +24,7 @@ def main():
     tR, tt = robot.link(link_index[-1]).getTransform()
     print(f'target is {tR}, {tt}')
     # create the trajopt instance
-    config = TrajOptConfig(cvxpy_args={'solver': 'GUROBI'}, limit_joint=False)
+    config = TrajOptSettings(cvxpy_args={'solver': 'GUROBI'}, limit_joint=False)
     trajopt = KineTrajOpt(world, robot, q0=joint_start, qf=None, config=config, link_index=link_index, geom_index=geom_index, obs_index=obs_index)
     FINAL_POSE = True
     if FINAL_POSE:
