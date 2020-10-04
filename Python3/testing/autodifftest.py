@@ -1,5 +1,5 @@
-from klampt.math.autodiff import ad,math_ad,so3_ad,se3_ad,kinematics_ad
-from klampt.math.autodiff.ad import _ADGetItem
+from klampt.math.autodiff import ad,math_ad,so3_ad,se3_ad,kinematics_ad,geometry_ad
+from klampt.math.autodiff.ad import _ADGetItem,_ADSetItem
 from klampt.math import so3,se3
 from klampt import *
 import numpy as np
@@ -35,6 +35,8 @@ e = so3_ad.angle(so3_ad.from_rpy(np.array([0,0,2.0])))
 print(e)
 assert e.eval() == 2.0
 
+print((ad.var('x')**3).gen_derivative(['x','x'],x=2.0),"should be 6*2=12")
+
 #test derivatives
 x = np.array([1.0,0.0])
 y = np.array([3.0,4.0])
@@ -54,6 +56,8 @@ ad.check_derivatives(_ADGetItem(1),[x])
 ad.check_derivatives(_ADGetItem([0]),[x])
 ad.check_derivatives(_ADGetItem([1,0]),[x])
 ad.check_derivatives(_ADGetItem(slice(0,2)),[x])
+ad.check_derivatives(_ADSetItem(0),[x,2.0])
+ad.check_derivatives(_ADSetItem(slice(0,1)),[x,-5.0])
 ad.check_derivatives(ad.maximum,[x,y])
 ad.check_derivatives(ad.minimum,[x,y])
 
@@ -209,8 +213,8 @@ assert np.allclose(wT.eval(q=q),eelink.getTransform()[0] + eelink.getWorldPositi
 assert np.allclose(wv.eval(q=q,dq=dq),eelink.getPointVelocity(localpos))
 assert np.allclose(ww.eval(q=q,dq=dq),eelink.getAngularVelocity())
 kbuilder = kinematics_ad.KinematicsBuilder(robot,'q','dq')
-print(kbuilder.world_position(robot.numLinks()-1))
-print(kbuilder.world_velocity(robot.numLinks()-1))
+print("World position:",kbuilder.world_position(robot.numLinks()-1))
+print("World velocity:",kbuilder.world_velocity(robot.numLinks()-1))
 assert np.allclose(kbuilder.world_transform(eelink).eval(q=q),eelink.getTransform()[0]+eelink.getTransform()[1])
 print("kinematics equivalence check passed")
 
@@ -222,3 +226,57 @@ ad.check_derivatives(kbuilder.world_transform(1),{'q':q})
 ad.check_derivatives(kbuilder.world_transform(2),{'q':q})
 ad.check_derivatives(kbuilder.world_transform(eelink),{'q':q})
 print("kinematics derivative check passed")
+
+
+bpm = geometry_ad.BoxPointMargin(np.array([-1,-1]),np.array([1,1]))
+bpd = geometry_ad.BoxPointDistance(np.array([-1,-1]),np.array([1,1]))
+bpc = geometry_ad.BoxPointClosest(np.array([-1,-1]),np.array([1,1]))
+ad.check_derivatives(bpm,[np.array([0.7,0.3])])
+ad.check_derivatives(bpm,[np.array([-0.3,-0.7])])
+ad.check_derivatives(bpd,[np.array([0.7,0.3])])
+ad.check_derivatives(bpd,[np.array([-0.3,-0.7])])
+ad.check_derivatives(bpd,[np.array([2.5,0.3])])
+ad.check_derivatives(bpd,[np.array([-3.5,1.8])])
+ad.check_derivatives(bpc,[np.array([0.7,0.3])])
+ad.check_derivatives(bpc,[np.array([-0.3,-0.7])])
+ad.check_derivatives(bpc,[np.array([2.5,0.3])])
+ad.check_derivatives(bpc,[np.array([-3.5,1.8])])
+spd = geometry_ad.sphere_point_distance('c','r','x')
+ad.check_derivatives(spd,{'c':np.array([1.0,2.5,0.3]),'r':0.5,'x':np.array([-2.3,1.0,0.5])})
+ssd = geometry_ad.sphere_sphere_distance('c1','r1','c2','r2')
+ad.check_derivatives(ssd,{'c1':np.array([1.0,2.5,0.3]),'r1':0.5,'c2':np.array([-2.3,1.0,0.5]),'r2':0.3})
+
+g1 = robot.link(2).geometry()
+g2 = robot.link(5).geometry()
+
+gpd = geometry_ad.GeomPointDistance(g1,'link 2')
+gpd_ub = geometry_ad.GeomPointDistance(g1,'link 2 (ub 0.1)',upperBound=0.1)
+
+print("geom-point distance:",gpd(se3_ad.identity(),np.array([3.0,-0.3,1.0])).eval())
+print("geom-point distance (upper-bounded):",gpd_ub(se3_ad.identity(),np.array([3.0,-0.3,1.0])).eval())
+
+try:
+    ad.check_derivatives(gpd,[se3_ad.identity(),np.array([3.0,-0.3,1.0])],h=1e-2)
+except Exception as e:
+    print(e)
+    import traceback
+    traceback.print_exc()
+    pass
+try:
+    ad.check_derivatives(gpd_ub,[se3_ad.identity(),np.array([3.0,-0.3,1.0])],h=1e-2)
+except Exception as e:
+    print(e)
+    import traceback
+    traceback.print_exc()
+    pass
+
+ggd = geometry_ad.GeomGeomDistance(g1,g2,'link 2','link 5')
+try:
+    ad.check_derivatives(ggd,[se3_ad.from_klampt(robot.link(2).getTransform()),se3_ad.from_klampt(robot.link(5).getTransform())],h=1e-2)
+except Exception as e:
+    print(e)
+    import traceback
+    traceback.print_exc()
+    pass
+
+print("geometry derivative check passed")
