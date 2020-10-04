@@ -36,6 +36,6 @@ print("torch-to-ad: scalar-valued derivative check passed")
 
 #ad to torch
 f=(vx+vy)/vz
-m = ADModule(f,[vx,vy,vz])
+m = ad_to_torch(f,[vx,vy,vz])
 m.check_derivatives_torch(f,[vx,vy,vz])
 print("ad-to-torch: derivative check passed")
