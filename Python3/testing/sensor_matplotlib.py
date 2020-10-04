@@ -33,7 +33,7 @@ def do_snapshot():
     print("Depth shape:",depth.shape)
     measurements = camera.getMeasurements()
     plt.imshow(rgb) 
-    #plt.imshow(depth) # <---- THIS LINE PREVENTS VIS.SHOW() FROM SHOWING
+    #plt.imshow(depth)
     plt.show()
 
 if METHOD == "nogl":
@@ -62,6 +62,7 @@ elif METHOD == "workaround":
 
     do_snapshot()
 else:
+    vis.init()
     vis.setBackgroundColor(1,0,0)
     vis.show()
     while vis.shown():
@@ -71,7 +72,7 @@ else:
     vis.threadCall( do_snapshot)
 
     STRESS_TEST_VIS = True
-
+    
 if STRESS_TEST_VIS:
     if METHOD == "workaround" or METHOD == "glbackend":
         print("Note: Workaround does something to clobber the Klamp't vis module.")
