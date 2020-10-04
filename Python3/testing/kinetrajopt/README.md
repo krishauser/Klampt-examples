@@ -1,1 +1,3 @@
-Here I switch to klampt api and show it works as expected.
+* kinetrajopt test
+
+This contains several tests of the klampt.plan.kinetrajopt module.
