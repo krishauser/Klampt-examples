@@ -8,20 +8,8 @@ from klampt.io import resource
 from klampt.model import ik,coordinates,config,cartesian_trajectory
 from klampt.math import vectorops,so3,se3
 from klampt.model import trajectory
-import random
 import time
 import math
-
-def random_rotation():
-    """Returns a uniformly distributed rotation matrix."""
-    q = [random.gauss(0,1),random.gauss(0,1),random.gauss(0,1),random.gauss(0,1)]
-    q = vectorops.unit(q)
-    theta = math.acos(q[3])*2.0
-    if abs(theta) < 1e-8:
-        m = [0,0,0]
-    else:
-        m = vectorops.mul(vectorops.unit(q[0:3]),theta)
-    return so3.from_moment(m)
 
 class InterpKeyCapture(vis.GLPluginInterface):
     def __init__(self,endeffectors,constraints):
