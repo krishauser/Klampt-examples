@@ -11,17 +11,6 @@ import random
 import time
 import math
 
-def random_rotation():
-    """Returns a uniformly distributed rotation matrix."""
-    q = [random.gauss(0,1),random.gauss(0,1),random.gauss(0,1),random.gauss(0,1)]
-    q = vectorops.unit(q)
-    theta = math.acos(q[3])*2.0
-    if abs(theta) < 1e-8:
-        m = [0,0,0]
-    else:
-        m = vectorops.mul(vectorops.unit(q[0:3]),theta)
-    return so3.from_moment(m)
-
 if __name__ == "__main__":
     print("trajectorytest.py: This example demonstrates several types of trajectory")
     if len(sys.argv)<=1:
@@ -45,7 +34,7 @@ if __name__ == "__main__":
         traj3 = trajectory.SE3Trajectory()
         for i in range(10):
             traj3.times.append(i)
-            rrot = random_rotation()
+            rrot = so3.sample()
             rpoint = [random.uniform(-1,1),random.uniform(-1,1),random.uniform(-1,1)]
             traj3.milestones.append(rrot+rpoint)
         
