@@ -25,7 +25,7 @@ class Circle:
         numdivs = int(math.ceil(self.radius*math.pi*2/res))
         glBegin(GL_TRIANGLE_FAN)
         glVertex2f(*self.center)
-        for i in xrange(numdivs+1):
+        for i in range(numdivs+1):
             u = float(i)/float(numdivs)*math.pi*2
             glVertex2f(self.center[0]+self.radius*math.cos(u),self.center[1]+self.radius*math.sin(u))
         glEnd()
@@ -178,14 +178,14 @@ class CSpaceObstacleProgram(GLProgram):
     def keyboardfunc(self,key,x,y):
         if key==' ':
             if self.optimizingPlanner or not self.path:
-                print "Planning 1..."
+                print("Planning 1...")
                 self.planner.planMore(1)
                 self.path = self.planner.getPath()
                 self.G = self.planner.getRoadmap()
                 self.refresh()
         elif key=='p':
             if self.optimizingPlanner or not self.path:
-                print "Planning 100..."
+                print("Planning 100...")
                 self.planner.planMore(100)
                 self.path = self.planner.getPath()
                 self.G = self.planner.getRoadmap()
