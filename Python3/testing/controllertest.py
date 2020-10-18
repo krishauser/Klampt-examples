@@ -16,11 +16,11 @@ def testCompleter():
     r = w.robot(0)
     sim = Simulator(w)
     #TODO: CHANGE ME
-    controller = RobotInterfaceCompleter(KinematicSimControlInterface(r))
+    #controller = RobotInterfaceCompleter(KinematicSimControlInterface(r))
     #controller = RobotInterfaceCompleter(SimPositionControlInterface(sim.controller(0),sim))
     #controller = RobotInterfaceCompleter(SimMoveToControlInterface(sim.controller(0),sim))
     #controller = RobotInterfaceCompleter(SimVelocityControlInterface(sim.controller(0),sim))
-    #controller = RobotInterfaceCompleter(SimFullControlInterface(sim.controller(0),sim))
+    controller = RobotInterfaceCompleter(SimFullControlInterface(sim.controller(0),sim))
     testProperties = ['controlRate','parts','sensors','numDOFs','indices']
     testFuncs = ['clock','status','isMoving',
                 'sensedPosition','sensedVelocity','sensedTorque','commandedPosition','commandedVelocity','commandedTorque',
@@ -47,8 +47,9 @@ def testCompleter():
         raise RuntimeError("Can't get Klampt model")
 
     q = r.getConfig()[1:]
-    print(q)
-    print(r.getJointLimits())
+    q2 = [x for x in q]
+    q2[2] -= 1.0
+    q2[3] -= 1.0
     
     controller.setToolCoordinates([0,0,0])
     #TODO: CHANGE ME
@@ -56,23 +57,31 @@ def testCompleter():
     #testing a single movement
     moves = [(1.0,lambda: controller.setPiecewiseLinear([1],[q[:2]+[q[2]+1.0]+q[3:]]))]
     """
-    """
     #testing general movements with interruption
-    moves = [(1.0,lambda: controller.setPiecewiseLinear([1],[q[:2]+[q[2]+1.0]+q[3:]])),
+    moves = [(0.5,lambda: controller.setVelocity([0]*2+[1.0]+[0]*(len(q)-3),1.0)),
+             (1.0,lambda: controller.setPiecewiseLinear([1],[q[:2]+[q[2]+1.0]+q[3:]])),
              (3.0,lambda: controller.setPiecewiseCubic([1],[q],[[0]*len(q)])),
              (3.5,lambda: controller.moveToPosition(q[:2]+[q[2]-1.0]+q[3:])),
              (5.0,lambda: controller.moveToPosition(q,0.1)),
+             (5.5,lambda: controller.moveToPosition(q2,1.0)),
              (8.0,lambda: controller.moveToCartesianPosition((so3.identity(),[0.5,0,1.0]))),
-             (10.0,lambda: controller.setCartesianVelocity(([0,0,0],[0,0,1]),3.0)),
+             (10.0,lambda: controller.setCartesianVelocity([0,0,0.2],3.0)),
              (11.0,lambda: controller.moveToCartesianPosition((so3.identity(),[0.5,0,1.0])))
             ]
     """
     #testing interrupted cartesian velocity movements
     moves = [(0.5,lambda: controller.moveToCartesianPosition((so3.identity(),[0.5,0,1.0]))),
              (2.0,lambda: controller.setCartesianVelocity([0,0,0.1],5.0)) ,
-             (3.0,lambda: controller.moveToPosition(q,1))
-             #(3.0,lambda: controller.moveToCartesianPosition((so3.identity(),[0.5,0,1.0])))
+             #(3.0,lambda: controller.moveToPosition(q,1))
+             (3.0,lambda: controller.moveToCartesianPosition((so3.identity(),[0.5,0,1.0])))
             ]
+    """
+    """
+    #testing cartesian velocity movements
+    moves = [(0.5,lambda: controller.moveToCartesianPosition((so3.identity(),[0.5,0,1.0]))),
+             (2.0,lambda: controller.setCartesianVelocity([0,0,0.1],5.0))
+            ]
+    """
 
     endTime = 13.0
     lastClock = 0
