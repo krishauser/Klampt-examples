@@ -21,8 +21,8 @@ def launchwindow():
 
 print ("Now running show() (only works on multithreaded systems, not mac)")
 vis.add("world",world)
-vis.visualization._vis.add_action(launchdialog,"Launch a dialog","d")
-vis.visualization._vis.add_action(launchwindow,"Launch a window","w")
+vis.addAction(launchdialog,"Launch a dialog","d")
+vis.addAction(launchwindow,"Launch a window","w")
 vis.show()
 while vis.shown():
     time.sleep(0.1)
