@@ -7,6 +7,7 @@ from klampt.robotsim import Geometry3D,WorldModel
 from collections import deque
 import sys
 import time
+import math
 
 if len(sys.argv) > 1:
     a = Geometry3D()
@@ -79,6 +80,19 @@ vis.addAction(lambda:setMode('collision'),'Collision mode','c')
 vis.addAction(lambda:setMode('near'),'Near mode','n')
 vis.addAction(lambda:setMode('distance'),'Distance mode','d')
 vis.addAction(lambda:setMode('contacts'),'Contacts mode','k')
+
+#Testing different types of geometric primitives
+"""
+prim1 = GeometricPrimitive()
+prim1.setTriangle([0,0,1],[0.5,0,1],[0,0.5,1])
+vis.add("prim1",prim1,color=[0.5,0.5,1])
+prim2 = GeometricPrimitive()
+prim2.setPolygon([0,0,1.2]+[0.5,0,1.2]+[0.5,0.5,1.2]+[0,0.5,1.2])
+vis.add("prim2",prim2,color=[0.5,1,0.5])
+prim3 = GeometricPrimitive()
+prim3.setBox([0,0,1.5],so3.rotation([0,1,0],math.radians(10)),[0.5,0.5,0.5])
+vis.add("prim3",prim3,color=[1,0.5,0.5])
+"""
 
 counter = 0
 Ntimes = 30
