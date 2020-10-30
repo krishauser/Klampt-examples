@@ -155,7 +155,11 @@ if __name__ == "__main__":
     print 
     #this tests the "bump" function stuff
     print "***** BEGINNING BUMP FUNCTION TEST *****"
-    configs = resource.get("cartesian_test"+world.robot(0).getName()+".configs",world=world)
+    configs = resource.get("cartesian_test"+world.robot(0).getName()+".configs",description="Make a reference trajectory for bump test",world=world)
+    if configs is None:
+        print "To test the bump function, you need to create a reference trajectory"
+        vis.kill()
+        exit(0)
     print "Found trajectory with",len(configs),"configurations"
     traj = trajectory.RobotTrajectory(robot,range(len(configs)),configs)
     vis.setWindowTitle("Klamp't Trajectory bump test")

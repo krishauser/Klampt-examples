@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import sys
-from klampt import *
-from klampt import robotsim
+import klampt
+from klampt import io
 from klampt import vis
 import time
 
@@ -20,7 +20,7 @@ topic = sys.argv[1]
 
 #rospy.init_node("Klampt_point_cloud_visualizer")
 
-world = WorldModel()
+world = klampt.WorldModel()
 world.makeRigidObject("point_cloud")
 g = world.rigidObject(0).geometry()
 g.loadFile("ros:/"+topic)
@@ -35,7 +35,7 @@ vis.edit(("world","point_cloud"))
 
 def updatePointCloud():
 	#in klampt / robotio.h -- this needs to be done to update ROS
-	processed = robotsim.ProcessStreams()
+	processed = io.ProcessStreams()
 	if processed:
 		#don't strictly need the prior if statement, this is just a slight optimization
 		#if the sender is slower than the visualization

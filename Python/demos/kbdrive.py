@@ -1,9 +1,10 @@
 #!/usr/bin/python
 
 import sys
-from klampt import *
-from klampt.vis.glrobotprogram import *
+import klampt
+from klampt.vis.glrobotprogram import GLSimulationPlugin
 from klampt import vis
+from klampt.math import vectorops
 
 #FOR DEFAULT JOINT-BY-JOINT KEYMAP: set keymap=None
 keymap = None
@@ -67,6 +68,8 @@ class MyGLViewer(GLSimulationPlugin):
             (qmin,qmax) = self.world.robot(r).getJointLimits()
             for i in xrange(len(qdes)):
                 qdes[i] = min(qmax[i],max(qdes[i],qmin[i]))
+                if qdes[i] == qmax or qdes[i] == qmin[i]:
+                    rvels[r][i] = 0
             robotController.setPIDCommand(qdes,rvels[r])
         return
 
@@ -94,8 +97,7 @@ class MyGLViewer(GLSimulationPlugin):
             self.print_help()
             return True
         else:
-            GLSimulationPlugin.keyboardfunc(self,c,x,y)
-            return True
+            return GLSimulationPlugin.keyboardfunc(self,c,x,y)
         self.refresh()
 
     def keyboardupfunc(self,c,x,y):
@@ -109,7 +111,7 @@ if __name__ == "__main__":
     if len(sys.argv)<=1:
         print "USAGE: kbdrive.py [world_file]"
         exit()
-    world = WorldModel()
+    world = klampt.WorldModel()
     for fn in sys.argv[1:]:
         res = world.readFile(fn)
         if not res:

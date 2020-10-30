@@ -1,6 +1,6 @@
 #!/usr/bin/python
 import sys
-from klampt import *
+import klampt
 from klampt import vis
 from klampt.vis.glrobotprogram import GLSimulationPlugin
 import robotiq 
@@ -35,7 +35,7 @@ if __name__ == "__main__":
     emulator.  Right now it just opens and closes the gripper repeatedly.
 
     Press s to toggle simulation."""
-    world = WorldModel()
+    world = klampt.WorldModel()
 
     if not world.readFile('robotiq.xml'):
         print "robotiq.xml couldn't be read, exiting"

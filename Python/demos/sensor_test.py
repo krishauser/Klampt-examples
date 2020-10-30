@@ -1,10 +1,12 @@
+import klampt
 from klampt import vis
-from klampt import *
 from klampt.math import so3,se3,vectorops
-from klampt.vis.glcommon import *
+from klampt.vis.glinterface import GLPluginInterface
 from klampt.model import sensing
+from klampt.io import loader
 import time
 import random
+import math
 
 try:
 	import matplotlib.pyplot as plt
@@ -12,6 +14,12 @@ try:
 except ImportError:
 	HAVE_PYPLOT = False
 	print "**** Matplotlib not available, can't plot color/depth images ***"
+
+#new in 0.8.2: can create sensors dynamically
+TEST_SENSOR_CREATION = False
+#test whether camera_to_points should read in local frame or robot frame
+#read_local = True is a little more tedious
+read_local = False
 
 firsttime = True
 images = []
@@ -36,25 +44,41 @@ def processDepthSensor(sensor):
 	rgb,depth = sensing.camera_to_images(sensor)
 	return rgb,depth
 
-world = WorldModel()
-world.readFile("../../data/simulation_test_worlds/sensortest.xml")
-#world.readFile("../../data/tx90scenario0.xml")
+world = klampt.WorldModel()
+if TEST_SENSOR_CREATION:
+	#try new methods for creating camera sensor
+	world.readFile("../../data/tx90scenario0.xml")
+else:
+	#use existing camera sensor
+	world.readFile("../../data/simulation_test_worlds/sensortest.xml")
+
 robot = world.robot(0)
 
 vis.add("world",world)
 
-sim = Simulator(world)
+sim = klampt.Simulator(world)
+
+if TEST_SENSOR_CREATION:
+	sensor = klampt.SimRobotSensor(sim.controller(0),'rgbd_camera','CameraSensor')
+	sensor.setSetting('link','6')
+	sensor.setSetting('xfov','1.05')
+	sensor.setSetting('Tsensor',"0 1 0  -1 0 0  0 0 1   0 0.1 0")
+	sensor.setSetting('xres',"256")
+	sensor.setSetting('yres',"128")
+	sensor.setSetting('zmin',"0.4")
+	sensor.setSetting('zmax',"4.0")
+
 sensor = sim.controller(0).sensor("rgbd_camera")
 print "sensor.getSetting('link'):",sensor.getSetting("link")
 print "sensor.getSetting('Tsensor'):",sensor.getSetting("Tsensor")
 raw_input("Press enter to continue...")
-#T = (so3.sample(),[0,0,1.0])
-T = (so3.mul(so3.rotation([1,0,0],math.radians(-10)),[1,0,0, 0,0,-1,  0,1,0]),[0,-2.0,0.5])
-sensing.set_sensor_xform(sensor,T,link=-1)
+if not TEST_SENSOR_CREATION:
+	#try moving the camera and setting it to be linked to the world
+	#T = (so3.sample(),[0,0,1.0])
+	T = (so3.mul(so3.rotation([1,0,0],math.radians(-10)),[1,0,0, 0,0,-1,  0,1,0]),[0,-2.0,0.5])
+	sensing.set_sensor_xform(sensor,T,link=-1)
 
 vis.add("sensor",sensor)
-
-read_local = True
 
 #Note: GLEW sensor simulation only runs if it occurs in the visualization thread (e.g., the idle loop)
 class SensorTestWorld (GLPluginInterface):
@@ -88,7 +112,7 @@ class SensorTestWorld (GLPluginInterface):
 			self.compute_pc = not self.compute_pc
 		def save_point_cloud():
 			if self.pc != None:
-				if isinstance(self.pc,Geometry3D):
+				if isinstance(self.pc,klampt.Geometry3D):
 					print "Saving to sensortest_temp.pcd"
 					self.pc.saveFile("sensortest_temp.pcd")
 				else:
@@ -135,13 +159,15 @@ class SensorTestWorld (GLPluginInterface):
 					#self.pc = sensing.camera_to_points(sensor,points_format='numpy',color_format='rgb')
 					#self.pc = sensing.camera_to_points(sensor,points_format='native')
 					self.pc = sensing.camera_to_points(sensor,points_format='Geometry3D',all_points=True,color_format='rgb')
+					#need to calculate the camera transform yourself
+					T = sensing.get_sensor_xform(robot,sensor)
 					self.pc.setCurrentTransform(*T)
-					self.pc_appearance = Appearance()
+					self.pc_appearance = klampt.Appearance()
 				else:
 					#world point cloud
 					#self.pc = sensing.camera_to_points_world(sensor,robot,points_format='numpy')
 					self.pc = sensing.camera_to_points_world(sensor,robot,points_format='Geometry3D',color_format='rgb')
-					self.pc_appearance = Appearance()
+					self.pc_appearance = klampt.Appearance()
 				#print "Read and process PC time",time.time()-t0
 		except Exception as e:
 			print e
@@ -155,7 +181,7 @@ class SensorTestWorld (GLPluginInterface):
 		if self.pc is not None and self.compute_pc:
 			#manual drawing of native or numpy point clouds
 			t0 = time.time()
-			if isinstance(self.pc,Geometry3D):
+			if isinstance(self.pc,klampt.Geometry3D):
 				#Geometry3D drawing
 				self.pc_appearance.drawWorldGL(self.pc)
 			else:
