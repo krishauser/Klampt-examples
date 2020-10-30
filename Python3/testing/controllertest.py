@@ -1,6 +1,7 @@
 from klampt import *
 from klampt.control.robotinterfaceutils import RobotInterfaceCompleter,MultiRobotInterface
 from klampt.control.robotinterface import RobotInterfaceBase
+from klampt.control.interop import RobotInterfacetoVis
 from klampt.control.simrobotinterface import *
 from klampt.control.cartesian_drive import *
 from klampt.math import vectorops,so3
@@ -83,6 +84,9 @@ def testCompleter():
             ]
     """
 
+    visplugin = RobotInterfacetoVis(controller)
+    #visplugin.tag = ''
+
     endTime = 13.0
     lastClock = 0
     dt = 1.0/controller.controlRate()
@@ -100,6 +104,8 @@ def testCompleter():
                 print("Calling trigger",trigger)
                 callback()
         lastClock = clock
+
+        visplugin.update()
 
         if controller.clock() > endTime:
             vis.unlock()
@@ -136,7 +142,8 @@ def testCompleter():
 
 def testCartesianDrive():
     w = WorldModel()
-    w.readFile("../../data/tx90scenario0.xml")
+    #w.readFile("../../data/tx90scenario0.xml")
+    w.readFile("../../data/robots/jaco.rob")
     r = w.robot(0)
     solver = CartesianDriveSolver(r)
     #set a non-singular configuration
@@ -188,10 +195,99 @@ def testCartesianDrive():
     vis.clear()
 
 def testMultiRobot():
-    pass
+    #Create a world with two robots -- this will be the simulation world
+    w = WorldModel()
+    w.readFile("../../data/tx90scenario0.xml")
+    w.readFile("../../data/robots/jaco.rob")
+    r1 = w.robot(0)
+    r2 = w.robot(1)
+    
+    #Create a world with a unified robot -- this will be the controller's model of the robot
+    w2 = w.copy()
+    w2.robot(0).mount(-1,w2.robot(1),so3.identity(),[1,0,0.5])
+    w2.remove(w2.robot(1))
+    whole_robot_model = w2.robot(0)
+    robot_1_indices = list(range(r1.numLinks()))
+    robot_2_indices = list(range(r1.numLinks(),r1.numLinks()+r2.numLinks()))
+
+    #update the base transform of robot 2
+    T0 = r2.link(0).getParentTransform()
+    r2.link(0).setParentTransform(T0[0],vectorops.add(T0[1],[1,0,0.5]))
+    r2.setConfig(r2.getConfig())
+
+    #Note: don't pass sim as the second argument to SimXControlInterface; we will need to simulate ourselves
+    sim = Simulator(w)
+    sim_controller1 = RobotInterfaceCompleter(SimFullControlInterface(sim.controller(0)))
+    sim_controller2 = RobotInterfaceCompleter(SimFullControlInterface(sim.controller(1)))
+
+    whole_robot_controller = MultiRobotInterface()
+    whole_robot_controller.addPart("Robot 1",sim_controller1,whole_robot_model,robot_1_indices)
+    whole_robot_controller.addPart("Robot 2",sim_controller2,whole_robot_model,robot_2_indices)
+    print("Num total DOFs",whole_robot_controller.numDOFs())
+    print("Parts:")
+    for k,v in whole_robot_controller.parts().items():
+        print(" ",k,":",v)
+    print("Control rate",whole_robot_controller.controlRate())
+    print(whole_robot_controller.getPartInterface("Robot 1").__class__.__name__)
+    print(whole_robot_controller.getPartInterface("Robot 2").__class__.__name__)
+    if not whole_robot_controller.initialize():
+        raise RuntimeError("Failed to initialize")
+
+    visplugin1 = RobotInterfacetoVis(whole_robot_controller.getPartInterface("Robot 1"),0)
+    visplugin1.text_x = 10
+    visplugin1.tag = ''
+    visplugin2 = RobotInterfacetoVis(whole_robot_controller.getPartInterface("Robot 2"),1)
+    visplugin2.text_x = 200
+    visplugin2.tag = 'a'
+
+    vis.add("world",w)
+    #vis.add("world",w2)
+    #vis.edit(("world",whole_robot_model)) 
+    vis.add("qdes",sim_controller1.configToKlampt(sim_controller1.sensedPosition()),color=[1,0,0,0.5],robot=0)
+    vis.add("qdes2",sim_controller2.configToKlampt(sim_controller2.sensedPosition()),color=[1,1,0,0.5],robot=1)
+    vis.show()
+    dt = 1.0/whole_robot_controller.controlRate()
+    while vis.shown():
+        t0 = time.time()
+
+        vis.lock()
+        whole_robot_controller.startStep()
+        #send commands here
+        clock = whole_robot_controller.clock()
+        if clock > 0.5 and clock < 2.5:
+            velocity = [0]*whole_robot_controller.numDOFs()
+            velocity[2] = -0.1
+            velocity[10] = 0.3
+            whole_robot_controller.setVelocity(velocity,None)
+        elif clock >= 2.5 and clock < 2.75:
+            velocity = [0]*whole_robot_controller.numDOFs()
+            whole_robot_controller.setVelocity(velocity)
+        elif clock > 2.75 and clock < 2.80:
+            tgt = [0]*sim_controller1.numDOFs()
+            tgt[2] = 1.0
+            whole_robot_controller.getPartInterface("Robot 1").moveToPosition(tgt)
+        visplugin1.update()
+        visplugin2.update()
+        whole_robot_controller.endStep()
+
+        #update the simulator
+        sim.simulate(dt)
+
+        #update the visualization world
+        sim.updateWorld()
+        vis.add("qdes",sim_controller1.configToKlampt(sim_controller1.sensedPosition()),color=[1,0,0,0.5],robot=0)
+        vis.add("qdes2",sim_controller2.configToKlampt(sim_controller2.sensedPosition()),color=[1,1,0,0.5],robot=1)
+        #whole_robot_model.setConfig(r1.getConfig()+r2.getConfig())
+        vis.unlock()
+
+        t1 = time.time()
+        telapsed = t1 - t0
+        time.sleep(max(dt - telapsed,0))
+    vis.clear()
 
 
 #testCartesianDrive()
-testCompleter()
+#testCompleter()
+#testJoints()
 testMultiRobot()
 vis.kill()
