@@ -1,6 +1,5 @@
 from klampt import *
 from klampt.vis import GLRealtimeProgram
-import numpy as np
 
 class GLTest(GLRealtimeProgram):
     def __init__(self,world,sim):
