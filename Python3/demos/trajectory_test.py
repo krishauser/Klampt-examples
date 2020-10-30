@@ -26,7 +26,8 @@ if __name__ == "__main__":
             traj.milestones.append([random.uniform(-1,1),random.uniform(-1,1),random.uniform(-1,1)])
 
         traj2 = trajectory.HermiteTrajectory()
-        traj2.makeSpline(traj)
+        traj2.makeMinTimeSpline(traj.milestones,vmax=[2,2,2],amax=[4,4,4])
+        #traj2.makeSpline(traj)
         vis.animate("point",traj2)
 
         #add a transform to the visualizer and animate it
