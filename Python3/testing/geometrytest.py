@@ -40,6 +40,10 @@ vis.add("Tb",Tb)
 vis.edit("Ta")
 vis.edit("Tb")
 
+ray = ([-3,0,0],[1,0,0])
+vis.add("ray",Trajectory([0,1],[ray[0],vectorops.madd(ray[0],ray[1],20)]),color=[1,0.5,0,1])
+vis.add("hitpt",[0,0,0],color=[1,0,1,1])
+
 def convert(geom,type,label):
     global a,b,atypes,btype
     if label=='A':
@@ -180,6 +184,13 @@ while vis.shown():
             if abs(abs(res.depths[i]) - vectorops.distance(p1,p2)) > 1e-7:
                 print("ERROR IN DEPTH?",res.depths[i],vectorops.distance(p1,p2))
         vis.unlock()
+    elem,pt = a.rayCast_ext(ray[0],ray[1])
+    if elem >= 0:
+        vis.add("hitpt",pt)
+        vis.setColor("hitpt",0,0,0)
+    else:
+        vis.setColor("hitpt",1,0,1)
+
     time.sleep(0.001)
     t1 = time.time()
 
