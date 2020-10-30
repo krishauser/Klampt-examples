@@ -1,10 +1,12 @@
 import klampt
-from klampt import vis
+import math
+from klampt import vis, Appearance
 from klampt.math import so3,se3,vectorops
 from klampt.vis.glinterface import GLPluginInterface
 from klampt.model import sensing
 import time
 import random
+import math
 
 try:
 	import matplotlib.pyplot as plt
