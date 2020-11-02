@@ -45,7 +45,7 @@ for i in range(npts+1):
     times.append(i*20/npts)
 circle_traj = SE3Trajectory(times,circle_points)
 circle_traj.milestones[-1] = circle_traj.milestones[0]
-circle_smooth_traj = SE3BezierTrajectory()
+circle_smooth_traj = SE3HermiteTrajectory()
 circle_smooth_traj.makeSpline(circle_traj,loop=True)
 R0 = so3.identity()
 R1 = so3.rotation([0,0,1],math.pi/2)
