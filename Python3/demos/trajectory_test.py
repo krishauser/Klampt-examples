@@ -29,25 +29,31 @@ if __name__ == "__main__":
 
         traj2 = trajectory.HermiteTrajectory()
         traj2.makeMinTimeSpline(traj.milestones,vmax=[2,2,2],amax=[4,4,4])
-        vis.add("point minTime",traj2.discretize_config(0.05),color=(0,0,1,1))
+        vis.add("point minTime",traj2.discretize(0.05),color=(0,0,1,1))
 
         traj3 = trajectory.HermiteTrajectory()
         traj3.makeMinTimeSpline(traj.milestones,[[0,0,0]]*len(traj.milestones),vmax=[2,2,2],amax=[8,8,8])
         for m in traj3.milestones:
             m[1] = 0.25
-        vis.add("point mintime, nonlinear",traj3.discretize_config(0.05),color=(0.2,0.2,1,1))
+        vis.add("point mintime, nonlinear",traj3.discretize(0.05),color=(0.2,0.2,1,1))
 
         traj4 = trajectory.HermiteTrajectory()
         traj4.makeSpline(traj)
         for m in traj4.milestones:
             m[1] = 0.5
-        vis.add("point spline",traj4.discretize_config(0.05),color=(0.4,0.4,1,1))
+        vis.add("point spline",traj4.discretize(0.05),color=(0.4,0.4,1,1))
 
         traj5 = trajectory.HermiteTrajectory()
         traj5.makeSpline(traj,preventOvershoot=False)
         for m in traj5.milestones:
             m[1] = 0.75
-        vis.add("point spline, overshoot allowed",traj5.discretize_config(0.05),color=(0.6,0.6,1,1))
+        vis.add("point spline, overshoot allowed",traj5.discretize(0.05),color=(0.6,0.6,1,1))
+
+        traj6 = trajectory.HermiteTrajectory()
+        traj6.makeBezier([0,3,6,9],traj.milestones)
+        for m in traj6.milestones:
+            m[1] = 1
+        vis.add("point bezier",traj6.discretize(0.05),color=(0.8,0.8,1,1))
 
         #which one to animate?
         vis.animate("point",traj2)
@@ -63,19 +69,28 @@ if __name__ == "__main__":
             traj.milestones.append(rrot+rpoint)
         traj.times = list(range(len(traj.milestones)))
         vis.add("xform_milestones",traj,color=(1,1,0,1))
+
         traj2 = trajectory.SE3HermiteTrajectory()
         traj2.makeSpline(traj)
         for m in traj2.milestones:
             m[10] = 0.25
-        vis.add("xform spline",traj2.discretize_se3(0.05),color=(1,0.8,0,1))
+        vis.add("xform spline",traj2.discretize(0.05),color=(1,0.8,0,1))
         vis.add("xform2",se3.identity())
-        vis.animate("xform2",traj2.configTrajectory())
+        vis.animate("xform2",traj2)
+
+        traj3 = trajectory.SE3HermiteTrajectory()
+        traj3.makeBezier([0,3,6,9],traj.milestones)
+        for m in traj3.milestones:
+            m[10] = 0.5
+        vis.add("xform bezier",traj3.discretize(0.05),color=(1,0.6,0,1))
+        vis.add("xform3",se3.identity())
+        vis.animate("xform2",traj3)
         
         vis.animate("xform",traj)
 
         vis.setAttribute("xform_milestones","width",1.0)
         vis.setAttribute("xform spline","width",1.0)
-        vis.setColor("xform_milestones",1,1,0)
+        vis.setAttribute("xform bezier","width",1.0)
     else:
         #creates a world and loads all the items on the command line
         world = WorldModel()

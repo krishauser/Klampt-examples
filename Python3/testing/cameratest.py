@@ -62,7 +62,7 @@ dR0 = [0.0]*9
 #for R in circle_smooth_traj.discretize_se3(0.1).milestones:
 #    print(so3.apply(R,[0,1,0]))
 vis.add("xform",se3.identity())
-vis.animate("xform",circle_smooth_traj.configTrajectory())
+vis.animate("xform",circle_smooth_traj)
 #vis.add("Camera traj",circle_traj.discretize(0.25))
 vis.addAction(lambda:vis.followCamera(None),"stop folllowing")
 vis.addAction(lambda:vis.followCamera(cam),"robot camera")

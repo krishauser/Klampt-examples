@@ -84,8 +84,7 @@ def setCosine():
 def setHermite():
     smoothInput = trajectory.HermiteTrajectory()
     smoothInput.makeSpline(traj0)
-    ltraj = smoothInput.configTrajectory()
-    dtraj = ltraj.discretize(0.1)
+    dtraj = smoothInput.discretize(0.1)
     dtraj = trajectory.RobotTrajectory(robot,dtraj.times,dtraj.milestones)
     traj = trajectory.path_to_trajectory(dtraj,velocities='constant',timing='limited',smoothing=None,
         stoptol=10.0,vmax=robot.getVelocityLimits(),amax=robot.getAccelerationLimits(),
