@@ -21,31 +21,60 @@ if __name__ == "__main__":
         point = coordinates.addPoint("point")
         vis.add("point",point)
         traj = trajectory.Trajectory()
+        x = -2
         for i in range(10):
             traj.times.append(i)
-            traj.milestones.append([random.uniform(-1,1),random.uniform(-1,1),random.uniform(-1,1)])
+            traj.milestones.append([x + random.uniform(0.1,0.3),0,random.uniform(-1,1)])
+            x = traj.milestones[-1][0]
 
         traj2 = trajectory.HermiteTrajectory()
         traj2.makeMinTimeSpline(traj.milestones,vmax=[2,2,2],amax=[4,4,4])
-        #traj2.makeSpline(traj)
+        vis.add("point minTime",traj2.discretize_config(0.05),color=(0,0,1,1))
+
+        traj3 = trajectory.HermiteTrajectory()
+        traj3.makeMinTimeSpline(traj.milestones,[[0,0,0]]*len(traj.milestones),vmax=[2,2,2],amax=[8,8,8])
+        for m in traj3.milestones:
+            m[1] = 0.25
+        vis.add("point mintime, nonlinear",traj3.discretize_config(0.05),color=(0.2,0.2,1,1))
+
+        traj4 = trajectory.HermiteTrajectory()
+        traj4.makeSpline(traj)
+        for m in traj4.milestones:
+            m[1] = 0.5
+        vis.add("point spline",traj4.discretize_config(0.05),color=(0.4,0.4,1,1))
+
+        traj5 = trajectory.HermiteTrajectory()
+        traj5.makeSpline(traj,preventOvershoot=False)
+        for m in traj5.milestones:
+            m[1] = 0.75
+        vis.add("point spline, overshoot allowed",traj5.discretize_config(0.05),color=(0.6,0.6,1,1))
+
+        #which one to animate?
         vis.animate("point",traj2)
 
         #add a transform to the visualizer and animate it
         xform = vis.add("xform",se3.identity())
-        traj3 = trajectory.SE3Trajectory()
+        traj = trajectory.SE3Trajectory()
+        x = 0
         for i in range(10):
-            traj3.times.append(i)
             rrot = so3.sample()
-            rpoint = [random.uniform(-1,1),random.uniform(-1,1),random.uniform(-1,1)]
-            traj3.milestones.append(rrot+rpoint)
+            rpoint = [x + random.uniform(0.1,0.3),0,random.uniform(-1,1)]
+            x = rpoint[0]
+            traj.milestones.append(rrot+rpoint)
+        traj.times = list(range(len(traj.milestones)))
+        vis.add("xform_milestones",traj,color=(1,1,0,1))
+        traj2 = trajectory.SE3HermiteTrajectory()
+        traj2.makeSpline(traj)
+        for m in traj2.milestones:
+            m[10] = 0.25
+        vis.add("xform spline",traj2.discretize_se3(0.05),color=(1,0.8,0,1))
+        vis.add("xform2",se3.identity())
+        vis.animate("xform2",traj2.configTrajectory())
         
-        vis.animate("xform",traj3)
+        vis.animate("xform",traj)
 
-        #testing adding the trajectory to the visualization... only works with piecewise linear Trajectories at the moment
-        #vis.add("point_milestones",traj)
-        #vis.add("point_milestones_smooth",traj2)    #not implemented yet
-        vis.add("xform_milestones",traj3)
         vis.setAttribute("xform_milestones","width",1.0)
+        vis.setAttribute("xform spline","width",1.0)
         vis.setColor("xform_milestones",1,1,0)
     else:
         #creates a world and loads all the items on the command line
