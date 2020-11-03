@@ -1,6 +1,7 @@
-from klampt.math.autodiff import ad,math_ad,so3_ad,se3_ad,kinematics_ad,geometry_ad
+from klampt.math.autodiff import ad,math_ad,so3_ad,se3_ad,kinematics_ad,dynamics_ad,trajectory_ad,geometry_ad
 from klampt.math.autodiff.ad import _ADGetItem,_ADSetItem
 from klampt.math import so3,se3
+from klampt.math.geodesic import *
 from klampt import *
 import numpy as np
 
@@ -154,6 +155,18 @@ print("Math derivative check passed")
 R = np.array(so3.from_rpy([1.5,0.5,2]))
 R2 = np.array(so3.from_rpy([-0.6,0,-0.4]))
 context = {'R':R,'R2':R2}
+sp = SO3Space()
+print(sp.difference(so3.identity(),so3.identity()),"=[0]*9")
+print(sp.difference(R,R),"=[0]*9")
+print(sp.difference(R,so3.identity()))
+assert vectorops.distance(R,sp.integrate(so3.identity(),sp.difference(R,so3.identity()))) < 1e-3
+assert vectorops.distance(R,sp.integrate(R2,sp.difference(R,R2))) < 1e-3
+Rh = np.array(sp.interpolate(R,R2,1e-3))
+dR = (Rh-R)/1e-3
+assert vectorops.distance(dR,sp.difference(R2,R)) < 1e-2,"Difference is not a good approximation of the so3.interpolate derivative?"
+ad.check_derivatives(so3_ad.diag('R'),context)
+ad.check_derivatives(so3_ad.deskew('R'),context)
+ad.check_derivatives(so3_ad.cross_product('w'),{'w':np.array([0.5,0.2,-30])})
 ad.check_derivatives(so3_ad.inv('R'),context)
 ad.check_derivatives(so3_ad.mul('R','R2'),context)
 ad.check_derivatives(so3_ad.mul('R',so3_ad.inv('R')),context)
@@ -163,6 +176,8 @@ ad.check_derivatives(so3_ad.from_axis_angle,[np.array([0,1,0]),1.5])
 ad.check_derivatives(so3_ad.from_axis_angle('axis','angle'),{'axis':np.array([0,1,0]),'angle':1.5})
 ad.check_derivatives(so3_ad.rotation_vector('R'),context)
 ad.check_derivatives(so3_ad.quaternion('R'),context)
+ad.check_derivatives(so3_ad.interpolate('R','R2',0.5),context)
+ad.check_derivatives(so3_ad.interpolate('R','R2',0.9),context)
 print("so3 derivative check passed")
 
 T = np.hstack((R,[1,0.2,-2.5]))
@@ -227,6 +242,25 @@ ad.check_derivatives(kbuilder.world_transform(2),{'q':q})
 ad.check_derivatives(kbuilder.world_transform(eelink),{'q':q})
 print("kinematics derivative check passed")
 
+x1=np.array([0,0])
+x2=np.array([1,1])
+v1=np.array([1,0])
+v2=np.array([0,1])
+ad.check_derivatives(trajectory_ad.hermite(x1,v1,x2,v2,'t'),{'t':0.3})
+ad.check_derivatives(trajectory_ad.hermite('x1',v1,x2,v2,0.3),{'x1':x1})
+ad.check_derivatives(trajectory_ad.hermite(x1,'v1',x2,v2,0.3),{'v1':v1})
+ad.check_derivatives(trajectory_ad.hermite(x1,v1,'x2',v2,0.3),{'x2':x2})
+ad.check_derivatives(trajectory_ad.hermite(x1,v1,x2,'v2',0.3),{'v2':v2})
+ad.check_derivatives(trajectory_ad.hermite(x1,v1,x2,'v2','t'),{'v2':v2,'t':0.8})
+ad.check_derivatives(trajectory_ad.hermite,[x1,v1,x2,v2,0.3])
+ad.check_derivatives(trajectory_ad.GeodesicInterpolate(GeodesicSpace()),[R,R2,0.5])
+ad.check_derivatives(trajectory_ad.GeodesicInterpolate(SO3Space()),[np.array(so3.identity()),R,0])
+ad.check_derivatives(trajectory_ad.GeodesicInterpolate(SO3Space()),[np.array(so3.identity()),R,0.5])
+ad.check_derivatives(trajectory_ad.GeodesicInterpolate(SO3Space()),[np.array(so3.identity()),R,1])
+ad.check_derivatives(trajectory_ad.GeodesicInterpolate(SO3Space()),[R,np.array(so3.identity()),1])
+ad.check_derivatives(trajectory_ad.GeodesicInterpolate(SO3Space()),[R,R2,0.5])
+ad.check_derivatives(trajectory_ad.GeodesicInterpolate(SO3Space()),[R2,R,0.3])
+print("trajectory derivative check passed")
 
 bpm = geometry_ad.BoxPointMargin(np.array([-1,-1]),np.array([1,1]))
 bpd = geometry_ad.BoxPointDistance(np.array([-1,-1]),np.array([1,1]))
