@@ -3,6 +3,7 @@ from klampt import vis
 from klampt.math import so3,se3,vectorops
 from klampt.vis.glinterface import GLPluginInterface
 from klampt.model import sensing
+import math
 import time
 import random
 
