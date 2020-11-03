@@ -9,11 +9,6 @@ import time
 import math
 import random
 
-def rand_rotation():
-    q = [random.gauss(0,1),random.gauss(0,1),random.gauss(0,1),random.gauss(0,1)]
-    q = vectorops.unit(q)
-    return so3.from_quaternion(q)
-
 if __name__ == "__main__":
     print("settletest.py: This example demonstrates how to run the settling process")
     
@@ -23,19 +18,33 @@ if __name__ == "__main__":
     if not res:
         raise RuntimeError("Unable to load model "+fn)
 
+    vis.add("world",world)
+    vis.show()
+    vis.lock()
     t0 = time.time()
     T = settle.settle(world,world.robot(0).link(7),forcedir=(0,0,-2),perturb=0.0,settletol=1e-3,debug=False)
     t1 = time.time()
+    vis.unlock()
     print("Settling robot link took time",t1-t0)
     input("Press enter to continue")
+    vis.lock()
     for i in range(world.numRigidObjects()):
         obj = world.rigidObject(i)
-        obj.setTransform(rand_rotation(),obj.getTransform()[1])
+        obj.setTransform(so3.sample(),obj.getTransform()[1])
+    vis.unlock()
     for i in range(world.numRigidObjects()):
+        
+        vis.lock()
+
         obj = world.rigidObject(i)
         t0 = time.time()
         T,touched = settle.settle(world,obj,perturb=0.0,orientationDamping=0,settletol=1e-3,debug=False)
         obj.setTransform(*T)
         t1 = time.time()
+
+        vis.unlock()
         print("Settling object",i,"took time",t1-t0)
         input("Press enter to continue")
+    while vis.shown():
+        time.sleep(0.01)
+    vis.kill()

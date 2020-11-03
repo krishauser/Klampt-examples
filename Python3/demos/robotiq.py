@@ -157,9 +157,9 @@ def quasistatic_finger_model(gob,g):
     Returns the triple of joint angles (th1,th2,th3).
     """
     global xmin,xmax,m1,m2
-    free1 = (gob[0] == None or g < gob[1])
+    free1 = (gob[0] == None or g < gob[0])
     free2 = (gob[1] == None or g < gob[1])
-    free3 = (gob[2] == None or g < gob[1])
+    free3 = (gob[2] == None or g < gob[2])
     th3max = (xmax[2] if free3 else gob[2])
     #if link 3 hit, then the finger is stopped at gob[2]
     if not free3: g = gob[2]

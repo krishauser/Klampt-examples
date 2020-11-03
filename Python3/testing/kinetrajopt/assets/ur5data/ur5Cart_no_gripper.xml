@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<world>
+  <robot name="ur5" file="robots/ur5.rob" rotateZ="-2.3562" translation="0 0 1.21285"  />
+  <terrain file="terrains/block.off" />
+<!-- The cart -->
+  <!-- <terrain file="terrains/cube.off" scale="0.4191 0.5588 0.04445" translation="0.0508 -0.2794 0.81915">
+     <display color="0.8 0.8 0.8"/>
+  </terrain> -->
+  <terrain file="terrains/cube.off" scale="0.1016 0.1016 1.21285" translation="-0.0508 -0.0508 0">
+     <display color="0.8 0.8 0.8"/>
+  </terrain>
+  <terrain file="terrains/cube.off" scale="0.9144 0.9144 0.0508" translation="-0.4572 -0.4572 0">
+     <display color="0.8 0.8 0.8"/>
+  </terrain>		
+
+</world>
