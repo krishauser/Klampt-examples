@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<world>
+    <robot name="Hand" file="robots/3fingerhand.rob"/>
+    <terrain file="terrains/plane.off"/>
+
+    <simulation>
+        <globals maxContacts="10" robotSelfCollisions="1" adaptiveTimeStepping="0.1"/>
+        <object index="0">
+            <geometry padding="0.005"/>
+        </object>
+        <robot index="0" body="5">
+            <geometry kFriction="1.0" kRestitution="0.0" padding="0.01" stiffness="2000000" damping="1000"/>
+        </robot>
+        <robot index="0" body="6">
+            <geometry kFriction="1.0" kRestitution="0.0" padding="0.001" stiffness="2000000" damping="1000"/>
+        </robot>
+        <robot index="0" body="7">
+            <geometry kFriction="1.0" kRestitution="0.0" padding="0.001" stiffness="2000000" damping="1000"/>
+        </robot>
+        <robot index="0" body="8">
+            <geometry kFriction="1.0" kRestitution="0.0" padding="0.001" stiffness="2000000" damping="1000"/>
+        </robot>
+        <robot index="0" body="9">
+            <geometry kFriction="1.0" kRestitution="0.0" padding="0.001" stiffness="2000000" damping="1000"/>
+        </robot>
+        <robot index="0" body="10">
+            <geometry kFriction="1.0" kRestitution="0.0" padding="0.001" stiffness="2000000" damping="1000"/>
+        </robot>
+        <robot index="0" body="11">
+            <geometry kFriction="1.0" kRestitution="0.0" padding="0.001" stiffness="2000000" damping="1000"/>
+        </robot>
+        <robot index="0" body="12">s
+            <geometry kFriction="1.0" kRestitution="0.0" padding="0.001" stiffness="2000000" damping="1000"/>
+        </robot>
+        <robot index="0" body="13">
+            <geometry kFriction="1.0" kRestitution="0.0" padding="0.001" stiffness="2000000" damping="1000"/>
+        </robot>
+        <robot index="0" body="14">
+            <geometry kFriction="1.0" kRestitution="0.0" padding="0.001" stiffness="2000000" damping="1000"/>
+        </robot>
+        <robot index="0" body="15">
+            <geometry kFriction="1.0" kRestitution="0.0" padding="0.001" stiffness="2000000" damping="1000"/>
+        </robot>
+        <robot index="0" body="16">
+            <geometry kFriction="1.0" kRestitution="0.0" padding="0.001" stiffness="2000000" damping="1000"/>
+        </robot>
+        <robot index="0" body="17">
+            <geometry kFriction="1.0" kRestitution="0.0" padding="0.001" stiffness="2000000" damping="1000"/>
+        </robot>
+    </simulation>
+</world>

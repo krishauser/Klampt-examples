@@ -1,0 +1,90 @@
+### Kinematics of the Robotiq gripper ###
+TParent 1 0 0	0 1 0	0 0 1	0 0 0 \
+        1 0 0	0 1 0	0 0 1	0 0 0 \
+        1 0 0	0 1 0	0 0 1	0 0 0 \
+        1 0 0	0 1 0	0 0 1	0 0 0 \
+        1 0 0	0 1 0	0 0 1	0 0 0 \
+        1 0 0	0 1 0	0 0 1	0 0 0 \
+        0 0 -1    0 -1 0   -1 0 0   0.037  0.044 0.00 \
+        0 0 -1    0 -1 0   -1 0 0 -0.037 0.044  0.00 \
+        0 0 1    0 1 0   -1 0 0  0.0 -0.044  0.00
+
+#        0 1 0   1 0 0  0 0 -1    0 0 0.05\
+
+parents     -1 0 1 2 3 4 5 5 5
+axis       1 0 0	0 1 0	0 0 1	0 0 1	0 1 0	1 0 0    0 1 0   0 1 0  0 1 0
+jointtype p p p r r r r r r
+qMin   -inf -inf -inf -inf -inf -inf 0 0 0
+qMax    inf inf inf  inf inf inf 0 0 0
+velMaxDeg  inf inf inf inf inf inf 0 0 0
+accMaxDeg  inf inf inf inf inf inf 0 0 0
+qDeg 0 0 0 0 0 0 0 0 0
+geometry  "" "" "" "" "" "RobotiQ/palm0.off"  "RobotiQ/link0.off"    "RobotiQ/link0.off"  "RobotiQ/link0.off"
+
+
+#geomscale 0.1 1 1 1
+torqueMax 500 500 500 50 50 50 0 0 0
+
+mass       0.1 0.1 0.1 0.1 0.1 1  0.15   0.15  0.15
+automass
+#inertia m.offx     [7300   0     -650
+#                     0     8800    0
+#                    -650  0      7000]kg*mm^2
+
+#joint floating 5 -1
+joint normal 0
+joint normal 1
+joint normal 2
+joint spin 3
+joint spin 4
+joint spin 5
+
+joint weld 8
+joint weld 6
+joint weld 7
+
+mount 8 "box_finger/finger.rob"  1 0 0  0 1 0   0 0 1     0.018  0.0008   0 as "thumb"
+mount 6 "box_finger/finger.rob"    1 0 0  0 1 0   0 0 1     0.018  0.0008   0  as "finger1"
+mount 7 "box_finger/finger.rob"    1 0 0  0 1 0   0 0 1     0.018  0.0008   0 as "finger2"
+
+
+#scissor 1 to scissor 2
+noselfcollision 6 7
+#scissor 1 to scissor 3
+noselfcollision 6 8
+#scissor 2 to scissor 3
+noselfcollision 7 8
+
+#finger 1
+noselfcollision 5 12              #palm
+noselfcollision 6 13   6 14        #scissor 1
+noselfcollision 7 12  7 13  7 14    #scissor 2
+noselfcollision 8 12  8 13  8 14   #scissor 3
+#finger 2
+noselfcollision 5 15                #palm
+noselfcollision 5 17                #palm
+noselfcollision 5 16                #palm
+noselfcollision 7 16   7 17         #scissor 2
+noselfcollision 6 15  6 16  6 17    #scissor 1
+noselfcollision 8 15  8 16  8 17    #scissor 3
+#finger 3
+noselfcollision 5 9              #palm
+noselfcollision 8 9  8 10  8 11   #scissor 3
+noselfcollision 6 9  6 10 6 11    #scissor 1
+noselfcollision 7 9  7 10  7 11    #scissor 2
+
+#proximal to distal joints, all fingers
+noselfcollision 9 11  12 14  15 17
+
+driver normal 0
+driver normal 1
+driver normal 2
+driver normal 3
+driver normal 4
+driver normal 5
+
+servoP 5000 5000 5000 500 500 500
+servoI 10 10 10 .5 .5 .5
+servoD 100 100 100 10 10 10
+viscousFriction 50 50 50 50 50 50
+dryFriction 1 1 1 1 1 1
