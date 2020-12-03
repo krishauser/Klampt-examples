@@ -11,8 +11,10 @@ tparams = {'PointCloud':0.05,'VolumeGrid':0.04}
 atypes = dict((t,a.convert(t,tparams.get(t,0))) for t in geomtypes)
 btypes = dict((t,b.convert(t,tparams.get(t,0))) for t in geomtypes)
 
-vis.add("A",atypes['GeometricPrimitive'])
-vis.add("B",btypes['GeometricPrimitive'])
+a = atypes['GeometricPrimitive']
+b = btypes['GeometricPrimitive']
+vis.add("A",a)
+vis.add("B",b)
 vis.setColor("A",1,0,0,0.5)
 vis.setColor("B",0,1,0,0.5)
 Ta = se3.identity()
@@ -23,15 +25,17 @@ vis.edit("Ta")
 vis.edit("Tb")
 
 def convert(geom,type,label):
-    global a,b,atypes,btype
+    global a,b,Ta,Tb,atypes,btype
     if label=='A':
         vis.add(label,atypes[type])
         vis.setColor(label,1,0,0,0.5)
         a = atypes[type]
+        a.setCurrentTransform(*Ta)
     else:
         vis.add(label,btypes[type])
         vis.setColor(label,0,1,0,0.5)
         b = btypes[type]
+        b.setCurrentTransform(*Tb)
 
 vis.addAction(lambda:convert(a,'GeometricPrimitive','A'),"A to GeometricPrimitive")
 vis.addAction(lambda:convert(a,'TriangleMesh','A'),"A to TriangleMesh")
