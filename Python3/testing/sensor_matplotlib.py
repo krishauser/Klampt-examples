@@ -5,6 +5,7 @@ from klampt import *
 from klampt.model import sensing
 import matplotlib.pyplot as plt
 import numpy as np
+import random
 
 # Choose one of these methods. 
 # - With "nogl", there is no attempt to use OpenGL rendering.
@@ -24,20 +25,63 @@ sim = Simulator(world)
 camera = sim.controller(0).sensor('rgbd_camera')
 T = ([1,0,0, 0,0,-1,  0,1,0],[0,-2.0,0.5])
 sensing.set_sensor_xform(camera,T,link=-1)
+robot = world.robot(0)
+
+rgb,depth = None,None
 
 def do_snapshot():
+    global rgb,depth
     camera.kinematicReset()
     camera.kinematicSimulate(world,0.01)
     rgb,depth = sensing.camera_to_images(camera)
-    print("RGB shape:",rgb.shape)
-    print("Depth shape:",depth.shape)
-    measurements = camera.getMeasurements()
-    plt.imshow(rgb) 
-    #plt.imshow(depth)
-    plt.show()
+    #pc = sensing.image_to_points(depth,rgb,float(camera.getSetting('xfov')),depth_scale=1.0,depth_range=(0.5,5.0),points_format='Geometry3D',all_points=True)
+    #pc.setCurrentTransform(*sensing.get_sensor_xform(camera,world.robot(0)))
+    #vis.add('point cloud',pc)
+
+axs = None
+fig = None
+closed = False
+
+def show_snapshot_matplotlib(interactive=False):
+    """Shows / updates the snapshot in the matplotlib window.  If interactive=True,
+    can update the window with new snapshots.  Otherwise, it's a blocking window."""
+    global rgb,depth,axs,fig,closed
+    if rgb is None or closed:
+        return
+    if axs is None:
+        if interactive:
+            plt.ion()
+        else:
+            plt.ioff()
+        fig,axs = plt.subplots(1,2,figsize=(14,4))
+        def on_close(event):
+            global closed
+            closed = True
+        if interactive:
+            fig.canvas.mpl_connect('close_event', on_close)
+            plt.show()
+    axs[0].cla()
+    axs[1].cla()
+    axs[0].imshow(rgb) 
+    axs[1].imshow(depth)
+    if interactive:
+        plt.draw()
+        plt.pause(0.001)
+    else:
+        plt.show()
+
+def close_snapshot_matplotlib():
+    """Closes the snapshot window."""
+    global axs,fig,closed
+    plt.close(fig)
+    axs = None
+    fig = None
+    closed = False
+
 
 if METHOD == "nogl":
     do_snapshot()
+    show_snapshot_matplotlib()
 elif METHOD == "workaround":
     #WORKAROUND FOR OPENGL INITIALIZATION BEFORE simulate
     from OpenGL.GLUT import *
@@ -61,15 +105,27 @@ elif METHOD == "workaround":
     glEnable(GL_LIGHT1)
 
     do_snapshot()
+    show_snapshot_matplotlib()
 else:
     vis.init()
     vis.setBackgroundColor(1,0,0)
     vis.show()
+    vis.add("world",world)
     while vis.shown():
-        time.sleep(0.1)
-        vis.show(False)
+        time.sleep(0.25)
+        vis.lock()
+        #vis.show(False)
+        q0 = robot.getConfig()
+        vmax = robot.getVelocityLimits()
+        for i in range(len(q0)):
+            q0[i] += random.uniform(-vmax[i],vmax[i])*0.1
+        robot.setConfig(q0)
+        vis.unlock()
+        show_snapshot_matplotlib(True)
 
-    vis.threadCall( do_snapshot)
+        vis.threadCall( do_snapshot)
+
+    close_snapshot_matplotlib()
 
     STRESS_TEST_VIS = True
     
@@ -91,6 +147,9 @@ if STRESS_TEST_VIS:
         time.sleep(1.0)
     else:
         do_snapshot()
+
+    closed = False
+    show_snapshot_matplotlib()
 
     vis.kill()
 
