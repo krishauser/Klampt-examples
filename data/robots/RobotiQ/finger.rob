@@ -32,8 +32,8 @@ mass       0.3  0.3   0.3
 automass
 torqueMax  10   10   10 
 
-servoP  50 50 50
-servoD  0  0  0
-servoI  10 10 10
-dryFriction 0.05 0.05 0.05
-viscousFriction 2 2 2
+servoP  50 40 20
+servoD  5  2 1
+servoI  10 5 2
+dryFriction 0.01 0.01 0.01
+viscousFriction 4 2 2

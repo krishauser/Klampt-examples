@@ -23,14 +23,47 @@ if len(sys.argv) > 2:
         exit()
 else:
     b = sphere(0.4,center=(0,0,0),type='GeometricPrimitive')
+    #seg = GeometricPrimitive()
+    #seg.setSegment([-0.25,0,0],[0.25,0,0])
+    #b = Geometry3D(seg)
+
 
 geomtypes = ['GeometricPrimitive','TriangleMesh','PointCloud','VolumeGrid','ConvexHull']
-tparams = {'PointCloud':0.05,'VolumeGrid':0.04}
-atypes = dict((t,a.convert(t,tparams.get(t,0))) for t in geomtypes)
-btypes = dict((t,b.convert(t,tparams.get(t,0))) for t in geomtypes)
+tparams = {'PointCloud':0.02,'VolumeGrid':0.04}
+atypes = dict()
+btypes = dict()
+for t in geomtypes:
+    atypes[t] = a
+    btypes[t] = b
+    try:
+        if a.type() != t:
+            at = a.convert(t,tparams.get(t,0))
+            atypes[t] = at
+    except Exception as e:
+        pass
+    try:
+        if b.type() != t:
+            bt = b.convert(t,tparams.get(t,0))
+            btypes[t] = bt
+    except Exception as e:
+        pass
 
-vis.add("A",atypes['GeometricPrimitive'])
-vis.add("B",btypes['GeometricPrimitive'])
+for (t,g) in atypes.items():
+    m = Mass()
+    m.estimate(g,1.0,1.0)
+    print(t)
+    print("  COM surface-only %.3f %.3f %.3f"%tuple(m.getCom()))
+    H = m.getInertia()
+    print("  Inertia surface-only %.3f %.3f %.3f"%(H[0],H[4],H[8]))
+    m.estimate(g,1.0,0.0)
+    H = m.getInertia()
+    print("  COM volume-only %.3f %.3f %.3f"%tuple(m.getCom()))
+    print("  Inertia volume-only %.3f %.3f %.3f"%(H[0],H[4],H[8]))
+
+a = atypes['GeometricPrimitive']
+b = btypes['GeometricPrimitive']
+vis.add("A",a)
+vis.add("B",b)
 vis.setColor("A",1,0,0,0.5)
 vis.setColor("B",0,1,0,0.5)
 Ta = se3.identity()
@@ -45,15 +78,17 @@ vis.add("ray",Trajectory([0,1],[ray[0],vectorops.madd(ray[0],ray[1],20)]),color=
 vis.add("hitpt",[0,0,0],color=[1,0,1,1])
 
 def convert(geom,type,label):
-    global a,b,atypes,btype
+    global a,b,atypes,btypes,Ta,Tb
     if label=='A':
         vis.add(label,atypes[type])
         vis.setColor(label,1,0,0,0.5)
         a = atypes[type]
+        a.setCurrentTransform(*Ta)
     else:
         vis.add(label,btypes[type])
         vis.setColor(label,0,1,0,0.5)
         b = btypes[type]
+        b.setCurrentTransform(*Tb)
 
 vis.addAction(lambda:convert(a,'GeometricPrimitive','A'),"A to GeometricPrimitive")
 vis.addAction(lambda:convert(a,'TriangleMesh','A'),"A to TriangleMesh")
@@ -84,6 +119,26 @@ vis.addAction(lambda:setMode('collision'),'Collision mode','c')
 vis.addAction(lambda:setMode('near'),'Near mode','n')
 vis.addAction(lambda:setMode('distance'),'Distance mode','d')
 vis.addAction(lambda:setMode('contacts'),'Contacts mode','k')
+
+
+
+def remesh(geom,label):
+    global a,b,Ta,Tb
+    if label=='A':
+        a = a.convert(a.type(),0.06)
+        vis.add(label,a)
+        vis.setColor(label,1,0,0,0.5)
+        a.setCurrentTransform(*Ta)
+    elif label=='B':
+        b = b.convert(b.type(),0.06)
+        vis.add(label,b)
+        vis.setColor(label,0,1,0,0.5)
+        b.setCurrentTransform(*Tb)
+
+vis.addAction(lambda:remesh(a,'A'),"A remesh")
+vis.addAction(lambda:remesh(b,'B'),"B remesh")
+
+
 
 #Testing different types of geometric primitives
 """

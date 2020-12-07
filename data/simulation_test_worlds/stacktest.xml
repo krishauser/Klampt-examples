@@ -52,7 +52,7 @@
   </rigidObject> 
 
   <simulation>
-    <globals/> 
+    <globals ERP="0.2" CFM="0.01" /> 
     <object index="0">
        <geometry kRestitution="0.000000" kFriction="0.500000" kStiffness="inf" kDamping="inf" padding="0.001" preshink="1"/>
     </object>

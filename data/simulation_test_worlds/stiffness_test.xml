@@ -39,14 +39,14 @@
     <terrain index="0">
       <geometry kFriction="0.5" kRestitution="0.7"/>
     </terrain>
-    <object index="0">
+    <object name="ball_soft_1">
        <geometry kFriction="0.5" kRestitution="0.7" kStiffness="50" kDamping="4" padding="0.04" preshrink="1"/>
     </object>
     <object index="1">
        <geometry kFriction="0.5" kRestitution="0.7" kStiffness="500" kDamping="1" padding="0.04" preshrink="1"/>
     </object>
     <object index="2">
-       <geometry kFriction="0.5" kRestitution="0.7" kStiffness="5000" kDamping="1" padding="0.04" preshrink="1"/>
+       <geometry kFriction="0.5" kRestitution="0.7" kStiffness="5000" kDamping="10" padding="0.04" preshrink="1"/>
     </object>
     <object index="3">
        <geometry kFriction="0.5" kRestitution="0.7" kStiffness="50" kDamping="10" padding="0.04" preshrink="1"/>
@@ -66,7 +66,7 @@
     <object index="8">
        <geometry kFriction="0.5" kRestitution="0.7" kStiffness="5000" kDamping="100" padding="0.04" preshrink="1"/>
     </object>
-    <object index="9">
+    <object name="ball_rigid">
        <geometry kFriction="0.5" kRestitution="0.7" kStiffness="inf" kDamping="inf" padding="0.04" preshrink="1"/>
     </object>
 

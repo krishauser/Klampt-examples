@@ -37,9 +37,9 @@ driver normal 6
 driver normal 7
 driver normal 8
 
-servoP 200 200 200 
-servoI 20 20 20 
-servoD 10 10 10 
+servoP 200 100 20 
+servoI 20 10 2 
+servoD 10 5 1
 #servoP 0 0 
 #servoI 0 0
 #servoD 0 0
