@@ -25,6 +25,8 @@ r.setConfig(q0)
 r.link(0).appearance().setDraw(Appearance.EDGES,True)
 r.link(0).appearance().setColor(Appearance.EDGES,1,1,1,0.2)
 
+#vis.init('PyQt')
+#vis.init('GLUT')
 
 def test_screenshot():
     import numpy as np
