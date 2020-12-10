@@ -25,3 +25,4 @@ vis.add('world2', world2)
 vis.show()
 while vis.shown():
 	time.sleep(0.1)
+vis.kill()
