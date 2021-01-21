@@ -14,5 +14,5 @@ cd ..
 git clone --depth 1 https://github.com/krishauser/Klampt
 cd Klampt/Python
 python patch_a_pip_install.py
-cd ..
+cd ../..
 rm -r Klampt
