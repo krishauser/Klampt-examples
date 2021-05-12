@@ -237,10 +237,18 @@
     <child link="EndEffector_Link" />
     <axis xyz="0 0 0" />
   </joint>
-  <klampt world_frame="world">
+  <klampt world_frame="world" defaultAccMax="4">
     <noselfcollision group1="Base_Link Shoulder_Link" group2="HalfArm1_Link HalfArm2_Link ForeArm_Link SphericalWrist1_Link" />
     <noselfcollision group1="HalfArm1_Link HalfArm2_Link" group2="ForeArm_Link SphericalWrist1_Link" />
     <noselfcollision group1="HalfArm2_Link ForeArm_Link" group2="SphericalWrist1_Link SphericalWrist2_Link Bracelet_Link" />
     <noselfcollision group1="SphericalWrist1_Link" group2="Bracelet_Link" />
+
+    <link name="Shoulder_Link" servoP="1400" servoI="0" servoD="6" dryFriction="0.5" viscousFriction="8" />
+    <link name="HalfArm1_Link" servoP="1600" servoI="0" servoD="8" dryFriction="0.5" viscousFriction="10" />
+    <link name="HalfArm2_Link" servoP="1000" servoI="0" servoD="3" dryFriction="0" viscousFriction="6" />
+    <link name="ForeArm_Link" servoP="800" servoI="0" servoD="5" dryFriction="0" viscousFriction="4" />
+    <link name="SphericalWrist1_Link" servoP="200" servoI="0" servoD=".5" dryFriction="0" viscousFriction="3" />
+    <link name="SphericalWrist2_Link" servoP="50" servoI="0" servoD=".2" dryFriction="0" viscousFriction="2" />
+    <link name="Bracelet_Link" servoP="20" servoI="0" servoD=".1" dryFriction="0" viscousFriction="1" />
   </klampt>
 </robot>
