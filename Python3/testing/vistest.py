@@ -11,8 +11,8 @@ from PyQt5.QtWidgets import *
 
 
 w = WorldModel()
-#w.readFile("../../data/tx90cupscupboard.xml")
-w.readFile("../../data/robots/tx90ball.rob")
+w.readFile("../../data/tx90cupscupboard.xml")
+#w.readFile("../../data/robots/tx90ball.rob")
 r = w.robot(0)
 q0 = r.getConfig()
 r.randomizeConfig()
@@ -22,6 +22,7 @@ r.randomizeConfig()
 qrand2 = r.getConfig()
 r.setConfig(q0)
 
+#show edges of a link
 r.link(0).appearance().setDraw(Appearance.EDGES,True)
 r.link(0).appearance().setColor(Appearance.EDGES,1,1,1,0.2)
 
@@ -82,10 +83,13 @@ def test_background_image():
     vis.setColor(vis.getItemName(w.robot(0)),0.5,0.5,0.5,0.5)
     vis.show()
     vis.scene().setBackgroundImage(np.asarray(im))
-    vis.spin(float('inf'))
+    while vis.shown():
+        time.sleep(5.0)
+        vis.scene().setBackgroundImage(None)
+        time.sleep(5.0)
+        vis.scene().setBackgroundImage(np.asarray(im))
     vis.kill()
     
-
 def test_basic_plugin():
     from klampt.vis.glprogram import GLNavigationProgram
     r.setConfig(qrand)
@@ -144,6 +148,7 @@ def test_custom_gui():
     vis.add("world",w)
     vis.show()
     vis.spin(float('inf'))
+    vis.kill()
 
 def test_trajectory_vis():
     #add a "world" item to the scene manager
@@ -155,8 +160,8 @@ def test_trajectory_vis():
 
     #launch the vis loop and window
     vis.show()
-    while vis.shown():
-        time.sleep(0.01)
+    vis.spin(float('inf'))
+    vis.kill()
 
 def test_debug():
     vis.debug(w.robot(0),centerCamera=True)
@@ -183,6 +188,71 @@ def test_debug():
     #this doesn't work -- qrand is not being tracked
     vis.debug('qrand',qrand,{'color':[1,0,0,0.5]},world=w,animation=qtraj,followCamera=r.link(6))
 
-test_screenshot()
+def test_dynamic_point_cloud():
+    import numpy as np
+    from klampt.io import numpy_convert
+    #w = 640
+    #h = 480
+    w = 320
+    h = 240
+    pc = np.zeros((w*h,3))
+    colors = np.zeros((w*h,3))
+    x = np.linspace(-1,1,w)
+    y = np.linspace(-1,1,h)
+    for i in range(h):
+        pc[i*w:i*w+w,0] = x
+    for i in range(w):
+        pc[i:h*w:w,1] = y
+    colors[:,0] = pc[:,0]*0.5+0.5
+    colors[:,1] = 0
+    colors[:,2] = pc[:,1]*0.5+0.5
+    tstart = time.time()
+    t2last = tstart
+    tnumpy_avg = 0
+    tklampt_avg = 0
+    n = 0
+    method = 2
+    kpc = PointCloud()
+    #structured point clouds are a little slower
+    # kpc.setSetting("width",str(w))
+    # kpc.setSetting("height",str(h))
+    # kpc.setSetting("viewpoint",'0 0 10 0 1 0 0 ')  #looking down
+    kpc.propertyNames.resize(3)
+    kpc.propertyNames[0] = "r"
+    kpc.propertyNames[1] = "g"
+    kpc.propertyNames[2] = "b"
+    kpc.setPoints(pc)
+    kpc.setProperties(colors)
+    vis.show()
+    while vis.shown():
+        t0 = time.time()
+        pc[:,2] = 0.2*np.sin(2.0*np.dot(pc[:,0:2],[1,1])+(t0-tstart))
+        t1 = time.time()
+        if method == 1:
+            kpc = numpy_convert.from_numpy(pc,'PointCloud')
+        elif method == 2:
+            kpc.setPoints(pc)
+        elif method == 3:
+            kpc.setPoints(pc)
+            kpc.setProperties(colors)
+        vis.add('pc',kpc)
+        t2 = time.time()
+        tnumpy_avg += 1.0/(n+1)*(t1-t0 - tnumpy_avg)
+        tklampt_avg += 1.0/(n+1)*(t2-t1 - tklampt_avg)
+        vis.add('nfps','Numpy update: %.2fms'%(1000*tnumpy_avg),position=(10,10),color=(0,0,0,1))
+        vis.add('fps','Klampt update: %.2fms'%(1000*tklampt_avg),position=(10,25),color=(0,0,0,1))
+        vis.add('drawfps','Overall FPS: %.2f'%(1.0/(t2-t2last)),position=(10,40),color=(0,0,0,1))
+        n += 1
+        t2last = t2
+        time.sleep(0.001)
+
+
+#test_screenshot()
 #test_background_image()
+#test_basic_plugin()
+#test_trajectory_editing()
+#test_geometry_editing()
+#test_custom_gui()
+test_trajectory_vis()
 #test_debug()
+#test_dynamic_point_cloud()
