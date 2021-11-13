@@ -1,7 +1,7 @@
 //these two include files are needed for SimplePlan
 #include <Klampt/Planning/RobotCSpace.h>
   //defines WorldPlannerSettings and SingleRobotCSpace
-  //includes definitions for RobotWorld, Config
+  //includes definitions for WorldModel, Config
 #include <KrisLibrary/planning/AnyMotionPlanner.h>
   //defines AdaptiveCSpace, which helps debugging and
   //can reorder constraints for faster performance
@@ -11,7 +11,7 @@
 
 //the following include files are used for IO and command line processing
 #include <Klampt/IO/XmlWorld.h>
-  //defines XmlWorld for loading RobotWorlds from .xml files
+  //defines XmlWorld for loading WorldModels from .xml files
 #include <Klampt/Modeling/Paths.h>
 #include <Klampt/Modeling/MultiPath.h>
   //defines file paths and conversion routines
@@ -23,6 +23,8 @@
 #include <time.h>
 #include <fstream>
 
+using namespace Klampt;
+
 /** @brief Performs basic path planning in collision-free space for the
  * given robot and start/end points.
  * 
@@ -32,7 +34,7 @@
  * The constraint specifications are given in WorldPlannerSettings. If you
  * have custom requirements, you will need to set them up.
  */
-bool SimplePlan(RobotWorld& world,int robot,const Config& qstart,const Config& qgoal,MilestonePath& path,
+bool SimplePlan(WorldModel& world,int robot,const Config& qstart,const Config& qgoal,MilestonePath& path,
 		const HaltingCondition& cond,const string& plannerSettings="")
 {
   ///If you don't call this, everything will run fine due to on-demand
@@ -189,7 +191,7 @@ int main(int argc,const char** argv)
 
   //Read in the world file
   XmlWorld xmlWorld;
-  RobotWorld world;
+  WorldModel world;
   if(!xmlWorld.Load(worldfile)) {
     printf("Error loading world XML file %s\n",worldfile);
     return 1;

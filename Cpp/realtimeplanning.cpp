@@ -11,6 +11,7 @@
 #include <KrisLibrary/utils/SmartPointer.h>
 #include <GL/glui.h>
 #include <fstream>
+using namespace Klampt;
 using namespace Math3D;
 using namespace GLDraw;
 
@@ -52,7 +53,7 @@ public:
   MyInputProcessor(int _link=-1)
     :link(_link),target(0.0),newTarget(false)
   {}
-  void Randomize(Robot* robot)
+  void Randomize(RobotModel* robot)
   {
     target.x = Rand(-1.0,1.0);
     target.y = Rand(-1.0,1.0);
@@ -60,7 +61,7 @@ public:
     newTarget = true;
   }
   virtual bool HasUpdate() { return newTarget; }
-  virtual PlannerObjectiveBase* MakeObjective(Robot* robot)
+  virtual PlannerObjectiveBase* MakeObjective(RobotModel* robot)
   { 
     newTarget = false;
     CartesianObjective* pgoal = new CartesianObjective(robot);
@@ -101,7 +102,7 @@ public:
 class RealTimePlannerGUIBackend : public SimGUIBackend
 {
 public:
-  RobotWorld planningWorld;
+  WorldModel planningWorld;
   WorldPlannerSettings settings;
 
   SmartPointer<DefaultMotionQueueInterface> robotInterface;
@@ -113,7 +114,7 @@ public:
   Real collisionMargin;
   int drawCommanded,drawDesired,drawPath,drawUI,drawContacts;
 
-  RealTimePlannerGUIBackend(RobotWorld* world)
+  RealTimePlannerGUIBackend(WorldModel* world)
     :SimGUIBackend(world)
   {
   }
@@ -127,8 +128,8 @@ public:
 
     //choose and set the collision avoidance margin
     collisionMargin = 0.0;
-    CopyWorld(*world,planningWorld);
-    Robot* robot = planningWorld.robots[0].get();
+    planningWorld.Copy(*world);
+    RobotModel* robot = planningWorld.robots[0].get();
     for(size_t i=0;i<robot->geometry.size();i++) {
       if(robot->geometry[i]) robot->geometry[i]->margin += collisionMargin;
     }
@@ -177,7 +178,7 @@ public:
 
   virtual void RenderWorld()
   {
-    Robot* robot=world->robots[0].get();
+    RobotModel* robot=world->robots[0].get();
     RobotController* rc=sim.robotControllers[0].get();
 
     SimGUIBackend::SetForceColors();
@@ -278,7 +279,7 @@ public:
       double newmargin;
       bool res = LexicalCast<double>(args,newmargin);
       Assert(res != false);
-      Robot* robot = planningWorld.robots[0].get();
+      RobotModel* robot = planningWorld.robots[0].get();
       for(size_t i=0;i<robot->geometry.size();i++)
 	robot->geometry[i]->margin -= collisionMargin;
       collisionMargin = newmargin;
@@ -365,19 +366,19 @@ class GLUIRealTimePlannerGUI : public GLScreenshotProgram<GLUIGUI>
 public:
   typedef GLScreenshotProgram<GLUIGUI> BaseT;
 
-  RobotWorld* world;
-  WorldSimulation* sim;
+  WorldModel* world;
+  Simulator* sim;
 
   //GUI state
   GLUI* glui;
 
-  GLUIRealTimePlannerGUI(GenericBackendBase* backend,RobotWorld* _world,int w=800,int h=600);
+  GLUIRealTimePlannerGUI(GenericBackendBase* backend,WorldModel* _world,int w=800,int h=600);
   bool Initialize();
   void UpdateGUI();
   virtual bool OnCommand(const string& cmd,const string& args);
 };
 
-GLUIRealTimePlannerGUI::GLUIRealTimePlannerGUI(GenericBackendBase* _backend,RobotWorld* _world,int w,int h)
+GLUIRealTimePlannerGUI::GLUIRealTimePlannerGUI(GenericBackendBase* _backend,WorldModel* _world,int w,int h)
   :world(_world)
 {
   BaseT::backend = _backend;
@@ -436,7 +437,7 @@ int main(int argc, const char** argv)
     return 0;
   }
 
-  RobotWorld world;
+  WorldModel world;
   RealTimePlannerGUIBackend backend(&world);
   if(!backend.LoadAndInitSim(argc,argv)) {
     return 1;
