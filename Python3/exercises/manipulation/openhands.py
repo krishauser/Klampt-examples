@@ -56,7 +56,7 @@ if __name__ == '__main__':
     try:
         amount = float(args[1])
     except:
-        print "Amount needs to be a numeric value"
+        print("Amount needs to be a numeric value")
         exit(1)
 
     config = []
@@ -75,5 +75,5 @@ if __name__ == '__main__':
         f.write(writeVector(config))
         f.write('\n')
     else:
-        print writeVector(config)
+        print(writeVector(config))
 
