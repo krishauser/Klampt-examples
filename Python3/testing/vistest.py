@@ -191,10 +191,10 @@ def test_debug():
 def test_dynamic_point_cloud():
     import numpy as np
     from klampt.io import numpy_convert
-    #w = 640
-    #h = 480
-    w = 320
-    h = 240
+    w = 640
+    h = 480
+    #w = 320
+    #h = 240
     pc = np.zeros((w*h,3))
     colors = np.zeros((w*h,3))
     x = np.linspace(-1,1,w)
@@ -211,7 +211,7 @@ def test_dynamic_point_cloud():
     tnumpy_avg = 0
     tklampt_avg = 0
     n = 0
-    method = 2
+    method = 3
     kpc = PointCloud()
     #structured point clouds are a little slower
     # kpc.setSetting("width",str(w))
@@ -223,19 +223,24 @@ def test_dynamic_point_cloud():
     kpc.propertyNames[2] = "b"
     kpc.setPoints(pc)
     kpc.setProperties(colors)
+    vis.add('pc',kpc)
     vis.show()
     while vis.shown():
         t0 = time.time()
         pc[:,2] = 0.2*np.sin(2.0*np.dot(pc[:,0:2],[1,1])+(t0-tstart))
+        colors[:,1] = (pc[:,2]+0.2)*2.5
+        if method==1:
+            pc_with_colors = np.hstack((pc,colors))
         t1 = time.time()
         if method == 1:
-            kpc = numpy_convert.from_numpy(pc,'PointCloud')
+            kpc = numpy_convert.from_numpy(pc_with_colors,'PointCloud',template=kpc)
         elif method == 2:
             kpc.setPoints(pc)
-        elif method == 3:
+        elif method == 3: 
             kpc.setPoints(pc)
             kpc.setProperties(colors)
         vis.add('pc',kpc)
+        #vis.dirty('pc')
         t2 = time.time()
         tnumpy_avg += 1.0/(n+1)*(t1-t0 - tnumpy_avg)
         tklampt_avg += 1.0/(n+1)*(t2-t1 - tklampt_avg)
@@ -246,6 +251,50 @@ def test_dynamic_point_cloud():
         t2last = t2
         time.sleep(0.001)
 
+def test_dynamic_mesh():
+    import numpy as np
+    from klampt.io import numpy_convert
+    res = numpy_convert.to_numpy(r.link(0).geometry(),'Geometry3D')
+    T,(verts0,tris) = res
+    verts = verts0.copy()
+    
+    tstart = time.time()
+    t2last = tstart
+    tnumpy_avg = 0
+    tklampt_avg = 0
+    n = 0
+    method = 1
+    kmesh = TriangleMesh()
+    #structured point clouds are a little slower
+    # kpc.setSetting("width",str(w))
+    # kpc.setSetting("height",str(h))
+    # kpc.setSetting("viewpoint",'0 0 10 0 1 0 0 ')  #looking down
+    kmesh.setVertices(verts0)
+    kmesh.setIndices(tris)
+    vis.add('mesh',kmesh)
+    vis.show()
+    while vis.shown():
+        t0 = time.time()
+        verts[:,0] = verts0[:,0] + 0.2*np.sin(4.0*verts[:,1]+(t0-tstart))
+        t1 = time.time()
+        if method == 1:
+            kmesh = numpy_convert.from_numpy((verts,tris),'TriangleMesh')
+        elif method == 2:
+            kmesh.setVertices(verts)
+        elif method == 3:
+            kmesh.setVertices(verts)
+            kmesh.setIndices(tris)
+        vis.add('mesh',kmesh)
+        #vis.dirty('mesh')
+        t2 = time.time()
+        tnumpy_avg += 1.0/(n+1)*(t1-t0 - tnumpy_avg)
+        tklampt_avg += 1.0/(n+1)*(t2-t1 - tklampt_avg)
+        vis.add('nfps','Numpy update: %.2fms'%(1000*tnumpy_avg),position=(10,10),color=(0,0,0,1))
+        vis.add('fps','Klampt update: %.2fms'%(1000*tklampt_avg),position=(10,25),color=(0,0,0,1))
+        vis.add('drawfps','Overall FPS: %.2f'%(1.0/(t2-t2last)),position=(10,40),color=(0,0,0,1))
+        n += 1
+        t2last = t2
+        time.sleep(0.01)
 
 #test_screenshot()
 #test_background_image()
@@ -253,6 +302,7 @@ def test_dynamic_point_cloud():
 #test_trajectory_editing()
 #test_geometry_editing()
 #test_custom_gui()
-test_trajectory_vis()
+#test_trajectory_vis()
 #test_debug()
-#test_dynamic_point_cloud()
+test_dynamic_point_cloud()
+#test_dynamic_mesh()
