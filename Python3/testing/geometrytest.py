@@ -3,7 +3,7 @@ from klampt import vis
 from klampt.math import vectorops,so3,se3
 from klampt.model.trajectory import Trajectory
 from klampt.model import config
-from klampt.robotsim import Geometry3D,WorldModel
+from klampt.robotsim import Geometry3D,WorldModel,DistanceQuerySettings
 from collections import deque
 import sys
 import time
@@ -115,6 +115,7 @@ def setMode(m):
         vis.remove(s)
     drawExtra = set()
     vis.unlock()
+
 vis.addAction(lambda:setMode('collision'),'Collision mode','c')
 vis.addAction(lambda:setMode('near'),'Near mode','n')
 vis.addAction(lambda:setMode('distance'),'Distance mode','d')
@@ -139,6 +140,54 @@ vis.addAction(lambda:remesh(a,'A'),"A remesh")
 vis.addAction(lambda:remesh(b,'B'),"B remesh")
 
 
+def doSlice():
+    global a,b
+    T = se3.identity()
+    ares = a.slice(T[0],T[1],0.05)
+    bres = b.slice(T[0],T[1],0.05)
+    ares.setCurrentTransform(T[0],T[1])
+    bres.setCurrentTransform(T[0],T[1])
+    if ares.type() != '':
+        vis.add("A slice",ares,color=(1,0.5,0,1))
+    else:
+        try:
+            vis.remove("A slice")
+        except Exception:
+            pass
+    if bres.type() != '':
+        vis.add("B slice",bres,color=(0,1,0.5,1))
+    else:
+        try:
+            vis.remove("B slice")
+        except Exception:
+            pass
+
+def doROI():
+    global a,b
+    bmin = [-1,0,0]
+    bmax = [1,.5,0.1]
+    ares = a.roi('intersect',bmin,bmax)
+    bres = b.roi('intersect',bmin,bmax)
+    print(ares.getCurrentTransform())
+    print(bres.getCurrentTransform())
+    if ares.type() != '':
+        vis.add("A roi",ares,color=(1,0.5,0,1))
+    else:
+        try:
+            vis.remove("A roi")
+        except Exception:
+            pass
+    if bres.type() != '':
+        vis.add("B roi",bres,color=(0,1,0.5,1))
+    else:
+        try:
+            vis.remove("B roi")
+        except Exception:
+            pass
+
+vis.addAction(doSlice,'Make slices','s')
+vis.addAction(doROI,'Make ROI','r')
+
 
 #Testing different types of geometric primitives
 """
@@ -151,6 +200,54 @@ vis.add("prim2",prim2,color=[0.5,1,0.5])
 prim3 = GeometricPrimitive()
 prim3.setBox([0,0,1.5],so3.rotation([0,1,0],math.radians(10)),[0.5,0.5,0.5])
 vis.add("prim3",prim3,color=[1,0.5,0.5])
+"""
+
+#Testing polygon - ray intersection
+"""
+polygon = GeometricPrimitive()
+polygon.setPolygon([0,0,0,  1,0,0,  0.5,0.5,0, 1,1,0,  0,1,0])
+c = Geometry3D(polygon)
+c.setCurrentTransform(so3.identity(),[0,0,-0.5])
+vis.add("polygon",c,color=[0.2,0,0.6,1])
+for i in range(10):
+    x = i*0.2 - 0.2
+    y = 0.5
+    z = 1
+    s,d = [x,y,z],vectorops.unit([0,-0.2,-1])
+    elem,pt = c.rayCast_ext(s,d)
+    vis.add("ray "+str(i),[s,vectorops.madd(s,d,2)],color=(1,1,0,1))
+    if elem >= 0:
+        vis.add("polygon hit "+str(i),pt,color=[0.4,0,1,1])
+"""
+
+#Testing groups
+"""
+c = Geometry3D()
+c.setGroup()
+c.setElement(0,a)
+c.setElement(1,b)
+#note: these transforms aren't respected
+c.getElement(1).setCurrentTransform(so3.identity(),[0,1,0])
+c2 = c.convert('TriangleMesh')
+vis.add("c2",c2)
+
+#debugging group geometry drawing
+c = Geometry3D()
+c.setGroup()
+c.setElement(0,atypes['TriangleMesh'])
+c.setElement(1,btypes['TriangleMesh'])
+w = WorldModel()
+w.makeRigidObject('temp')
+w.rigidObject(0).geometry().set(c)
+app = w.rigidObject(0).appearance()
+vis.add("c",w.rigidObject(0))
+"""
+
+#Testing remeshing
+"""
+a2 = a.convert('TriangleMesh',0.2)
+vis.debug(a2)
+vis.debug(a2.convert("PointCloud"))
 """
 
 counter = 0
