@@ -15,14 +15,14 @@ import time
 if __name__ == "__main__":
     print("pose_RIL.py: This example demonstrates how to pose a robot (via Robot Interface Layer)")
     if len(sys.argv)<=1:
-        print("USAGE: pose_ril.py [world_file(s)] [controller_file]")
-        print('try "python pose_RIL.py ../../data/tx90cuptable.xml"')
+        print("USAGE: pose.py [world_file(s)] [controller_file]")
+        print('try "python pose.py ../../data/tx90cuptable.xml"')
         exit()
 
     world = klampt.WorldModel()
     interface_fn = None
     for fn in sys.argv[1:]:
-        if fn.endswith('.py') or fn.endswith('.pyc'):
+        if fn.endswith('.py') or fn.endswith('.pyc') or fn.startswith('klampt.'):
             interface_fn = fn
         else:
             res = world.readFile(fn)

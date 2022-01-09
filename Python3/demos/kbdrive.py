@@ -98,16 +98,16 @@ class MyGLViewer(GLPluginInterface):
 
 
 if __name__ == "__main__":
-    print("kbdrive_RIL.py: This example demonstrates how to drive a robot")
+    print("kbdrive.py: This example demonstrates how to drive a robot")
     print("(via Robot Interface Layer) using keyboard input")
     if len(sys.argv)<=1:
-        print("USAGE: kbdrive_ril.py [world_file(s)] [controller_file]")
+        print("USAGE: kbdrive.py [world_file(s)] [controller_file]")
         exit()
 
     world = klampt.WorldModel()
     interface_fn = None
     for fn in sys.argv[1:]:
-        if fn.endswith('.py') or fn.endswith('.pyc'):
+        if fn.endswith('.py') or fn.endswith('.pyc') or fn.startswith('klampt.'):
             interface_fn = fn
         else:
             res = world.readFile(fn)
