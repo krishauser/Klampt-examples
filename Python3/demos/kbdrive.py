@@ -5,7 +5,8 @@ import klampt
 from klampt.vis.glinterface import GLPluginInterface
 from klampt import vis
 from klampt.math import vectorops
-from klampt.control.robotinterfaceutils import StepContext,RobotInterfaceCompleter,make_from_file
+from klampt.control import StepContext,RobotInterfaceBase,RobotInterfaceCompleter,TimedLooper
+from klampt.control.robotinterfaceutils import make_from_file
 from klampt.control.interop import RobotInterfacetoVis
 from klampt.control.simrobotinterface import *
 import time
