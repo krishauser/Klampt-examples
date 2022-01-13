@@ -1,0 +1,19 @@
+{
+    "name":"TX90L with PR2 gripper",
+    "modelFile":"../data/robots/tx90pr2.rob",
+    "controllerFile":"klampt.control.simrobotinterface",
+    "properties" : {
+        "description": "kinematically simulated Staubli TX90L robot with PR2 gripper"
+    },
+    "parts":{
+        "arm":[0,1,2,3,4,5,6],
+        "gripper":[7,8,9,10,11]
+    },
+    "endEffectors":{
+        "wrist":{
+            "link":6,
+            "activeLinks":[1,2,3,4,5,6],
+            "ikObjective":null
+        }
+    }
+}
