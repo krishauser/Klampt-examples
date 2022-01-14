@@ -3,6 +3,7 @@
     "modelFile":"../data/robots/mirobot.urdf",
     "baseType":"fixed",
     "controllerFile":"controllers/mirobot_ril.py",
+    "resourceDir":"resources/mirobot",
     "properties" : {
         "description": "Wlkata Mirobot robot"
     },

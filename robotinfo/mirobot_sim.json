@@ -3,6 +3,7 @@
     "modelFile":"../data/robots/mirobot.urdf",
     "baseType":"fixed",
     "controllerFile":"klampt.control.simrobotinterface",
+    "resourceDir":"resources/mirobot",
     "properties" : {
         "description": "kinematically simulated Wlkata Mirobot robot"
     },
