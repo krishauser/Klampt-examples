@@ -391,6 +391,31 @@ def self_test(fn="robotiq.csv",gob1=None,gob2=None,gob3=None):
         (x,m) = finger_hybrid_model(x,m,-1,(0,0,0))
     f.close()
 
+from klampt.control.blocks.robotcontroller import RobotControllerBlock
+
+class EmptyController(RobotControllerBlock):
+    def advance(self,*args,**kwargs):
+        return {}
+
+def make(sim,robotIndex,gripperBaseIndex=0):
+    """Generates a controller / emulator pair for
+    :class:`klampt.sim.SimpleSimulator`.
+    """
+    empty_controller = EmptyController()
+    controller = sim.controller(robotIndex)
+    robot = controller.model()
+    #setup friction characteristics
+    for i in range(robot.numLinks()):
+        bodyi = sim.body(robot.link(i)) 
+        surf = bodyi.getSurface()
+        surf.kFriction = 1.0
+        surf.kRestitution = 0.0
+        surf.kStiffness = 2000000
+        surf.kDamping = 1000
+        bodyi.setSurface(surf)
+        bodyi.setCollisionPadding(0.001)
+    return empty_controller,[Emulator(sim,robotIndex,gripperBaseIndex)]
+
 if __name__=='__main__':
     print(quasistatic_finger_model((81,104,None),104))
     exit(1)

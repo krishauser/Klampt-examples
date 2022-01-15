@@ -1,10 +1,10 @@
 {
     "name":"UR5e",
-    "modelFile":"../data/robots/ur5.rob",
+    "modelFile":"../../data/robots/ur5.rob",
     "baseType":"fixed",
-    "controllerFile":"controllers/ur5/ur5_ril.py",
+    "controllerFile":"klampt.control.simrobotinterface",
     "properties" : {
-        "description": "UR5e robot"
+        "description": "kinematically simulated UR5e robot"
     },
     "endEffectors":{
         "wrist":{
