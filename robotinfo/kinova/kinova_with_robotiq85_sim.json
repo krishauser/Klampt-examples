@@ -1,6 +1,6 @@
 {
     "name": "KinovaGen3",
-    "modelFile": "../data/robots/kinova_with_robotiq_85.urdf",
+    "modelFile": "../../data/robots/kinova_with_robotiq_85.urdf",
     "baseType":"fixed",
     "controllerFile": "klampt.control.simrobotinterface", 
     "properties" : {
