@@ -27,10 +27,7 @@ import select
 import sys
 import logging
 
-if sys.version_info[0] < 3:
-  import serialize
-else:
-  import serialize
+import serialize
 
 DEFAULT_TIMEOUT = 1.0
 

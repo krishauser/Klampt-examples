@@ -1,9 +1,9 @@
 from klampt.math import vectorops,so3,se3
 from klampt.control.robotinterface import RobotInterfaceBase
-from . import ur5_driver
-from .utils import clamp_limits, in_limits, SharedMap
-from .ur5_dashboard import UR5DashboardClient
-from . import ur5_constants
+import ur5_driver
+from utils import clamp_limits, in_limits, SharedMap
+from ur5_dashboard import UR5DashboardClient
+import ur5_constants
 import time, math
 import numpy as np
 from copy import copy, deepcopy
@@ -60,6 +60,7 @@ class UR5RobotInterface(RobotInterfaceBase):
         #self.IO_buffer.set('control_mode', SETPOINT_HALT)
 
         # Connect to Dashboard
+        print("Attempting to connect to UR5 dashboard")
         self.dashboard_client = UR5DashboardClient(host)
         self.dashboard_client.connect()
 

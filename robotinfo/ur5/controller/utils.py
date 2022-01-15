@@ -4,10 +4,9 @@ import math
 import multiprocessing as mp
 from klampt.math import vectorops
 from klampt.robotsim import equilibrium_torques
-from . import ur5_constants
+import ur5_constants
 from typing import Union, Dict, Tuple, Any
 import warnings
-import contextlib
 
 def clamp_limits(q, min_limits, max_limits):
     """Clamps a configuration to limits."""
@@ -30,6 +29,11 @@ def in_limits(q, min_limits, max_limits):
             return False
     return True
 
+class _EmptyContext:
+    def __enter__(self):
+        return self
+    def __exit__(self,type,value,tb):
+        pass
 
 class SharedMap:
     """
@@ -132,7 +136,7 @@ class SharedMap:
         if self._auto_lock:
             return self._lock
         else:
-            return contextlib.AbstractContextManager()
+            return _EmptyContext()
 
     def keys(self):
         return self.names_to_starts.keys()

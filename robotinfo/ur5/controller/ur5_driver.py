@@ -10,11 +10,11 @@ from copy import copy, deepcopy
 
 import numpy as np
 from klampt.math import vectorops
-from . import rtde
 from scipy import signal as scipysignal
 
-from . import ur5_constants
-from .utils import in_limits
+import rtde
+import ur5_constants
+from utils import in_limits
 
 logger = logging.getLogger(__name__)  # pylint: disable=invalid-name
 
