@@ -8,7 +8,7 @@ import sys
 if len(sys.argv) > 1:
     fn = sys.argv[1]
 else:
-    fn = "../../data/robots/kinova_gen3_7dof"
+    fn = "../../data/robots/kinova_gen3_7dof.urdf"
 
 if len(sys.argv) > 2:
     config = sys.argv[2]
