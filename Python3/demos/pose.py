@@ -11,39 +11,24 @@ from klampt.control.interop import RobotInterfacetoVis
 from klampt.control.simrobotinterface import *
 import time
 
+from kbdrive import load_world_and_interface
 
 if __name__ == "__main__":
     print("pose_RIL.py: This example demonstrates how to pose a robot (via Robot Interface Layer)")
     if len(sys.argv)<=1:
-        print("USAGE: pose.py [world_file(s)] [controller_file]")
+        print("USAGE: python pose.py world_file(s) [controller_file]")
+        print("   OR")
+        print("python pose.py robotinfo_file [world_files]")
+        print()
         print('try "python pose.py ../../data/tx90cuptable.xml"')
         exit()
 
-    world = klampt.WorldModel()
-    interface_fn = None
-    for fn in sys.argv[1:]:
-        if fn.endswith('.py') or fn.endswith('.pyc') or fn.startswith('klampt.'):
-            interface_fn = fn
-        else:
-            res = world.readFile(fn)
-            if not res:
-                raise RuntimeError("Unable to load model "+fn)
-    if world.numRobots() == 0:
-        print("No robots loaded")
-        exit(1)
-    if interface_fn is None:    
+    world, interface = load_world_and_interface(sys.argv[1:])
+    if interface is None:    
         sim = klampt.Simulator(world)
         interface = RobotInterfaceCompleter(SimFullControlInterface(sim.controller(0),sim))
-    else:
-        #create interface from specified file
-        sim = None
-        try:
-            interface = make_from_file(interface_fn,world.robot(0))
-        except Exception:
-            print("Quitting...")
-            sys.exit(1)
-        if not interface.properties.get('complete',False):
-            interface = RobotInterfaceCompleter(interface)   #wrap the interface with a software emulator
+    elif not interface.properties.get('complete',False):
+        interface = RobotInterfaceCompleter(interface)   #wrap the interface with a software emulator
     interface._klamptModel = world.robot(0)
     interface._worldModel = world
     if not interface.initialize():

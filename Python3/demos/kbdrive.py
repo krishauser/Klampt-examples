@@ -5,6 +5,7 @@ import klampt
 from klampt.vis.glinterface import GLPluginInterface
 from klampt import vis
 from klampt.math import vectorops
+from klampt.model.robotinfo import RobotInfo
 from klampt.control import StepContext,RobotInterfaceBase,RobotInterfaceCompleter,TimedLooper
 from klampt.control.robotinterfaceutils import make_from_file
 from klampt.control.interop import RobotInterfacetoVis
@@ -52,12 +53,19 @@ class MyGLViewer(GLPluginInterface):
         self.keymap = keymap
         self.current_velocities = {}
         self.visplugin = RobotInterfacetoVis(self.interface)
-        self.wait = 0
+        
+        self.controller_dt = 1.0/interface.controlRate()
+        self.vis_dt = 1.0/30.0
+        self.num_steps = 0
         #Put your initialization code here
         
     def idle(self):
-        t0 = time.time()
-        self.wait += 1
+        if not self.interface.properties.get('asynchronous',False):
+            #take extra controller steps if not asynchronous
+            num_vis_steps = int(self.vis_dt / self.controller_dt)-1
+            for i in range(num_vis_steps):
+                with StepContext(self.interface):
+                    self.num_steps += 1
         
         #Calculate the desired velocity for each robot by adding up all
         #commands
@@ -67,12 +75,12 @@ class MyGLViewer(GLPluginInterface):
         #print(rvels)
         #send to the robot(s)
         with StepContext(self.interface):
-            if self.wait > 1:
+            if self.num_steps > 0:
                 ttl = 0.1
                 self.interface.setVelocity(rvels[0],ttl)
             self.world.robot(0).setConfig(self.interface.configToKlampt(self.interface.sensedPosition()))
             self.visplugin.update()
-        t1 = time.time()
+            self.num_steps += 1
         return True
 
     def print_help(self):
@@ -97,38 +105,56 @@ class MyGLViewer(GLPluginInterface):
             del self.current_velocities[c]
         return
 
-
-if __name__ == "__main__":
-    print("kbdrive.py: This example demonstrates how to drive a robot")
-    print("(via Robot Interface Layer) using keyboard input")
-    if len(sys.argv)<=1:
-        print("USAGE: kbdrive.py [world_file(s)] [controller_file]")
-        exit()
-
+def load_world_and_interface(args):
+    """Utility function.  Loads a WorldModel and RobotInterfaceBase
+    from command line args.
+    
+    Returns:
+        (world,interface). Sets interface=None if no controller is
+        specified; user will need to set up their desired default.
+    """
     world = klampt.WorldModel()
-    interface_fn = None
-    for fn in sys.argv[1:]:
+    robotinfo = RobotInfo('robot')
+    for fn in args:
         if fn.endswith('.py') or fn.endswith('.pyc') or fn.startswith('klampt.'):
-            interface_fn = fn
+            robotinfo.controllerFile = fn
+        elif fn.endswith('.json'):
+            robotinfo = RobotInfo.load(fn)
         else:
             res = world.readFile(fn)
             if not res:
                 raise RuntimeError("Unable to load model "+fn)
-    if world.numRobots() == 0:
+    if robotinfo.modelFile is None and world.numRobots() == 0:
         print("No robots loaded")
         exit(1)
-    #initialize controller or simulated controller by default
-    if interface_fn is None:    
+    if world.numRobots()  != 0:
+        robotinfo.robotModel = world.robot(0)
+    else:
+        robot = robotinfo.klamptModel()
+        world.add(robotinfo.name,robot)
+    if robotinfo.controllerFile is not None:
+        interface = robotinfo.controller()
+        return world,interface
+    return world,None
+
+    
+if __name__ == "__main__":
+    print("kbdrive.py: This example demonstrates how to drive a robot")
+    print("(via Robot Interface Layer) using keyboard input")
+    if len(sys.argv)<=1:
+        print("USAGE: python kbdrive.py world_file(s) [controller_file]")
+        print("   OR")
+        print("python kbdrive.py robotinfo_file [world files]")
+        exit()
+
+    world,interface = load_world_and_interface(sys.argv[1:])
+    if interface is None:
+        #initialize simulated controller by default
         sim = klampt.Simulator(world)
         interface = RobotInterfaceCompleter(SimFullControlInterface(sim.controller(0),sim))
-    else:
-        try:
-            interface = make_from_file(interface_fn,world.robot(0))
-        except Exception:
-            print("Quitting...")
-            sys.exit(1)
-        if not interface.properties.get('complete',False):
-            interface = RobotInterfaceCompleter(interface)   #wrap the interface with a software emulator
+    elif not interface.properties.get('complete',False):
+        interface = RobotInterfaceCompleter(interface)   #wrap the interface with a software emulator
+        
     interface._klamptModel = world.robot(0)
     interface._worldModel = world
     if not interface.initialize():
