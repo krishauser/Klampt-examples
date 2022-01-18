@@ -1,6 +1,6 @@
 from klampt import *
 from klampt.model.trajectory import Trajectory,SE3Trajectory,RobotTrajectory
-from klampt.vis import editors
+from klampt.vis import editors,colorize
 from klampt.math import vectorops,so3,se3
 from klampt.io import resource
 import time
@@ -246,6 +246,17 @@ def test_dynamic_point_cloud():
         t2last = t2
         time.sleep(0.001)
 
+def test_per_face_colors():
+    #shows bug in visualizer with editor
+    w = WorldModel()
+    w.readFile("../../data/robots/baxter.rob")
+    r = w.robot(0)
+    for i in range(r.numLinks()):
+        colorize.colorize(r.link(i),'z','plasma')
+    vis.add('world',w)
+    vis.edit(('world',r.getName()))
+    vis.show()
+    vis.spin(float('inf'))
 
 #test_screenshot()
 #test_background_image()
@@ -253,6 +264,7 @@ def test_dynamic_point_cloud():
 #test_trajectory_editing()
 #test_geometry_editing()
 #test_custom_gui()
-test_trajectory_vis()
+#test_trajectory_vis()
 #test_debug()
 #test_dynamic_point_cloud()
+test_per_face_colors()
