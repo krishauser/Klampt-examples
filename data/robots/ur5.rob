@@ -53,11 +53,11 @@ driver normal 5
 driver normal 6
 
 
-servoP	500 1000 600 400 300 50 
-servoI	2 2 2 1 1 1 
-servoD	200 400 250 50 50 10 
+servoP	1000 4000 2000 400 300 50 
+servoI	20 20 20 10 10 10
+servoD	80 100 80 30 30 10
 
 dryFriction	0 0 0 0 0 0 
-viscousFriction	0.5 0.5 0.5 0.5 0.5 0.5
+viscousFriction	5 5 3 3 1 1
 
 noselfcollision 0 2    4 6  
