@@ -3,6 +3,7 @@
     "modelFile":"../../data/robots/ur5.rob",
     "baseType":"fixed",
     "controllerFile":"controller/ur5_ril.py",
+    "resourceDir":"resources",
     "properties" : {
         "description": "UR5e robot"
     },

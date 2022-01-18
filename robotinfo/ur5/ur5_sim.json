@@ -3,6 +3,7 @@
     "modelFile":"../../data/robots/ur5.rob",
     "baseType":"fixed",
     "controllerFile":"klampt.control.simrobotinterface",
+    "resourceDir":"resources",
     "properties" : {
         "description": "kinematically simulated UR5e robot"
     },

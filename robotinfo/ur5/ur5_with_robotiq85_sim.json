@@ -3,6 +3,7 @@
     "modelFile":"../../data/robots/ur5_with_robotiq85.rob",
     "baseType":"fixed",
     "controllerFile":"klampt.control.simrobotinterface",
+    "resourceDir":"resources/ur5_with_robotiq85",
     "properties" : {
         "description": "kinematically simulated UR5e robot with Robotiq 2f85 gripper"
     },
