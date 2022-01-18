@@ -4,6 +4,7 @@
     "baseType":"fixed",
     "controllerFile":"klampt.control.simrobotinterface",
     "simulatorFile":"robotiq_sim.py",
+    "resourceDir":"resources",
     "properties" : {
         "description": "Simulated Robotiq 3-finger adaptive gripper"
     }
