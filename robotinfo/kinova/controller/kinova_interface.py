@@ -1,3 +1,4 @@
+from multiprocessing.sharedctypes import Value
 from klampt.control.robotinterface import RobotInterfaceBase
 from utilities import DeviceConnection
 from kortex_api.autogen.client_stubs.BaseClientRpc import BaseClient
@@ -13,21 +14,25 @@ import math
 import os
 import time
 
+from kinova_common import _ArmInterface, _GripperInterface
+
 class KinovaGen3RobotInterface(RobotInterfaceBase):
     """An Klamp't interface layer for a Kinova Gen3 robot. 
 
     Pass the constructed interface to RobotInterfaceCompleter().
     """
-    def __init__(self,ip='192.168.1.10',username='admin',password='admin'):
-        RobotInterfaceBase.__init__(self,name='Kinova Gen3 7DOF',
-                                    # HACK: path to model file is hard-code
-                                    klamptModelFile=os.path.join(os.path.dirname(__file__),
-                                                                 "../../../data/robots/kinova_with_robotiq_85.urdf"))
+    def __init__(self,ip='192.168.1.10',username='admin',password='admin', has_gripper=True,
+                 # HACK: path to model file is hard-code
+                 klamptModelFile=os.path.join(os.path.dirname(__file__),
+                                              "../../../data/robots/kinova_with_robotiq_85.urdf")):
+        RobotInterfaceBase.__init__(self,name='Kinova Gen3 7DOF', klamptModelFile=klamptModelFile)
         self.ip = ip
         self.credentials = (username,password)
         self.router = None
         self.router_cyclic = None
         self.tstart = None
+
+        self.has_gripper = has_gripper
     
     def initialize(self):
         """Tries to connect to the robot.  Returns true if ready to send
@@ -62,10 +67,12 @@ class KinovaGen3RobotInterface(RobotInterfaceBase):
         self.interconnect_cyclic = InterconnectCyclicClient(self.router_cyclic)
         self.num_arm_joints = self.base.GetActuatorCount().count
         self.arm = _ArmInterface(weakref.proxy(self))
-        self.gripper = _GripperInterface(weakref.proxy(self))
-        self.gripper.initialize()
 
-                # Create required services
+        if self.has_gripper:
+            self.gripper = _GripperInterface(weakref.proxy(self))
+            self.gripper.initialize()
+
+        # Create required services
         device_manager = DeviceManagerClient(self.router)
         device_handles = device_manager.ReadAllDevices()
         
@@ -130,7 +137,8 @@ class KinovaGen3RobotInterface(RobotInterfaceBase):
             self.feedback = self.base_cyclic.RefreshFeedback(0,self.sendOption)
         except Exception:
             pass
-        self.gripper.beginStep()
+        if self.has_gripper:
+            self.gripper.beginStep()
         
     def endStep(self):
         pass
@@ -140,12 +148,14 @@ class KinovaGen3RobotInterface(RobotInterfaceBase):
         returns the number of actuated DOFs in the Klamp't model. 
         """
         if part is None:
-            return self.num_arm_joints + 1
+            if self.has_gripper: return self.num_arm_joints + 1
+            else: return self.num_arm_joints
         elif part == 'arm':
             return self.num_arm_joints
         elif part == 'gripper':
             return 1
-        return len(self.parts()[part])
+        else:
+            raise ValueError("Invalid part {}".format(part))
     
     def controlRate(self):
         return 10 #Hz
@@ -157,7 +167,13 @@ class KinovaGen3RobotInterface(RobotInterfaceBase):
         Since this will be used a lot, make sure to declare your override with
         @functools.lru_cache.
         """
-        return {None:list(range(self.numJoints())),'arm':list(range(self.num_arm_joints)),'gripper':list(range(self.num_arm_joints,self.num_arm_joints+1))}
+        if self.has_gripper:
+            return { None:list(range(self.numJoints())),
+                     'arm':list(range(self.num_arm_joints)),
+                     'gripper':list([self.num_arm_joints])}
+        else:
+            # HACK: kinova arm without gripper does not provide separate arm interface
+            return { None:list(range(self.numJoints())) }
 
     def partInterface(self,part=None,joint_idx=None):
         if part is None and joint_idx is None:
@@ -192,107 +208,31 @@ class KinovaGen3RobotInterface(RobotInterfaceBase):
         return self._status
 
     def sensedPosition(self):
-        return self.arm.sensedPosition() + self.gripper.sensedPosition()
+        if self.has_gripper:
+            return self.arm.sensedPosition() + self.gripper.sensedPosition()
+        else:
+            return self.arm.sensedPosition()
 
     def sensedVelocity(self):
-        return self.arm.sensedVelocity() + self.gripper.sensedVelocity()
+        if self.has_gripper:
+            return self.arm.sensedVelocity() + self.gripper.sensedVelocity()
+        else:
+            return self.arm.sensedVelocity()
 
     def sensedTorque(self):
-        return self.arm.sensedTorque() + self.gripper.sensedTorque()
+        if self.has_gripper:
+            return self.arm.sensedTorque() + self.gripper.sensedTorque()
+        else:
+            return self.arm.sensedTorque()
 
     def setPosition(self,p,ttl=None):
         raise NotImplementedError("setPosition only works with arm part")
 
     def setVelocity(self,v,ttl=None):
         self.arm.setVelocity(v[:self.num_arm_joints],ttl)
-        self.gripper.setVelocity(v[self.num_arm_joints:],ttl)
+        if self.has_gripper:
+            self.gripper.setVelocity(v[self.num_arm_joints:],ttl)
 
     def setTorque(self,t,ttl=None):
         raise NotImplementedError("setTorque only works with arm part")
-
-
-class _ArmInterface(RobotInterfaceBase):
-    def __init__(self,kinova_iface):
-        self.kinova_iface = kinova_iface
-
-    def sensedPosition(self):
-        res = []
-        for act in self.kinova_iface.feedback.actuators:
-            v = math.radians(act.position)
-            if v > math.pi:  #normalize to range [-pi,pi]
-                v -= math.pi*2
-            res.append(v)
-        return res
-
-    def sensedVelocity(self):
-        return [math.radians(act.velocity) for act in self.kinova_iface.feedback.actuators]
-
-    def sensedTorque(self):
-        return [act.torque for act in self.kinova_iface.feedback.actuators]
-
-    def setVelocity(self,v,ttl=None):
-        assert len(v) == self.kinova_iface.num_arm_joints
-        joint_speeds = Base_pb2.JointSpeeds()
-        for i,x in enumerate(v):
-            joint_speed = joint_speeds.joint_speeds.add()
-            joint_speed.joint_identifier = i 
-            joint_speed.value = math.degrees(x)
-            if abs(joint_speed.value) > 90:
-                raise ValueError("Can't send command more than 45 degrees per second?")
-            #joint_speed.duration = 0 if ttl is None else ttl
-            joint_speed.duration = 0   #not implemented yet in Kortex
-            i = i + 1
-        #TODO: use BaseCyclic
-        self.kinova_iface.base.SendJointSpeedsCommand(joint_speeds)
-
-
-class _GripperInterface(RobotInterfaceBase):
-    def __init__(self,kinova_iface):
-        self.kinova_iface = kinova_iface
-        self.last_cmd = None
-
-    def initialize(self):
-        return True
-
-    def sensedPosition(self):
-        return [self.kinova_iface.feedback.interconnect.gripper_feedback.motor[0].position*0.01]
     
-    def sensedVelocity(self):
-        return [self.kinova_iface.feedback.interconnect.gripper_feedback.motor[0].velocity*0.01]
-    
-    def sensedTorque(self):
-        return [self.kinova_iface.feedback.interconnect.gripper_feedback.motor[0].current_motor]
-
-    def setPosition(self,v):
-        #TODO: use BaseCyclic
-        assert len(v)==1
-        if self.last_cmd == (3,v):
-            return
-        cmd = Base_pb2.GripperCommand()
-        cmd.mode = 3
-        cmd.duration = 0
-        finger = cmd.gripper.finger.add()
-        finger.finger_identifier = 0
-        finger.value = 1-v[0]
-        self.kinova_iface.base.SendGripperCommand(cmd)
-
-    def setVelocity(self,v,ttl=None):
-        assert len(v)==1
-        if self.last_cmd == (2,v):
-            return
-        self.last_cmd = (2,v[:])
-        cmd = Base_pb2.GripperCommand()
-        cmd.mode = 2
-        #cmd.duration = 0 if ttl is None else ttl
-        cmd.duration = 0  #not implemented yet
-        finger = cmd.gripper.finger.add()
-        finger.finger_identifier = 0
-        finger.value = -v[0]*0.5
-        self.kinova_iface.base.SendGripperCommand(cmd)
-    
-
-def make(_):
-    #HACK: kinova robot interface requires no argument, add a dummy parameter
-    """Interface used to refer to robot interfaces by file"""
-    from klampt.control.robotinterfaceutils import RobotInterfaceCompleter
-    return RobotInterfaceCompleter(KinovaGen3RobotInterface())

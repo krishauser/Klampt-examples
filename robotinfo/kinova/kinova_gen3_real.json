@@ -1,8 +1,8 @@
 {
     "name": "KinovaGen3",
-    "modelFile": "../data/robots/kinova_gen3_7dof.urdf",
+    "modelFile": "../../data/robots/kinova_gen3_7dof.urdf",
     "baseType":"fixed",
-    "controllerFile": "controllers/kinova/controller.py", 
+    "controllerFile": "controller/kinova_gen3_7dof.py", 
     "properties" : {
         "description": "Kinova Gen3 robot connected via serial port"
     },

@@ -1,8 +1,8 @@
 {
     "name": "KinovaGen3",
-    "modelFile": "../data/robots/kinova_with_robotiq_85.urdf",
+    "modelFile": "../../data/robots/kinova_with_robotiq_85.urdf",
     "baseType":"fixed",
-    "controllerFile": "controllers/kinova/controller.py", 
+    "controllerFile": "controller/kinova_with_robotiq85.py", 
     "properties" : {
         "description": "Kinova Gen3 robot with Robotiq 2f85 gripper connected via serial port"
     },
