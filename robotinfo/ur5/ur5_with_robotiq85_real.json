@@ -3,6 +3,7 @@
     "modelFile":"../../data/robots/ur5_with_robotiq85.rob",
     "baseType":"fixed",
     "controllerFile":"controller/ur5_with_robotiq85.py",
+    "resourceDir":"resources/ur5_with_robotiq85",
     "properties" : {
         "description": "UR5e robot with Robotiq 2f85 gripper connected via serial port"
     },
