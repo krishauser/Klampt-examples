@@ -1,0 +1,16 @@
+{
+    "name": "KinovaGen3",
+    "modelFile": "../../data/robots/kinova_gen3_7dof.urdf",
+    "baseType":"fixed",
+    "controllerFile": "controller/kinova_gen3_7dof.py", 
+    "properties" : {
+        "description": "Kinova Gen3 robot connected via serial port"
+    },
+    "endEffectors":{
+        "wrist":{
+            "link":8,
+            "activeLinks":[1,2,3,4,5,6,7],
+            "ikObjective":null
+        }
+    }
+}
