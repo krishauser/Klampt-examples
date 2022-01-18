@@ -6,7 +6,9 @@
 #include <KrisLibrary/utils/stringutils.h>
 #include <fstream>
 
-void OptimizeCartPole(Robot& robot)
+using namespace Klampt;
+
+void OptimizeCartPole(RobotModel& robot)
 {
   TabulatedController controller(robot);
   Assert(robot.q.n==2);
@@ -30,7 +32,7 @@ void OptimizeCartPole(Robot& robot)
   out.close();
 }
 
-void OptimizeSwingUp(Robot& robot)
+void OptimizeSwingUp(RobotModel& robot)
 {
   TabulatedController controller(robot);
   Assert(robot.q.n==1);
@@ -65,7 +67,7 @@ inline MyController* GetController(RobotController* rc)
 {
   return dynamic_cast<MyController*>(rc);
 }
-inline RobotController* MakeController(Robot* robot,const char* file)
+inline RobotController* MakeController(RobotModel* robot,const char* file)
 {
   TabulatedController* c = new TabulatedController(*robot);
   ifstream in(file,ios::in);
@@ -79,7 +81,7 @@ inline RobotController* MakeController(Robot* robot,const char* file)
   }
   return c;
 }
-inline void MakeDefaultSensors(Robot* robot,RobotSensors& sensors)
+inline void MakeDefaultSensors(RobotModel* robot,RobotSensors& sensors)
 {
   auto jp = make_shared<JointPositionSensor>();
   auto jv = make_shared<JointVelocitySensor>();
@@ -132,12 +134,12 @@ int main(int argc, const char** argv)
       break;
     }
   }
-  RobotWorld world;
+  WorldModel world;
   SimGUIBackend backend(&world);
   if(!backend.LoadAndInitSim(argc-i+1,&argv[i-1]))
     return 1;
 
-  Robot* robot = world.robots[0].get();
+  RobotModel* robot = world.robots[0].get();
   if(optimize) {
     cout<<"Optimizing policy around setpoint "<<robot->q<<"..."<<endl;
     if(swingup)

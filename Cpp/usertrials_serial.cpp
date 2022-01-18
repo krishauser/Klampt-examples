@@ -15,6 +15,7 @@
 #include <fstream>
 using namespace Math3D;
 using namespace GLDraw;
+using namespace Klampt;
 
 enum {
   UI_LISTBOX_ID,
@@ -66,7 +67,7 @@ void* communicationThreadFunc(void* vdata)
 class UserTrialProgram : public WorldViewProgram
 {
 public:
-  RobotWorld planningWorld;
+  WorldModel planningWorld;
   WorldPlannerSettings settings;
   string initialState;
 
@@ -86,7 +87,7 @@ public:
   float collisionMargin,oldCollisionMargin;
   int drawDesired,drawPath,drawUI;
 
-  UserTrialProgram(RobotWorld* world)
+  UserTrialProgram(WorldModel* world)
     :WorldViewProgram(world)
   {
     settings.InitializeDefault(*world);
@@ -103,9 +104,9 @@ public:
     controller = make_shared<PolynomialPathController>(*world->robots[0]);
     robotInterface = make_shared<DefaultMotionQueueInterface>(controller.get());
     connected = false;
-    CopyWorld(*world,planningWorld);
+    planningWorld.Copy(*world);
     planningWorld.InitCollisions();
-    Robot* robot = planningWorld.robots[0].get();
+    RobotModel* robot = planningWorld.robots[0].get();
     for(size_t i=0;i<robot->geometry.size();i++) {
       robot->geometry[i]->margin += collisionMargin;
     }
@@ -157,7 +158,7 @@ public:
 
   virtual void RenderWorld()
   {
-    Robot* robot=world->robots[0].get();
+    RobotModel* robot=world->robots[0].get();
 
     //update actual configuration from sensors
     if(connected && controller->sensors != NULL) {
@@ -331,7 +332,7 @@ public:
       break;
     case COLLISION_MARGIN_SPINNER_ID:
       {
-        Robot* robot = planningWorld.robots[0].get();
+        RobotModel* robot = planningWorld.robots[0].get();
         for(size_t i=0;i<robot->geometry.size();i++)
           robot->geometry[i]->margin -= oldCollisionMargin;
         for(size_t i=0;i<robot->geometry.size();i++)
@@ -428,7 +429,7 @@ int main(int argc, const char** argv)
     printf("USAGE: UserTrials XML_file\n");
     return 0;
   }
-  RobotWorld world;
+  WorldModel world;
   world.lights.resize(1);
   world.lights[0].setColor(GLColor(1,1,1));
   world.lights[0].setDirectionalLight(Vector3(0.2,-0.4,1));

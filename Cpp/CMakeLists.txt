@@ -1,5 +1,5 @@
 # Make the Klamp't examples 
-CMAKE_MINIMUM_REQUIRED(VERSION 2.6.4)
+CMAKE_MINIMUM_REQUIRED(VERSION 2.6.4...3.20)
 PROJECT(KlamptExamples)
 
 SET(KLAMPT_ROOT ../../Klampt CACHE PATH "Klampt root directory")
@@ -19,7 +19,8 @@ ADD_EXECUTABLE(ContactPlan contactplan.cpp)
 #ADD_EXECUTABLE(IKDemo ikdemo.cpp)
 ADD_EXECUTABLE(PlanDemo plandemo.cpp)
 ADD_EXECUTABLE(DynamicPlanDemo dynamicplandemo.cpp)
-SET(EXAMPLES  CartPole ContactPlan PlanDemo DynamicPlanDemo )
+ADD_EXECUTABLE(TSDFReconstruction tsdfreconstruction.cpp)
+SET(EXAMPLES  CartPole ContactPlan PlanDemo DynamicPlanDemo TSDFReconstruction)
 IF(GLUI_FOUND)
   ADD_EXECUTABLE(PlanGUI plangui.cpp)
   ADD_EXECUTABLE(RealTimePlanning realtimeplanning.cpp)
@@ -30,7 +31,6 @@ IF(GLUI_FOUND)
 ENDIF(GLUI_FOUND)
 FOREACH(f ${EXAMPLES})
   TARGET_LINK_LIBRARIES(${f} ${KLAMPT_LIBRARIES})
-  ADD_DEPENDENCIES(${f} Klampt)
 ENDFOREACH( )
 
 ADD_CUSTOM_TARGET(examples ALL

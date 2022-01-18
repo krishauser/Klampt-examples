@@ -12,10 +12,11 @@
 #include <string.h>
 #include <time.h>
 #include <fstream>
+using namespace Klampt;
 
 struct KlamptPlannerProgram : public WorldViewProgram
 {
-  RobotWorld world;
+  WorldModel world;
   ViewRobot vr;
   WorldPlannerSettings settings;
   Config start,goal;
@@ -45,12 +46,12 @@ struct KlamptPlannerProgram : public WorldViewProgram
     settings.InitializeDefault(world);
 
     //get end effectors for visualization
-    Robot* robot = world.robots[0].get();
+    RobotModel* robot = world.robots[0].get();
     vector<vector<int> > children;
     robot->GetChildList(children);
     //delete welded joints
     for(size_t i=0;i<robot->joints.size();i++) {
-      if(robot->joints[i].type == RobotJoint::Weld) {
+      if(robot->joints[i].type == RobotModelJoint::Weld) {
 	int link = robot->joints[i].linkIndex;
 	int p=robot->parents[link];
 	if(p < 0) continue;
@@ -216,7 +217,7 @@ struct KlamptPlannerProgram : public WorldViewProgram
 
 
   virtual void RenderWorld() {
-    Robot* robot = world.robots[0].get();
+    RobotModel* robot = world.robots[0].get();
     robot->UpdateConfig(start);
     ::WorldViewProgram::RenderWorld();
 

@@ -12,6 +12,7 @@
 #include <fstream>
 using namespace Math3D;
 using namespace GLDraw;
+using namespace Klampt;
 
 //comment this out if you want to force single-threaded planning and simulation
 #define MULTITHREADED
@@ -35,7 +36,7 @@ double timeCostCoeff = 0.0;
 class SafeSerialProgram : public SimViewProgram
 {
 public:
-  RobotWorld planningWorld;
+  WorldModel planningWorld;
   WorldPlannerSettings plannerSettings;
   string initialState;
 
@@ -51,7 +52,7 @@ public:
   Real collisionMargin;
   int drawCommanded,drawDesired,drawPath,drawUI,drawContacts;
 
-  SafeSerialProgram(RobotWorld* world)
+  SafeSerialProgram(WorldModel* world)
     :SimViewProgram(world)
   {
     //setup the settings
@@ -91,8 +92,8 @@ public:
     drawContacts = 1;
 
     robotInterface = new DefaultMotionQueueInterface(GetMotionQueue(sim.robotControllers[0].get()));
-    CopyWorld(*world,planningWorld);
-    Robot* robot = planningWorld.robots[0].get();
+    planningWorld.Copy(*world);
+    RobotModel* robot = planningWorld.robots[0].get();
     for(size_t i=0;i<robot->geometry.size();i++)
       robot->geometry[i]->margin += collisionMargin;
     plannerSettings.InitializeDefault(planningWorld);
@@ -142,7 +143,7 @@ public:
 
   virtual void RenderWorld()
   {
-    Robot* robot=world->robots[0].get();
+    RobotModel* robot=world->robots[0].get();
     RobotController* rc=sim.robotControllers[0].get();
 
     SimViewProgram::RenderWorld();
@@ -334,7 +335,7 @@ int main(int argc, const char** argv)
     printf("USAGE: SafeSerialClient XML_file\n");
     return 0;
   }
-  RobotWorld world;
+  WorldModel world;
   world.lights.resize(1);
   world.lights[0].setColor(GLColor(1,1,1));
   world.lights[0].setDirectionalLight(Vector3(0.2,-0.4,1));

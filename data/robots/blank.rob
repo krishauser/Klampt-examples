@@ -26,7 +26,7 @@ jointtype       ('r' or 'p', for each link)
 translation     (base translation, 3 values)
 rotation        (base rotation, 9 values column major)
 
-# [D-H parameters]
+# [D-H parameters, optional as an alternative to Tparent]
  alpha (in radius)
  alphaDeg (in degrees)
  a
@@ -40,7 +40,7 @@ rotation        (base rotation, 9 values column major)
  automass     (sets the com and inertia m.offces from geometry)
 
 # [Geometry parameters]
- geometry     .off mesh files, empty .offng "" for no geometry)
+ geometry     .off mesh files, use empty string "" for no geometry)
  geomscale    (a single value, or a list)
 
 # [Convenience tweaks]
