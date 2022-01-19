@@ -31,7 +31,7 @@ vis.add("cam",cam)
 vp = vis.getViewport()
 vp.camera.rot[1] -= 0.5
 vis.setViewport(vp)
-default = vis.getViewport().getTransform()
+default = vis.getViewport().get_transform()
 print('x:',so3.apply(default[0],[1,0,0]))
 print('y:',so3.apply(default[0],[0,1,0]))
 print('z:',so3.apply(default[0],[0,0,1]))

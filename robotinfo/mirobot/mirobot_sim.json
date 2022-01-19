@@ -1,0 +1,17 @@
+{
+    "name":"Mirobot",
+    "modelFile":"../../data/robots/mirobot.urdf",
+    "baseType":"fixed",
+    "controllerFile":"klampt.control.simrobotinterface",
+    "resourceDir":"resources",
+    "properties" : {
+        "description": "kinematically simulated Wlkata Mirobot robot"
+    },
+    "endEffectors":{
+        "wrist":{
+            "link":6,
+            "activeLinks":[1,2,3,4,5,6],
+            "ikObjective":null
+        }
+    }
+}

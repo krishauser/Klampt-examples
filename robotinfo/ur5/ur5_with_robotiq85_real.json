@@ -1,0 +1,42 @@
+{
+    "name":"UR5e-robotiq85",
+    "modelFile":"../../data/robots/ur5_with_robotiq85.rob",
+    "baseType":"fixed",
+    "controllerFile":"controller/ur5_with_robotiq85.py",
+    "resourceDir":"resources/ur5_with_robotiq85",
+    "properties" : {
+        "description": "UR5e robot with Robotiq 2f85 gripper connected via serial port"
+    },
+    "parts" : {
+        "arm" : [0,1,2,3,4,5,6,7],
+        "gripper" : [8,9,10,11,12,13,14,15,16]
+    },
+    "endEffectors":{
+        "wrist":{
+            "link":7,
+            "activeLinks":[1,2,3,4,5,6],
+            "ikObjective":null
+        }
+    },
+    "grippers": {
+        "robotiq85":{
+            "name": "robotiq_85-ur5",
+            "type": "parallel", 
+            "baseLink": 8, 
+            "minimumSpan": 0, 
+            "fingerDrivers": [6], 
+            "fingerLinks": [9, 10, 11, 12, 13, 14, 15, 16], 
+            "fingerDepth": 0.01, 
+            "fingerLength": 0.06, 
+            "fingerWidth": 0.02,
+            "secondaryAxis": [1, 0, 0],
+            "openConfig": [0, 0, 0, 0, 0, 0, 0, 0],
+            "center": [0, 0, 0.1],
+            "klamptModel": "../../data/robots/ur5_with_robotiq85.rob",
+            "closedConfig": [0.723, 0, 0.723, -0.723, -0.723, 0.723, -0.723, 0],
+            "primaryAxis": [0, 0, 1],
+            "maximumSpan": 0.075,
+            "gripperLinks": null
+        }
+    }
+}

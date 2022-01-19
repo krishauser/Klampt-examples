@@ -16,28 +16,31 @@ except ImportError:
 	HAVE_PYPLOT = False
 	print("**** Matplotlib not available, can't plot color/depth images ***")
 
-firsttime = True
-images = []
+
+KINEMATIC_SIMULATE = False       #whether to run the full physics simulation or just the camera simulation
+MANUAL_DEPTH_PROCESSING = False  #whether to use the convenience routines (recommended) or not
+GET_POINTS_FROM_IMAGES = False   #whether to get the rgb/depth images first, then use Klampt utilities to get the point cloud
+READ_POINTS_LOCAL = True         #whether to transform the point cloud to world coordinates
 
 def processDepthSensor(sensor):
-	"""
-	#manual processing
-	data = sensor.getMeasurements()
-	w = int(sensor.getSetting("xres"))
-	h = int(sensor.getSetting("yres"))
-	#first, RGB then depth
-	mind,maxd = float('inf'),float('-inf')
-	for i in range(h):
-		for j in range(w):
-			pixelofs = (j+i*w)
-			rgb = int(data[pixelofs])
-			depth = data[pixelofs+w*h]
-			mind = min(depth,mind)
-			maxd = max(depth,maxd)
-	print "Depth range",mind,maxd
-	"""
-	rgb,depth = sensing.camera_to_images(sensor)
-	return rgb,depth
+	if MANUAL_DEPTH_PROCESSING:
+		#manual processing
+		data = sensor.getMeasurements()
+		w = int(sensor.getSetting("xres"))
+		h = int(sensor.getSetting("yres"))
+		#first, RGB then depth
+		mind,maxd = float('inf'),float('-inf')
+		for i in range(h):
+			for j in range(w):
+				pixelofs = (j+i*w)
+				rgb = int(data[pixelofs])
+				depth = data[pixelofs+w*h]
+				mind = min(depth,mind)
+				maxd = max(depth,maxd)
+		print("Depth range",mind,maxd)
+	else:
+		rgb,depth = sensing.camera_to_images(sensor)
+		return rgb,depth
 
 world = klampt.WorldModel()
 world.readFile("../../data/simulation_test_worlds/sensortest.xml")
@@ -51,13 +54,14 @@ sensor = sim.controller(0).sensor("rgbd_camera")
 print("sensor.getSetting('link'):",sensor.getSetting("link"))
 print("sensor.getSetting('Tsensor'):",sensor.getSetting("Tsensor"))
 input("Press enter to continue...")
+
+#The next lines will set up an external camera by modifying the SimRobotSensor's properties
 #T = (so3.sample(),[0,0,1.0])
 T = (so3.mul(so3.rotation([1,0,0],math.radians(-10)),[1,0,0, 0,0,-1,  0,1,0]),[0,-2.0,0.5])
 sensing.set_sensor_xform(sensor,T,link=-1)
 
 vis.add("sensor",sensor)
 
-read_local = True
 
 #Note: GLEW sensor simulation only runs if it occurs in the visualization thread (e.g., the idle loop)
 class SensorTestWorld (GLPluginInterface):
@@ -124,28 +128,38 @@ class SensorTestWorld (GLPluginInterface):
 
 	def idle(self):
 		#print "Idle..."
-		#this uses the simulation
-		sim.simulate(0.01)
-		sim.updateWorld()
-		#this commented out line just uses the world and kinematic simulation
-		#sensor.kinematicSimulate(world,0.01)
+		if not KINEMATIC_SIMULATE:
+			#this uses the simulation to update the robot and the sensors
+			sim.simulate(0.01)
+			sim.updateWorld()
+		else:
+			#just uses the world and kinematic simulation to update the sensor
+			sensor.kinematicSimulate(world,0.01)
 		try:
 			#self.rgb,self.depth = processDepthSensor(sensor)
 			if self.compute_pc:
 				t0 = time.time()
-				if read_local:
-					#local point cloud
-					#self.pc = sensing.camera_to_points(sensor,points_format='numpy',color_format='rgb')
-					#self.pc = sensing.camera_to_points(sensor,points_format='native')
-					self.pc = sensing.camera_to_points(sensor,points_format='Geometry3D',all_points=True,color_format='rgb')
+				if GET_POINTS_FROM_IMAGES:
+					#manual processing
+					self.rgb,self.depth = processDepthSensor(sensor)
+					self.rgb[:,:,0] = 0
+					self.pc = sensing.image_to_points(self.depth,self.rgb,float(sensor.getSetting('xfov')),float(sensor.getSetting('yfov')),points_format='Geometry3D',all_points=True)
 					self.pc.setCurrentTransform(*T)
 					self.pc_appearance = Appearance()
 				else:
-					#world point cloud
-					#self.pc = sensing.camera_to_points_world(sensor,robot,points_format='numpy')
-					self.pc = sensing.camera_to_points_world(sensor,robot,points_format='Geometry3D',color_format='rgb')
-					self.pc_appearance = Appearance()
-				#print "Read and process PC time",time.time()-t0
+					if READ_POINTS_LOCAL:
+						#local point cloud
+						#self.pc = sensing.camera_to_points(sensor,points_format='numpy',color_format='rgb')
+						#self.pc = sensing.camera_to_points(sensor,points_format='native')
+						self.pc = sensing.camera_to_points(sensor,points_format='Geometry3D',all_points=True,color_format='rgb')
+						self.pc.setCurrentTransform(*T)
+						self.pc_appearance = Appearance()
+					else:
+						#world point cloud
+						#self.pc = sensing.camera_to_points_world(sensor,robot,points_format='numpy')
+						self.pc = sensing.camera_to_points_world(sensor,robot,points_format='Geometry3D',color_format='rgb')
+						self.pc_appearance = Appearance()
+				#print("Read and process PC time",time.time()-t0)
 		except Exception as e:
 			print(e)
 			import traceback
@@ -162,6 +176,7 @@ class SensorTestWorld (GLPluginInterface):
 				#Geometry3D drawing
 				self.pc_appearance.drawWorldGL(self.pc)
 			else:
+				#manual OpenGL drawing
 				glDisable(GL_LIGHTING)
 				glPointSize(5.0)
 				glColor3f(0,0,0)
@@ -169,7 +184,7 @@ class SensorTestWorld (GLPluginInterface):
 				for pt in self.pc:
 					if len(pt) == 6:
 						glColor3f(*pt[3:6])
-					if read_local:
+					if READ_POINTS_LOCAL:
 						glVertex3fv(se3.apply(T,pt[0:3]))
 					else:
 						glVertex3fv(pt[0:3])

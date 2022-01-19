@@ -1,0 +1,17 @@
+{
+    "name":"Mirobot",
+    "modelFile":"../../data/robots/mirobot.urdf",
+    "baseType":"fixed",
+    "controllerFile":"controller/mirobot_ril.py",
+    "resourceDir":"resources",
+    "properties" : {
+        "description": "Wlkata Mirobot robot"
+    },
+    "endEffectors":{
+        "wrist":{
+            "link":6,
+            "activeLinks":[1,2,3,4,5,6],
+            "ikObjective":null
+        }
+    }
+}

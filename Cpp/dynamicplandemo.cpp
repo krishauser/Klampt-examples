@@ -14,6 +14,7 @@
 #include <Klampt/Planning/RampCSpace.h>
 //includes Convert to convert between path representations
 #include <Klampt/Modeling/Paths.h>
+using namespace Klampt;
 
 /** @brief Converts a kinematically planned path to a dynamic one with
  * velocity and acceleration bounds.
@@ -22,7 +23,7 @@
  *
  * The output is placed in dynamicPath.
  */
-void DynamicShortcut(RobotWorld& world,int robot,const MilestonePath& path,int maxIters,
+void DynamicShortcut(WorldModel& world,int robot,const MilestonePath& path,int maxIters,
 		     ParabolicRamp::DynamicPath& dynamicPath)
 {
   //1. Make initial start-and-stop path.
@@ -57,7 +58,7 @@ void DynamicShortcut(RobotWorld& world,int robot,const MilestonePath& path,int m
  * 
  * See plandemo.cpp
  */
-bool SimplePlan(RobotWorld& world,int robot,const Config& qstart,const Config& qgoal,MilestonePath& path,
+bool SimplePlan(WorldModel& world,int robot,const Config& qstart,const Config& qgoal,MilestonePath& path,
 		const HaltingCondition& cond,const string& plannerSettings="")
 {
   ///If you don't call this, everything will run fine due to on-demand
@@ -175,7 +176,7 @@ int main(int argc,const char** argv)
 
   //Read in the world file
   XmlWorld xmlWorld;
-  RobotWorld world;
+  WorldModel world;
   if(!xmlWorld.Load(worldfile)) {
     printf("Error loading world XML file %s\n",worldfile);
     return 1;

@@ -1,12 +1,16 @@
-#include "Planning/StanceCSpace.h"
+#include <Klampt/Planning/StanceCSpace.h>
 #include <KrisLibrary/planning/AnyMotionPlanner.h>
+#include <KrisLibrary/planning/CSetHelpers.h>
 #include <KrisLibrary/utils/ioutils.h>
 #include <KrisLibrary/utils/stringutils.h>
-#include "Modeling/Paths.h"
-#include "Modeling/MultiPath.h"
-#include "IO/XmlWorld.h"
+#include <Klampt/Modeling/Paths.h>
+#include <Klampt/Modeling/MultiPath.h>
+#include <Klampt/IO/XmlWorld.h>
 #include <string.h>
 #include <fstream>
+
+using namespace Klampt;
+using namespace std;
 
 ///A margin used in StancePlan on the distance between the COM and the
 ///edge of the support polygon
@@ -21,12 +25,18 @@ bool PlanToSpace(CSpace* space,const Config& qstart,CSpace* goalSpace,
   MotionPlannerFactory factory;
   if(!plannerSettings.empty())
     factory.LoadJSON(plannerSettings);
+  vector<shared_ptr<CSet> > constraints(goalSpace->NumConstraints());
+  for(int i=0;i<goalSpace->NumConstraints();i++)
+    constraints[i] = goalSpace->Constraint(i);
+  IntersectionSet* goalSet = new IntersectionSet(constraints);
+
   //do more planner setup here if desired, e.g., change planner type,
   //perturbation size, connection radius, etc
-  MotionPlannerInterface* planner = factory.Create(space,qstart,goalSpace);
+  MotionPlannerInterface* planner = factory.Create(space,qstart,goalSet);
   string res = planner->Plan(path,cond);
   cout<<"Planner terminated with condition "<<res<<endl;
   delete planner;
+  delete goalSet;
   return !path.edges.empty();
 }
 
@@ -41,7 +51,7 @@ bool PlanToSpace(CSpace* space,const Config& qstart,CSpace* goalSpace,
  * The constraint specifications are given in WorldPlannerSettings. If you
  * have custom requirements, you will need to set them up.
  */
-bool StancePlan(RobotWorld& world,int robot,const Config& qstart,const Stance& sstart,const Stance& sgoal,
+bool StancePlan(WorldModel& world,int robot,const Config& qstart,const Stance& sstart,const Stance& sgoal,
 		MilestonePath& path,
 		const HaltingCondition& cond,const string& plannerSettings="")
 {
@@ -96,7 +106,7 @@ bool StancePlan(RobotWorld& world,int robot,const Config& qstart,const Stance& s
  * The constraint specifications are given in WorldPlannerSettings. If you
  * have custom requirements, you will need to set them up.
  */
-bool ContactPlan(RobotWorld& world,int robot,const Config& qstart,const Stance& sstart,const Stance& sgoal,MilestonePath& path,
+bool ContactPlan(WorldModel& world,int robot,const Config& qstart,const Stance& sstart,const Stance& sgoal,MilestonePath& path,
 		 const HaltingCondition& cond,const string& plannerSettings="")
 {
   WorldPlannerSettings settings;
@@ -111,6 +121,8 @@ bool ContactPlan(RobotWorld& world,int robot,const Config& qstart,const Stance& 
     cspace.AddContact(i->second.ikConstraint);
   vector<Hold> addedHolds,removedHolds;
   GetDifference(sgoal,sstart,addedHolds);
+
+  StanceCSpace transitionCspace(world,robot,&settings); 
 
   if(addedHolds.empty()) {
     //no added holds! no change in configuration needed
@@ -201,7 +213,7 @@ int main(int argc,const char** argv)
 
   //Read in the world file
   XmlWorld xmlWorld;
-  RobotWorld world;
+  WorldModel world;
   if(!xmlWorld.Load(worldfile)) {
     printf("Error loading world XML file %s\n",worldfile);
     return 1;
@@ -230,11 +242,11 @@ int main(int argc,const char** argv)
     cmdline += argv[i];
   }
   MultiPath path;
-  path.settings["robot"] = world.robots[robot].name;
+  path.settings["robot"] = world.robots[robot]->name;
   path.settings["command"] = cmdline;
   //begin planning
   bool feasible = true;
-  Config qstart = world.robots[robot].robot->q;
+  Config qstart = world.robots[robot]->q;
   for(size_t i=0;i+1<stances.size();i++) {
     MilestonePath mpath;
     if(!StancePlan(world,robot,qstart,stances[i],stances[i+1],mpath,termCond,plannerSettings)) {

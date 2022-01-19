@@ -13,6 +13,7 @@
 #include <fstream>
 using namespace Math3D;
 using namespace GLDraw;
+using namespace Klampt;
 
 enum {
   SIMULATE_BUTTON_ID,
@@ -29,7 +30,7 @@ double timeCostCoeff = 0.0;
 class UserTrialProgram : public SimViewProgram
 {
 public:
-  RobotWorld planningWorld;
+  WorldModel planningWorld;
   WorldPlannerSettings settings;
   string initialState;
 
@@ -44,7 +45,7 @@ public:
 
   int drawDesired,drawPath,drawUI,drawContacts;
 
-  UserTrialProgram(RobotWorld* world)
+  UserTrialProgram(WorldModel* world)
     :SimViewProgram(world)
   {
     settings.InitializeDefault(*world);
@@ -108,7 +109,7 @@ public:
     drawContacts = 1;
 
     robotInterface.reset(new DefaultMotionQueueInterface(GetMotionQueue(sim.robotControllers[0].get())));
-    CopyWorld(*world,planningWorld);
+    planningWorld.Copy(*world);
     planningWorld.InitCollisions();
 
     ///Hack to initialize motion queue before the planner tries to get a hold of it
@@ -160,7 +161,7 @@ public:
 
   virtual void RenderWorld()
   {
-    Robot* robot=world->robots[0].get();
+    RobotModel* robot=world->robots[0].get();
     RobotController* rc=sim.robotControllers[0].get();
 
     SimViewProgram::RenderWorld();
@@ -387,7 +388,7 @@ int main(int argc, char** argv)
     printf("USAGE: UserTrials XML_file [log file]\n");
     return 0;
   }
-  RobotWorld world;
+  WorldModel world;
   world.lights.resize(1);
   world.lights[0].setColor(GLColor(1,1,1));
   world.lights[0].setDirectionalLight(Vector3(0.2,-0.4,1));

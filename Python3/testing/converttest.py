@@ -46,7 +46,7 @@ print(vgnp[0],vgnp[1])
 import matplotlib.pyplot as plt
 import numpy as np
 grid = vgnp[2]
-gridslice = grid.shape[0]/2
+gridslice = grid.shape[0]//2
 vmin,vmax = np.min(grid[gridslice,:,:]),np.max(grid[gridslice,:,:])
 print("Range:",vmin,vmax)
 #plt.figure()

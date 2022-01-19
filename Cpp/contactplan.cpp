@@ -9,6 +9,7 @@
 #include <KrisLibrary/Timer.h>
 #include <string.h>
 #include <fstream>
+using namespace Klampt;
 
 ///A margin used in StancePlan on the distance between the COM and the
 ///edge of the support polygon
@@ -26,7 +27,7 @@ Real gSupportPolygonMargin = 0;
  * The constraint specifications are given in WorldPlannerSettings. If you
  * have custom requirements, you will need to set them up.
  */
-bool StancePlan(RobotWorld& world,int robot,Config& qstart,Config& qgoal,const Stance& s,MilestonePath& path,
+bool StancePlan(WorldModel& world,int robot,Config& qstart,Config& qgoal,const Stance& s,MilestonePath& path,
 		 const HaltingCondition& cond,const string& plannerSettings="")
 {
   WorldPlannerSettings settings;
@@ -100,7 +101,7 @@ bool StancePlan(RobotWorld& world,int robot,Config& qstart,Config& qgoal,const S
  * The constraint specifications are given in WorldPlannerSettings. If you
  * have custom requirements, you will need to set them up.
  */
-bool ContactPlan(RobotWorld& world,int robot,Config& qstart,Config& qgoal,const Stance& s,MilestonePath& path,
+bool ContactPlan(WorldModel& world,int robot,Config& qstart,Config& qgoal,const Stance& s,MilestonePath& path,
 		 const HaltingCondition& cond,const string& plannerSettings="")
 {
   WorldPlannerSettings settings;
@@ -235,7 +236,7 @@ int main(int argc,const char** argv)
 
   //Read in the world file
   XmlWorld xmlWorld;
-  RobotWorld world;
+  WorldModel world;
   if(!xmlWorld.Load(worldfile)) {
     printf("Error loading world XML file %s\n",worldfile);
     return 1;

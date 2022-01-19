@@ -25,18 +25,36 @@ sim = Simulator(world)
 camera = sim.controller(0).sensor('rgbd_camera')
 T = ([1,0,0, 0,0,-1,  0,1,0],[0,-2.0,0.5])
 sensing.set_sensor_xform(camera,T,link=-1)
+camera.setSetting("xres",str(640))
+camera.setSetting("yres",str(480))
 robot = world.robot(0)
 
 rgb,depth = None,None
 
 def do_snapshot():
+    """For the OpenGL operations to succeed, SimRobotSensor.kinematicSimulate
+    has to be called within the render loop.
+    """
     global rgb,depth
+    t0 = time.time()
     camera.kinematicReset()
-    camera.kinematicSimulate(world,0.01)
+    camera.kinematicSimulate(world,0.01)    
+    t1 = time.time()
     rgb,depth = sensing.camera_to_images(camera)
-    #pc = sensing.image_to_points(depth,rgb,float(camera.getSetting('xfov')),depth_scale=1.0,depth_range=(0.5,5.0),points_format='Geometry3D',all_points=True)
-    #pc.setCurrentTransform(*sensing.get_sensor_xform(camera,world.robot(0)))
-    #vis.add('point cloud',pc)
+    t2 = time.time()
+    print("Camera simulated in time %.2fms, %.2fms for download/conversion"%((t2-t0)*1000,(t2-t1)*1000))
+
+    # pc = sensing.image_to_points(depth,rgb,float(camera.getSetting('xfov')),depth_scale=1.0,depth_range=(0.5,5.0),points_format='Geometry3D',all_points=True)
+    # pc.setCurrentTransform(*sensing.get_sensor_xform(camera,world.robot(0)))
+    # t3 = time.time()
+    # print("Camera to point cloud conversion %.2fms"%((t3-t2)*1000))
+    # vis.add('point cloud',pc)
+
+    # pc2 = sensing.camera_to_points(camera,points_format='Geometry3D',color_format='rgb')
+    # pc2.setCurrentTransform(*sensing.get_sensor_xform(camera,world.robot(0)))
+    # t4 = time.time()
+    # print("Camera direct to point cloud conversion %.2fms"%((t4-t3)*1000))
+    # vis.add('point cloud',pc2)
 
 axs = None
 fig = None
@@ -127,8 +145,6 @@ else:
 
     close_snapshot_matplotlib()
 
-    STRESS_TEST_VIS = True
-    
 if STRESS_TEST_VIS:
     if METHOD == "workaround" or METHOD == "glbackend":
         print("Note: Workaround does something to clobber the Klamp't vis module.")

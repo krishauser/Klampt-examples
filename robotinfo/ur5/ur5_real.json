@@ -1,0 +1,17 @@
+{
+    "name":"UR5e",
+    "modelFile":"../../data/robots/ur5.rob",
+    "baseType":"fixed",
+    "controllerFile":"controller/ur5_ril.py",
+    "resourceDir":"resources",
+    "properties" : {
+        "description": "UR5e robot"
+    },
+    "endEffectors":{
+        "wrist":{
+            "link":7,
+            "activeLinks":[1,2,3,4,5,6],
+            "ikObjective":null
+        }
+    }
+}

@@ -9,10 +9,6 @@ from klampt.math import vectorops
 problem = "1"
 #problem = "2"
 
-def interpolate(a,b,u):
-    """Interpolates linearly between a and b"""
-    return vectorops.madd(a,vectorops.sub(b,a),u)
-
 class Circle:
     def __init__(self,x=0,y=0,radius=1):
         self.center = (x,y)
@@ -91,7 +87,7 @@ class RigidBarCSpace(CSpace):
     def interpolate(self,a,b,u):
         #TODO: return a configuration that interpolates between a and b
         #at parameter u.  Current implementation is linear.
-        return interpolate(a,b,u)
+        return vectorops.interpolate(a,b,u)
 
     def endpoints(self,q):
         """Returns the bar's endpoints for the configuration q"""

@@ -16,7 +16,7 @@ geometry   "RobotiQ/palm.off"   "RobotiQ/link0.off"    "RobotiQ/link0.off"  "Rob
 mass       1  0.15   0.15  0.15
 automass
 
-#inertia m.offx     [7300   0     -650
+#inertia matrix     [7300   0     -650
 #                     0     8800    0
 #                    -650  0      7000]kg*mm^2
 
