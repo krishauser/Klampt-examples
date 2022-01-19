@@ -15,7 +15,7 @@ pytz==2020.1              # via pandas
 scipy==1.4.1              # via seaborn
 seaborn==0.10.1
 six==1.15.0               # via cycler, python-dateutil
-klampt==0.8.5
+klampt==0.9.0
 ipywidgets
 PyOpenGL
 jupyter_contrib_nbextensions
