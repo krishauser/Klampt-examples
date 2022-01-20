@@ -2,7 +2,6 @@ jupyter serverextension enable --py nbgitpuller --sys-prefix
 
 git clone --depth 1 https://github.com/krishauser/Klampt
 cd Klampt/Python
-#pip install .
 python patch_a_pip_install.py
 cd ../..
 rm -r Klampt
