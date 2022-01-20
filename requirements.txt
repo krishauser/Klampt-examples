@@ -16,7 +16,9 @@ scipy==1.4.1              # via seaborn
 seaborn==0.10.1
 six==1.15.0               # via cycler, python-dateutil
 klampt==0.9.0
+klampt_jupyter==0.1.2
 ipywidgets
 PyOpenGL
-jupyter_contrib_nbextensions
+build
+wheel
 nbgitpuller
