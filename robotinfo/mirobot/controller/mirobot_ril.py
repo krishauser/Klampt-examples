@@ -1,4 +1,4 @@
-from klampt.control import RobotInterfaceBase, RobotInterfaceCompleter
+from klampt.control import RobotInterfaceBase, RobotInterfaceCompleter, OmniRobotInterface
 from klampt.math import vectorops,so3
 from mirobot import Mirobot
 import time
@@ -14,6 +14,13 @@ class MirobotInterface (RobotInterfaceBase):
         cd mirobot-py
         python3 setup.py install
     
+    Args:
+        portname: passed to Mirobot device
+        baudrate: passed to Mirobot device
+        debug: passed to Mirobot device
+        valve_pwm_values: passed to Mirobot device
+        pump_pwm_values: passed to Mirobot device
+
     """
     def __init__(self,*mirobot_args,**mirobot_kwargs):
         RobotInterfaceBase.__init__(self)
@@ -133,14 +140,74 @@ class MirobotInterface (RobotInterfaceBase):
     #     rpy = [v if v >= 0 else v+360 for v in rpy]
     #     self._mirobot.go_to_cartesian_lin(tmm[0],tmm[1],tmm[2],rpy[0],rpy[1],rpy[2],speed=speed*self._mirobot.default_speed,wait=False)
 
+class MirobotGripperInterface(RobotInterfaceBase):
+    def __init__(self,mirobot):
+        self._mirobot = mirobot
+        self._pwm_range = [int(v) for v in self._mirobot.valve_pwm_values]
+    def numJoints(self):
+        return 1
+    def controlRate(self):
+        return 10
+    def setPosition(self,q):
+        assert len(q)==1
+        pwm_val = int(self._pwm_range[0] + q[0]*(self._pwm_range[1]-self._pwm_range[0]))
+        self._mirobot.set_valve(pwm_val, wait=False)
+    def sensedPosition(self):
+        pwm_val = self._mirobot.status.valve_pwm
+        to_range = (pwm_val - self._pwm_range[0])/(self._pwm_range[1]-self._pwm_range[0])
+        return [to_range]
+    def commandedPosition(self):
+        return self.sensedPosition()
+
+class MirobotPumpInterface(RobotInterfaceBase):
+    def __init__(self,mirobot):
+        self._mirobot = mirobot
+        self._valve_range = [int(v) for v in self._mirobot.valve_pwm_values]
+        self._pump_range = [int(v) for v in self._mirobot.pump_pwm_values]
+    def numJoints(self):
+        return 1
+    def controlRate(self):
+        return 10
+    def setPosition(self,q):
+        assert len(q)==1
+        if q[0] > 0.5: #turn on
+            self._mirobot.set_air_pump(self._pump_range[0], wait=False)
+            self._mirobot.set_valve(self._valve_range[1], wait=False)
+        else:
+            self._mirobot.set_air_pump(self._pump_range[1], wait=False)
+            self._mirobot.set_valve(self._valve_range[0], wait=False)
+    def sensedPosition(self):
+        pwm_val = self._mirobot.status.pump_pwm
+        to_range = (pwm_val - self._pump_range[0])/(self._pump_range[1]-self._pump_range[0])
+        return [to_range]
+    def commandedPosition(self):
+        return self.sensedPosition()
+
 
 def make(robotModel,portname=None,debug=True):
+    end_effector = None
+    if robotModel.numDrivers()==7:
+        end_effector = 'gripper'
+    elif robotModel.numLinks()==8:
+        end_effector = 'pump'
+    print("Detected Mirobot end effector:",end_effector)
     #raw interface
     # res = MirobotInterface(portname=portname,debug=debug)
     # res._klamptModel = robotModel
     # return res
     #completed interface
-    res = RobotInterfaceCompleter(MirobotInterface(portname=portname,debug=debug))
-    res._klamptModel = robotModel
-    res._base._klamptModel = robotModel
+    if end_effector is None:
+        res = RobotInterfaceCompleter(MirobotInterface(portname=portname,debug=debug))
+        res._klamptModel = robotModel
+        res._base._klamptModel = robotModel
+    else:
+        res = OmniRobotInterface(robotModel)
+        arm_interface = MirobotInterface(portname=portname,debug=debug)
+        res.addPhysicalPart("arm",arm_interface)
+        if end_effector == 'gripper':
+            ee_interface = MirobotGripperInterface(arm_interface._mirobot)
+            res.addPhysicalPart("gripper",ee_interface)
+        else:
+            ee_interface = MirobotPumpInterface(arm_interface._mirobot)
+            res.addPhysicalPart("pump",ee_interface)
     return res

@@ -404,6 +404,58 @@
       effort="1"
       velocity="0.8" />
   </joint>
+  <link
+    name="Vacuum">
+    <inertial>
+      <origin
+        xyz="5.5511E-17 5.421E-20 -0.010506"
+        rpy="0 0 0" />
+      <mass
+        value="0.001" />
+      <inertia
+        ixx="0.001"
+        ixy="0"
+        ixz="0"
+        iyy="0.001"
+        iyz="0"
+        izz="0.001" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="mirobot/Vacuum.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.83 0.83 0.83 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="mirobot/Vacuum.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="VacuumJoint"
+    type="fixed">
+    <origin
+      xyz="0 0 0"
+      rpy="0 0 0" />
+    <parent
+      link="Link6" />
+    <child
+      link="Vacuum" />
+  </joint>
+
   
   <!-- Transmissions for ROS Control -->
   <xacro:macro name="transmission_block" params="joint_name">
