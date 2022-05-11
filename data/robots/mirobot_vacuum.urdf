@@ -492,5 +492,6 @@
     <link name="Link4" servoP="5" servoI="0" servoD=".5" />
     <link name="Link5" servoP="3" servoI="0" servoD=".3" />
     <link name="Link6" servoP="2" servoI="0" servoD=".2" />
+    <noselfcollision pairs="5 7" />
   </klampt>
 </robot>

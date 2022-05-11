@@ -39,7 +39,7 @@ CLOSED_LOOP_TEST = 0
 #Plan to cartesian goals rather than configurations exactly
 PLAN_CARTESIAN_TEST = 0
 #Show the smoothed path rather than the raw one
-SHOW_SMOOTHED_PATH = 0
+SHOW_SMOOTHED_PATH = 1
 
 def run_planner_default(plan : cspace.MotionPlan,
                         maxIters : int = MAX_PLANNER_ITERS,

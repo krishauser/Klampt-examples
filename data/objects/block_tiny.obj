@@ -1,0 +1,10 @@
+mesh "cube.off"
+geomscale 0.025 0.025 0.025
+geomtranslate -0.0125 -0.0125 -0.0125
+T 1 0 0 0 1 0 0 0 1      0 0 0.0135
+mass 0.05
+autoMass
+kFriction 1
+kStiffness 10000
+kDamping 3000
+kRestitution 0

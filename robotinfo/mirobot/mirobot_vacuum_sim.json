@@ -3,9 +3,10 @@
     "modelFile":"../../data/robots/mirobot_vacuum.urdf",
     "baseType":"fixed",
     "controllerFile":"klampt.control.simrobotinterface",
+    "simulatorFile":"simulation/vacuum.py",
     "resourceDir":"resources/vacuum",
     "properties" : {
-        "description": "kinematically simulated Wlkata Mirobot robot"
+        "description": "kinematically simulated Wlkata Mirobot with vacuum"
     },
     "endEffectors":{
         "wrist":{
