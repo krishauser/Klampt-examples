@@ -51,6 +51,13 @@ def basic_template(world):
     vis.add("box",g)
     vis.setColor("box",0,0,1,0.5)
 
+    def onclick(name,item,point):
+        print("Clicked",name,"at",point)
+        vis.pick(click_callback=onclick,hover_callback=onhover)  #call me again to repeatedly pick stuff
+    def onhover(name,item,point):
+        pass
+    vis.pick(click_callback=onclick,hover_callback=onhover)
+
     vis.setWindowTitle("Basic visualization test")
     if not MULTITHREADED:
         print("Running vis loop in single-threaded mode with vis.loop()")
