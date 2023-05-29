@@ -38,6 +38,7 @@ class MyGLViewer(GLWidgetPlugin):
             print("- r: randomize the sub-robot configuration")
             print("- p: plan to the widget's sub-robot configuration")
             print("- i: test the IK functions")
+            print("- j: test the Jacobian functions")
         elif c == ' ':
             config = self.robotWidget.get()
             subconfig = self.subrobots[0].fromfull(config)
@@ -65,6 +66,14 @@ class MyGLViewer(GLWidgetPlugin):
             print("  result",res)
             print("  residual",solver.getResidual())
             print(self.robotWidget.set(self.robot.getConfig()))
+        elif c == 'j':
+            link = self.subrobots[0].link(self.subrobots[0].numLinks()-1)
+            print("Jacobian:")
+            print(link.getJacobian([0,0,0]))
+            print("Position Jacobian:")
+            print(link.getPositionJacobian([0,0,0]))
+            print("Orientation Jacobian:")
+            print(link.getOrientationJacobian())
         else:
             GLWidgetPlugin.keyboardfunc(self,c,x,y)
 
