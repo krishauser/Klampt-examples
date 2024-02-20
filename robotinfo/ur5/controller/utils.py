@@ -83,11 +83,11 @@ class SharedMap:
             for k,v in bindings.names_to_starts.items():
                 dat, start, size = v
                 if dat is bindings.ints:
-                    int_items.append(k, start, size)
+                    int_items.append((k, start, size))
                     int_idx = max(int_idx,start + size)
                 else:
                     assert dat is bindings.floats
-                    float_items.append(k, start, size)
+                    float_items.append((k, start, size))
                     float_idx = max(float_idx,start + size)
         else:
             for k,v in bindings.__dict__.items():

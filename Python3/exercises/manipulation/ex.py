@@ -235,7 +235,7 @@ def graspedObjectTransform(robot,hand,qrobot0,Tobj0,qrobot):
     """Given initial robot configuration qrobot0 and object transform Tobj0,
     returns the object transformation corresponding to new configuration
     qrobot assuming the object is rigidly attached to the hand"""
-    Tgrasp = graspedObjectTransform(robot,hand,qrobot0,Tobj0)
+    Tgrasp = graspTransform(robot,hand,qrobot0,Tobj0)
     robot.setConfig(qrobot)
     Thand = robot.link(hand.link).getTransform()
     return se3.mul(Thand,Tgrasp)

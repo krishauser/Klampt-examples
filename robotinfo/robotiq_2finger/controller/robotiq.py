@@ -168,7 +168,7 @@ class RobotiqParallelInterface(RobotInterfaceBase):
         self.setPID(q,[1],[1])
     
     def moveToPosition(self, q, speed):
-        return self.setPID(q, [speed] [1])
+        return self.setPID(q, [speed], [1])
 
     def setVelocity(self, dq, ttl=None):
         if ttl is None:
@@ -178,11 +178,8 @@ class RobotiqParallelInterface(RobotInterfaceBase):
                 self.setPID([1],dq)
         else:
             q = self.commandedPosition()
-            if dq[0] < 0:
-                self.setPID([q[0]+ttl*dq[0]],dq)
-            else:
-                self.setPID([q[0]+ttl*dq[0]],dq)
-
+            self.setPID([q[0]+ttl*dq[0]],dq)
+            
     def setPID(self, q, dq, t=None):
         assert len(q) == 1
         assert len(dq) == 1

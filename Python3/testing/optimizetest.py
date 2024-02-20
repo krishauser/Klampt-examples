@@ -1243,7 +1243,7 @@ class OptimizationProblemEditor(editors.WorldEditor):
         else:
             try:
                 obj = json.loads(sizetext)
-                if isinstance(obj,int) or (isinstance(obj,(tuple,list)) and all(isinstance(v) for v in obj)):
+                if isinstance(obj,int) or (isinstance(obj,(tuple,list)) and all(isinstance(v,int) for v in obj)):
                     item.type.size = obj
                 else:
                     print("Unable to resize, invalid size specified (must be integer or tuple, got %s)"%(sizetext,))
