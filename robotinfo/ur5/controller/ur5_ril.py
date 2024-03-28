@@ -424,7 +424,6 @@ class UR5RobotInterface(RobotInterfaceBase):
         """
         self.dashboard_client.powerOff()
         self.dashboard_client.shutdown()
-     
     
 if __name__ == "__main__":
     # Testing Dashboard Client
@@ -434,5 +433,5 @@ if __name__ == "__main__":
     ap.add_argument('--gripper', action='store', type=str, required=False)
     args = ap.parse_args()
 
-    ur5 = UR5RobotInterface(args.addr, gripper=False, gravity=[4.91,-4.91,-6.93672],type = args.gripper,payload =0.72,cog = [0,0,0.05])    # from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
+    ur5 = UR5RobotInterface(args.addr, gripper=args.gripper, gravity=[4.91,-4.91,-6.93672],payload =0.72,cog = [0,0,0.05])    # from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
     
