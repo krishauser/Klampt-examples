@@ -14,7 +14,8 @@ from scipy import signal as scipysignal
 
 import rtde
 import ur5_constants
-from utils import in_limits
+from utils import in_limits, SharedMap
+from ur5_dashboard import UR5DashboardClient
 
 logger = logging.getLogger(__name__)  # pylint: disable=invalid-name
 
@@ -50,7 +51,7 @@ REG_JOINT_TORQUE = 0    # 0-5
 
 
 class UR5RTDEDriver:
-    def __init__(self, host, IO_buffer, filter_flag, qmin, qmax, vmin, vmax, dashboard_client, **kwargs):
+    def __init__(self, host : str, IO_buffer : SharedMap, filter_flag : bool, qmin, qmax, vmin, vmax, dashboard_client : UR5DashboardClient, **kwargs):
         """
         An interface to the UR5 using the UR Real Time Data Exchange (RTDE) protocol.
 
@@ -67,6 +68,8 @@ class UR5RTDEDriver:
         Keyword arguments:
             rtde_port:          port for RTDE, default 30004
             command_port:       port for commands, default 30002
+        
+        Use IO_buffer to communicate with the RTDE program.
         """
         self.dashboard_client = dashboard_client
 
@@ -220,9 +223,8 @@ class UR5RTDEDriver:
         # NOTE: IGNORE SIGINT!
         signal.signal(signal.SIGINT, lambda signal, frame: None)
         setpoint_number = 0
-        self.IO_buffer.lock()
-        self.IO_buffer.set('running', 1)
-        self.IO_buffer.unlock()
+        with self.IO_buffer.lock():
+            self.IO_buffer['running'] = 1
         while True:
             t1 = time.time()
             state = self._conn.receive()
@@ -233,9 +235,8 @@ class UR5RTDEDriver:
             if self.state is None and state is None:
                 time.sleep(0.01)
                 continue
-            self.IO_buffer.lock()
-            stop = self.IO_buffer.get('stop_flag')
-            self.IO_buffer.unlock()
+            with self.IO_buffer.lock():
+                stop = self.IO_buffer.get('stop_flag')
             if stop <= 0:
                 self._sock.sendall(b'stop program\n')
                 self._sock.close()
@@ -246,10 +247,8 @@ class UR5RTDEDriver:
                 print("disconnecting")
                 break
             else:
-                self.IO_buffer.lock()
-                self.IO_buffer.set('stop_flag', stop - 1)
-                self.IO_buffer.unlock()
-
+                with self.IO_buffer.lock():
+                    self.IO_buffer['stop_flag'] = stop - 1
             if state is not None:
                 # TODO: estimate state in the case of no sensor feedback
                 self.state = state
@@ -364,17 +363,16 @@ class UR5RTDEDriver:
 
         if self._start_time is None:
             self._start_time = state.timestamp
-
         t = state.timestamp - self._start_time
         dt = t - self.last_t
         self.last_t = t
 
-        buf.lock()
+        buf.lock_acquire()
         buf.copy_from_object(state)
 
         pstop = False
         if state.safety_status_bits & ur5_constants.PROTECTIVE_STOP_MASK:
-            buf.unlock()
+            buf.lock_release()
             print("Arm has been protective stopped. Resetting in 6s...")
             time.sleep(6.0)
             for i in range(5):
@@ -392,7 +390,7 @@ class UR5RTDEDriver:
             self.state = state
             if state is None:
                 return
-            buf.lock()
+            buf.lock_acquire()
             buf.copy_from_object(state)
             pstop = True
             # self.left_limb.controller.setFreeDrive(True)
@@ -401,9 +399,9 @@ class UR5RTDEDriver:
             # self.left_limb.controller.setFreeDrive(False)
             # print("Exiting freedrive and protective stop procedure...")
 
-        buf.set("connected", 1)
+        buf["connected"] = 1
         joint_torques = [self.get_output_register(state, REG_JOINT_TORQUE + i) for i in range(6)]
-        buf.set("joint_torques", joint_torques)
+        buf["joint_torques"] = joint_torques
         
         if self._safe_config is None:
             self._safe_config = state.actual_q
@@ -416,7 +414,7 @@ class UR5RTDEDriver:
                 self.c[i] = self.c[i]*0.9 + cv*0.1
         current_error = self.c * (np.array(target_current) - buf.get('actual_current'))
         self.accum_current = 0.96*self.accum_current + 0.04*current_error
-        buf.set('current_error', self.accum_current)
+        buf['current_error'] = self.accum_current
 
         #Add and filter wrench here
         if self._filter_flag:
@@ -425,7 +423,7 @@ class UR5RTDEDriver:
             if len(self.histories[0]) < self._history_length:
                 for i, x in enumerate(self.histories):
                     x.append(dat[i])
-                buf.set('filtered_wrench', wrench)
+                buf['filtered_wrench'] = wrench
             else:
                 #filtering all 6 of these takes about 0.1 ms
                 _filtered_dat = [0.0]*6
@@ -434,18 +432,18 @@ class UR5RTDEDriver:
                     x.pop(0)
                     x.append(dat[i])
                     _filtered_dat[i] = scipysignal.filtfilt(self.b, self.a, x)[self._history_length -1].tolist()
-                buf.set('filtered_wrench', _filtered_dat[:6])
+                buf['filtered_wrench'] =_filtered_dat[:6]
 
         if pstop:
             self.setPosition(self._safe_config, 0.2, 100)
-            buf.unlock()
+            buf.lock_release()
 
             self._conn.send(self.registers)
             return
 
         if buf.get('zero_ftsensor'):
             self.set_register(REG_ZERO_FTSENSOR, 1, regtype="int")
-            buf.set('zero_ftsensor', 0)
+            buf['zero_ftsensor'] = 0
         else:
             self.set_register(REG_ZERO_FTSENSOR, 0, regtype="int")
 
@@ -466,20 +464,24 @@ class UR5RTDEDriver:
             self.setHalt()
         elif control_mode == SETPOINT_POSITION:
             q_commanded = buf.get('q_commanded')
+            #print("RTDE q_command:", q_commanded)
             if self.isFormatted(q_commanded):
                 if not in_limits(q_commanded, qmin, qmax):
-                    buf.set('control_mode', SETPOINT_NONE)
+                    print("RTDE out of bounds,", qmin, qmax)
+                    buf['control_mode'] = SETPOINT_NONE
                     stop_robot = True
                 else:
                     lookahead = buf.get("lookahead")
                     delta = np.array(q_commanded) - state.actual_q
-                    qd_limit = 3 * lookahead
+                    qd_limit = min(self.vmax) * lookahead
                     max_qd = np.max(np.abs(delta))
                     if max_qd > qd_limit:
+                        print("RTDE velocity limit")
                         delta = delta * qd_limit / max_qd
                     self.setPosition(state.actual_q + delta, lookahead)
             else:
-                buf.set('control_mode', SETPOINT_NONE)
+                print("RTDE: malformed q_com")
+                buf['control_mode'] = SETPOINT_NONE
                 stop_robot = True
                 print(q_commanded)
                 print("Warning, improper position formatting. Halting")
@@ -492,13 +494,13 @@ class UR5RTDEDriver:
                     #only want to check next position limits of robot not gripper
                     #UR5_CL is the configuration length of just the UR5 robot = 6
                     if not in_limits(q_next, qmin, qmax):
-                        buf.set('control_mode', SETPOINT_NONE)
+                        buf['control_mode'] = SETPOINT_NONE
                         stop_robot = True
                         print("Warning, exceeding joint limits. Halting")
                     else:
                         self.setVelocity(qdot_commanded)
             else:
-                buf.set('control_mode', SETPOINT_NONE)
+                buf['control_mode'] = SETPOINT_NONE
                 stop_robot = True
                 print("Warning, improper velocity formatting. Halting")
         elif control_mode == SETPOINT_WRENCH:
@@ -516,6 +518,7 @@ class UR5RTDEDriver:
 
         #print(pinchness(state.actual_q))
         if not in_limits(state.actual_q, qmin, qmax):
+            print("RTDE: HARD STOP - JOINT LIMITS", state.actual_q, qmin, qmax)
             stop_robot = True
         #if in_pinch(state.actual_q, pinch_radius = 0.12):
         #    stop_robot = True
@@ -537,14 +540,14 @@ class UR5RTDEDriver:
         # send gravity
         self.l2r(self._gravity, REG_G, "double", 3)
 
-        buf.unlock()
+        buf.lock_release()
 
         self._conn.send(self.registers)
 
     def isFormatted(self, val):
         #do formatting
         if val:
-            if len(val) == ur5_constants.UR5_CONFIG_LEN:
+            if len(val) == ur5_constants.NUM_JOINTS:
                 return True
         else:
             print("Error, val: ", val, " is not formatted correctly")

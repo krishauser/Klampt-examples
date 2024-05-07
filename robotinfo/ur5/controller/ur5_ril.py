@@ -1,5 +1,7 @@
 from klampt.math import vectorops,so3,se3
 from klampt.control.robotinterface import RobotInterfaceBase
+from klampt.control.robotinterfaceutils import RobotInterfaceCompleter, ThreadedRobotInterface, RobotInterfaceEmulator
+from klampt import RobotModel
 import ur5_driver
 from utils import clamp_limits, in_limits, SharedMap
 from ur5_dashboard import UR5DashboardClient
@@ -8,17 +10,30 @@ import time, math
 import numpy as np
 from copy import copy, deepcopy
 import warnings
+from dataclasses import dataclass,field,asdict
+from typing import Tuple, List
+
+@dataclass
+class UR5RobotSettings:
+    host : str     # IP address of the UR5 controller
+    robot_model : RobotModel
+    rtde_port : int = 30004
+    command_port : int = 30002
+    dashboard_port : int = 29999
+    gripper : bool = False
+    cog : Tuple[float,float,float] = (0.0,0.0,0.0)
+    gravity : Tuple[float,float,float] = (0.0,0.0,9.82)
+    payload : float = 0.0
+    qmin : List[float] = field(default_factory=lambda : copy(ur5_constants.MIN_JOINTS))
+    qmax : List[float] = field(default_factory=lambda : copy(ur5_constants.MAX_JOINTS))
+    vmin : List[float] = field(default_factory=lambda : copy(ur5_constants.MIN_VEL))
+    vmax : List[float] = field(default_factory=lambda : copy(ur5_constants.MAX_VEL)) 
+    filter_torques : bool = False    # whether to apply a filter to the joint torques
 
 
 class UR5RobotInterface(RobotInterfaceBase):
-    def __init__(self, host, **kwargs):
-        """
-        - host: the UR5 controller IP address
-
-        UR5 keyword arguments
-        - rtde_port: port for RTDE, default 30004
-        - command_port: port for commands, default 30002
-        """
+    def __init__(self, settings : UR5RobotSettings):
+        """Initializes the robot according to the given settings."""
         self.IO_buffer = SharedMap({
                 'control_mode': (int,0),
                 'use_soft_limit': (int,0),    # Hard limit (UR) or soft limit (avoid singularity)
@@ -57,25 +72,31 @@ class UR5RobotInterface(RobotInterfaceBase):
                 'timestamp': (float,0)
             },lock=False)
         self.IO_buffer['stop_flag'] = 1000
+
+
+        # default position control lookahead
+        self.IO_buffer['lookahead'] = 0.05
+
         #self.IO_buffer.set('control_mode', SETPOINT_HALT)
 
         # Connect to Dashboard
         print("Attempting to connect to UR5 dashboard")
-        self.dashboard_client = UR5DashboardClient(host)
+        host = settings.host
+        self.dashboard_client = UR5DashboardClient(host,settings.dashboard_port)
         self.dashboard_client.connect()
 
-        self._cog = kwargs.get('cog', (0.0,0.0,0.0))
-        self._payload = kwargs.get('payload', 0.0)
+        self._klamptModel = settings.robot_model
 
-        self._filter_flag = False
-        self.qmin, self.qmax = copy.copy(ur5_constants.MIN_JOINTS),copy.copy(ur5_constants.MAX_JOINTS)
-        self.vmin, self.vmax = copy.copy(ur5_constants.MIN_VEL),copy.copy(ur5_constants.MAX_VEL)
+        self._cog = settings.cog
+        self._payload = settings.payload
+
+        self._filter_flag = settings.filter_torques
         # NOTE: Danger of sharing object between processes -- dashboard client must be stateless!
-        self.ur5 = ur5_driver.UR5RTDEDriver(host, self.IO_buffer, self._filter_flag, self.qmin, self.qmax, self.vmin, self.vmax, self.dashboard_client, **kwargs)
+        self.ur5 = ur5_driver.UR5RTDEDriver(host, self.IO_buffer, self._filter_flag, dashboard_client=self.dashboard_client, qmin=settings.qmin, qmax=settings.qmax, vmin=settings.vmin, vmax=settings.vmax)# **asdict(settings))
 
         self._q_curr = None
         self._qdot_curr = [0, 0, 0, 0, 0, 0]
-        self._gravity = kwargs.pop('gravity', [0, 0, 9.82])
+        self._gravity = settings.gravity
         self.IO_buffer['gravity'] = self._gravity
         self._started = False
 
@@ -102,6 +123,7 @@ class UR5RobotInterface(RobotInterfaceBase):
         self._paused = False
         self._update_time = None
         self._start_time = None
+        self.properties = {}
         self.properties['asynchronous'] = True
 
     def setGravityCompensation(self,gravity,load,load_com):
@@ -131,17 +153,19 @@ class UR5RobotInterface(RobotInterfaceBase):
         if not success:
             print("Unable to read from UR5")
             return False
-        self.beginStep()
-        self._start_time = self._update_time
-        #TODO: why is this here
+
         with self.IO_buffer.lock():
             self.IO_buffer['stop_flag'] = 10000
-
-        current_config=self.commandedPosition()
-        print("Current Config: " + str(current_config))
+        
+        #give enough time to read the target
+        time.sleep(0.1) 
+        
+        current_config=self.IO_buffer['target_q']
+        #print("Current Config: " + str(current_config))
         self.setPosition(current_config)
-        self.endStep()
         self._started = True
+        self._start_time = time.time()
+
         return True
 
     def close(self):
@@ -218,23 +242,26 @@ class UR5RobotInterface(RobotInterfaceBase):
     def sensorUpdateTime(self,sensor):
         return self._update_time-self._start_time
 
-    def status(self):
-        with self.IO_buffer.lock():
-            running = self.IO_buffer['running']
-            connected = self.IO_buffer['connected']
-        if not connected:
-            return 'disconnected'
-        if not running:
-            return 'no_controller'
-        if self.robot_mode >= 0:
-            return self.ur5_robot_mode_names[self.robot_mode + 1]
-        if self.safety_mode > 1:
-            return self.ur5_safety_status_names[self.safety_mode - 1]
-        if self.safety_status_bits & ur5_constants.PROTECTIVE_STOP_MASK:
-            return "protective_stopped"
-        if self._paused:
-            return 'paused'
-        return 'ok'
+    def status(self, arg = None):
+        if arg != None:
+            with self.IO_buffer.lock():
+                running = self.IO_buffer['running']
+                connected = self.IO_buffer['connected']
+            if not connected:
+                return 'disconnected'
+            if not running:
+                return 'no_controller'
+            if self.robot_mode >= 0:
+                return self.ur5_robot_mode_names[self.robot_mode + 1]
+            if self.safety_mode > 1:
+                return self.ur5_safety_status_names[self.safety_mode - 1]
+            if self.safety_status_bits & ur5_constants.PROTECTIVE_STOP_MASK:
+                return "protective_stopped"
+            if self._paused:
+                return 'paused'
+            return 'ok'
+        else:
+            return 'error'
 
     def isMoving(self):
         return vectorops.norm(self._qdot_curr) > 0.0001
@@ -253,7 +280,7 @@ class UR5RobotInterface(RobotInterfaceBase):
     
     def commandedPosition(self):
         with self.IO_buffer.lock():
-            res = copy.copy(self.IO_buffer['q_commanded'])
+            res = copy(self.IO_buffer['q_commanded'])
         return res
 
     def get_current_error(self, filtered=False):
@@ -304,7 +331,7 @@ class UR5RobotInterface(RobotInterfaceBase):
             self.setFreeDrive(True)
         elif mode == 'pause':
             self._paused = True
-            self.setConfig(self._q_curr)
+            self.setPosition(self._q_curr)
         else:
             self._paused = False
             self.setFreeDrive(False)
@@ -379,7 +406,7 @@ class UR5RobotInterface(RobotInterfaceBase):
         if self.dashboard_client.safetyStatus() == "Safetystatus: PROTECTIVE_STOP":
             self.dashboard_client.unlockProtectiveStop()
         if self.dashboard_client.safetyStatus() != "Safetystatus: NORMAL":
-            print("WARNING - LIMBCONTROLLER: Restarting safety -- {} != NORMAL".format(self.dashboard_client.safetyStatus()))
+            print("WARNING - UR5RobotInterface: Restarting safety -- {} != NORMAL".format(self.dashboard_client.safetyStatus()))
             self.dashboard_client.restartSafety()  # This takes ~3s, absorb into next wait
             
         N_RETRIES = 20
@@ -389,9 +416,9 @@ class UR5RobotInterface(RobotInterfaceBase):
             # Causes of a non-normal safety status:
             # Both arms aren't on, E-stop is active, etc. This should wait until both arms are activated
             if i == N_RETRIES:
-                print("WARNING - LIMBCONTROLLER: Not activating arm because safety status {} != NORMAL. FAILED".format(self.dashboard_client.safetyStatus()))
+                print("WARNING - UR5RobotInterface: Not activating arm because safety status {} != NORMAL. FAILED".format(self.dashboard_client.safetyStatus()))
                 return False
-            print("WARNING - LIMBCONTROLLER: Not activating arm because safety status {} != NORMAL. Retrying in 1 second".format(self.dashboard_client.safetyStatus()))
+            print("WARNING - UR5RobotInterface: Not activating arm because safety status {} != NORMAL. Retrying in 1 second".format(self.dashboard_client.safetyStatus()))
             time.sleep(1.0)
 
         print("Starting arm activation sequence")
@@ -402,7 +429,7 @@ class UR5RobotInterface(RobotInterfaceBase):
             if self.dashboard_client.robotmode() == "Robotmode: IDLE":
                 break
             if i == N_RETRIES:
-                print("WARNING - LIMBCONTROLLER: Not releasing brake because {} != IDLE".format(self.dashboard_client.robotmode()))
+                print("WARNING - UR5RobotInterface: Not releasing brake because {} != IDLE".format(self.dashboard_client.robotmode()))
                 return False
             time.sleep(1.0)
             print("Robot powered on - {}".format(self.dashboard_client.robotmode()))
@@ -411,11 +438,11 @@ class UR5RobotInterface(RobotInterfaceBase):
             if self.dashboard_client.robotmode() == "Robotmode: RUNNING":
                 break
             if i == N_RETRIES:
-                print("WARNING - LIMBCONTROLLER: failed arm activation {} != RUNNING".format(self.dashboard_client.robotmode()))
+                print("WARNING - UR5RobotInterface: failed arm activation {} != RUNNING".format(self.dashboard_client.robotmode()))
                 return False
             time.sleep(1.0)
             print("Robot brake releasing - {}".format(self.dashboard_client.robotmode()))
-        print("LIMBCONTROLLER: Finished arm activation sequence")
+        print("UR5RobotInterface: Finished arm activation sequence")
         return True
         
     def deactivateArm(self):
@@ -424,15 +451,39 @@ class UR5RobotInterface(RobotInterfaceBase):
         """
         self.dashboard_client.powerOff()
         self.dashboard_client.shutdown()
-     
+
+
+def make(robotModel, ur5_addr='192.168.0.136'):
+
+    host = ur5_addr
+
+    # Create UR5RobotSettings from extracted information
+    settings = UR5RobotSettings(host, robotModel)
+    
+    ri = RobotInterfaceCompleter(UR5RobotInterface(settings))
+    #add wrist tool coordinates
+    if not ri.initialize():
+        raise RuntimeError("Can't initialize UR5 RTDE connection")
+    ri.setToolCoordinates((0,0,0))
+
+    return ri
     
 if __name__ == "__main__":
-    # Testing Dashboard Client
+    # Testing RIL interface
+    from klampt.control.robotinterfaceutils import StepContext
     import argparse
     ap = argparse.ArgumentParser()
     ap.add_argument('--addr', action='store', type=str, required=True)
     ap.add_argument('--gripper', action='store', type=str, required=False)
     args = ap.parse_args()
-
-    ur5 = UR5RobotInterface(args.addr, gripper=False, gravity=[4.91,-4.91,-6.93672],type = args.gripper,payload =0.72,cog = [0,0,0.05])    # from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
     
+    # from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
+    settings = UR5RobotSettings(host=args.addr,gripper=(args.gripper is not None),gravity=[4.91,-4.91,-6.93672],payload =0.72,cog = [0,0,0.05])
+    ur5 = UR5RobotInterface(settings)
+    ur5.initialize()
+    context = StepContext(ur5) 
+    for i in range(20):
+        with context:
+            print(ur5.sensedPosition())
+        time.sleep(0.1)
+    ur5.close()
