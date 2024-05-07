@@ -61,6 +61,7 @@ class SharedMap:
         """
         self._lock = mp.Lock()
         self._auto_lock = lock
+        self.locked = False
         int_idx = 0
         float_idx = 0
         # Mapping from keynames to triples (array, start, size).
@@ -137,14 +138,27 @@ class SharedMap:
             return self._lock
         else:
             return _EmptyContext()
+        
+    def lock_acquire(self):
+        if self.locked:
+            warnings.warn("Attempting to lock an already locked process")
+        self.locked = True
+        self._lock.acquire()
 
+    def lock_release(self):
+        if not self.locked:
+            warnings.warn("No lock to release")
+        else:
+            self.locked = False
+            self._lock.release()
+            
     def keys(self):
         return self.names_to_starts.keys()
 
     def __contains__(self,key):
         return key in self.names_to_starts
 
-    def get(self, key, defaultValue):
+    def get(self, key, defaultValue=None):
         try:
             return self[key]
         except KeyError:
