@@ -1,6 +1,8 @@
 import klampt
 from klampt import vis
 from klampt.vis.glinterface import GLPluginInterface
+from klampt.vis.glviewport import GLViewport
+from klampt.model.collide import WorldCollider
 
 class MouseCapture(GLPluginInterface):
     def __init__(self,world):
@@ -10,6 +12,13 @@ class MouseCapture(GLPluginInterface):
         
     def mousefunc(self,button,state,x,y):
         print("Mouse button",button,"state",state,"at point",x,y)
+        vp = self.view  # type: GLViewport
+        src,dest = vp.click_ray(x,y)
+        wc = WorldCollider(world)
+        res = wc.rayCast(src,dest)
+        if res is not None:
+            (obj,pt) = res
+            print("  Hit object",obj.getName(),"at point",pt)
 
     def motionfunc(self,x,y,dx,dy):
         if 'shift' in self.modifiers():
