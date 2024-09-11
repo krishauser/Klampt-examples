@@ -410,17 +410,10 @@ if __name__ == "__main__":
     # take in strings as argument to set HOST and command
     import argparse
     ap = argparse.ArgumentParser()
-    ap.add_argument('--arm', action='store', type=str, required=True)
+    ap.add_argument('--addr', action='store', type=str, required=True)
     args = ap.parse_args()
 
-    try:
-        import trina 
-    except ImportError:
-        import sys
-        import os
-        sys.path.append(os.path.expanduser('~/TRINA'))
-    from trina import settings
-    HOST = settings.robot_settings()[args.arm+'_address']
+    HOST = args.addr 
     PORT = 29999
 
     a = UR5DashboardClient(HOST,PORT)
