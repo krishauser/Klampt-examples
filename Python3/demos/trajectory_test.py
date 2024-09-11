@@ -82,7 +82,7 @@ def basic_trajectory_test():
         m[10] = 0.5
     vis.add("xform bezier",traj3.discretize(0.05),color=(1,0.6,0,1))
     vis.add("xform3",se3.identity())
-    vis.animate("xform2",traj3)
+    vis.animate("xform3",traj3)
     
     vis.animate("xform",traj)
 
