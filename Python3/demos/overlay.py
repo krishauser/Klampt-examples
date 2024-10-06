@@ -1,4 +1,3 @@
-import open3d as o3d
 import numpy as np
 import json
 import time
@@ -29,12 +28,8 @@ def draw_klampt(dir, grasp_id, move_id):
     arm_mesh.loadFile(f'{dir}/grasp_{grasp_id:02d}_move_{move_id:02d}_sim_arm_mesh.ply')
 
     # Simulated plant point cloud
-    sim_plant_pcd = o3d.io.read_point_cloud(f'{dir}/grasp_{grasp_id:02d}_move_{move_id:02d}_sim_plant_pcd.ply')
-    from klampt.io import open3d_convert
-    sim_plant_pcd = Geometry3D(open3d_convert.from_open3d(sim_plant_pcd))
-    #Klampt can't load ply's as point clouds
-    #sim_plant_pcd = Geometry3D()
-    #sim_plant_pcd.loadFile(f'{dir}/grasp_{grasp_id:02d}_move_{move_id:02d}_sim_plant_pcd.ply')
+    sim_plant_pcd = Geometry3D()
+    sim_plant_pcd.loadFile(f'{dir}/grasp_{grasp_id:02d}_move_{move_id:02d}_sim_plant.pcd')
 
     # Generate a colorization of the point cloud
     point_cloud_normals(sim_plant_pcd,estimation_radius=0.005,estimation_viewpoint=(0,-1,1))
