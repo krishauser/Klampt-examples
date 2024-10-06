@@ -8,6 +8,7 @@ import time
 MULTITHREADED = True
 
 print("""ros_point_cloud_show.py: Shows how to receive point clouds from ROS into Klamp't.
+You must have compiled Klamp't with ROS support to use this script.
 
 Usage: python ros_point_cloud_show.py topic [save]
 - topic: the ROS topic to subscribe to.
