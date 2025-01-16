@@ -1,0 +1,8 @@
+{
+    "#comment": "A DTM from the Lunar Reconnaisance Orbiter Camera, rescaled to 1cm per pixel. Heights are not accurate https://wms.lroc.asu.edu/lroc/view_rdr/WAC_GLD100",
+    "type":"Heightmap",
+    "xsize":18.00,
+    "ysize":12.00,
+    "height_range":[0,0.5],
+    "heights":"lunar_heightmap_data/lunar_gld100_dtm2_2970.png"
+}

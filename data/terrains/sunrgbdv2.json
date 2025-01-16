@@ -1,0 +1,13 @@
+{
+    "#comment": "A scan from the SUN-RGBD-v2 dataset: https://sun3d.cs.princeton.edu/data/SUNRGBDv2/11082015/2015-11-08T13.42.16.610-0000006334/",
+    "type":"Heightmap",
+    "xfov":1.0166577814521098,
+    "yfov":0.7916406885147462,
+    "height_range":[0,4.0],
+    "#orientation": [[0.999999,-0.000299,0.001190],
+                    [-0.001190,-0.472731,0.881206],
+                    [0.000299,-0.881207,-0.472731]],
+    "orientation" : [[1,0,0],[0,1,0],[0,0,1]],
+    "heights":"sunrgbdv2_data/sunrgbdv2_depth.png",
+    "colors":"sunrgbdv2_data/sunrgbdv2_rgb.jpg"
+}

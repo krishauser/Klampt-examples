@@ -1,0 +1,10 @@
+{
+    "#comment": "A DTM from Mars 2020, rescaled to 1cm per pixel. Heights are not accurate",
+    "type":"Heightmap",
+    "xsize":10.24,
+    "ysize":9.70,
+    "#xfov (just testing)":1.0166577814521098,
+    "#yfov":0.7916406885147462,
+    "height_range":[0.5,1.0],
+    "heights":"mars_heightmap_data/mars_2020_ctx_dtm_elevation_1024.jpg"
+}
