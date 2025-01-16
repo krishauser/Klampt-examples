@@ -13,14 +13,17 @@ INCLUDE_DIRECTORIES(${KLAMPT_INCLUDE_DIRS})
 
 SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY bin)
 
-#IKDemo 
+ADD_EXECUTABLE(GeometryTest geometrytest.cpp)
+ADD_EXECUTABLE(StabilityTest stabilitytest.cpp)
+SET(EXAMPLES GeometryTest StabilityTest) 
+
 ADD_EXECUTABLE(CartPole cartpole.cpp)
 ADD_EXECUTABLE(ContactPlan contactplan.cpp)
 #ADD_EXECUTABLE(IKDemo ikdemo.cpp)
 ADD_EXECUTABLE(PlanDemo plandemo.cpp)
 ADD_EXECUTABLE(DynamicPlanDemo dynamicplandemo.cpp)
 ADD_EXECUTABLE(TSDFReconstruction tsdfreconstruction.cpp)
-SET(EXAMPLES  CartPole ContactPlan PlanDemo DynamicPlanDemo TSDFReconstruction)
+SET(EXAMPLES ${EXAMPLES}  CartPole ContactPlan PlanDemo DynamicPlanDemo TSDFReconstruction)
 IF(GLUI_FOUND)
   ADD_EXECUTABLE(PlanGUI plangui.cpp)
   ADD_EXECUTABLE(RealTimePlanning realtimeplanning.cpp)
