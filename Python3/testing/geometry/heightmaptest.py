@@ -7,7 +7,7 @@ import numpy as np
 def test_heightmap():
     hm = Heightmap()
     # TEST IMAGE HEIGHTMAP
-    img_file = '../../../data/terrains/mars_2020_ctx_dtm_elevation_1024.jpg'
+    img_file = '../../../data/terrains/mars_heightmap_data/mars_2020_ctx_dtm_elevation_1024.jpg'
     from PIL import Image
     img = Image.open(img_file)
     img = img.convert('L')
