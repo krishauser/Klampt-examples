@@ -4,7 +4,7 @@ from klampt import vis
 
 if __name__ == "__main__":
     print("VERY SIMPLE TEST CONVERTING OPEN3D POINT CLOUDS TO KLAMPT AND BACK")
-    opc = o3d.io.read_point_cloud("../../data/objects/apc/genuine_joe_stir_sticks.pcd")
+    opc = o3d.io.read_point_cloud("../../../data/objects/apc/genuine_joe_stir_sticks.pcd")
     print(opc)
     o3d.visualization.draw_geometries([opc])
     kpc = open3d_convert.from_open3d(opc)

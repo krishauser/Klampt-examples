@@ -4,10 +4,13 @@ from klampt import vis, Appearance
 from klampt.math import so3,se3,vectorops
 from klampt.vis.glinterface import GLPluginInterface
 from klampt.model import sensing
+from klampt import __version__
 import math
 import time
 import random
 import math
+
+klampt_version = tuple([int(x) for x in __version__.split('.')])
 
 try:
 	import matplotlib.pyplot as plt
@@ -43,8 +46,8 @@ def processDepthSensor(sensor):
 		return rgb,depth
 
 world = klampt.WorldModel()
-world.readFile("../../data/simulation_test_worlds/sensortest.xml")
-#world.readFile("../../data/tx90scenario0.xml")
+world.readFile("../../../data/simulation_test_worlds/sensortest.xml")
+#world.readFile("../../../data/tx90scenario0.xml")
 robot = world.robot(0)
 
 vis.add("world",world)
@@ -114,8 +117,12 @@ class SensorTestWorld (GLPluginInterface):
 				self.view = self.original_view
 				self.original_view = None
 		def print_view():
-			print("Tgt",self.view.camera.tgt)
-			print("Rot",self.view.camera.rot)
+			if klampt_version >= (0,10,0):
+				print("Tgt",self.view.controller.tgt)
+				print("Rot",self.view.controller.rot)
+			else:
+				print("Tgt",self.view.camera.tgt)
+				print("Rot",self.view.camera.rot)
 
 		self.add_action(randomize,'Randomize configuration',' ')
 		if HAVE_PYPLOT:

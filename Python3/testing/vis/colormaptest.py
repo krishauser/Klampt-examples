@@ -5,6 +5,7 @@ from klampt.math import se3,so3,vectorops
 from klampt.vis import colorize
 import sys
 import time
+import math
 
 if len(sys.argv) > 1:
     a = Geometry3D()
@@ -12,7 +13,7 @@ if len(sys.argv) > 1:
         print("Error loading",sys.argv[1])
         exit()
 else:
-    a = sphere(0.4,center=(0,0,0),type='TriangleMesh')
+    a = sphere(0.4,center=(0,0,0),resolution=0.02,type='TriangleMesh')
     a = Geometry3D(a)
 
 w = WorldModel()
@@ -53,15 +54,37 @@ def convert(value_new,cmap_new,feature_new=None,lighting_new=None):
     if cmap is None:
         cmap = 'viridis'
     a_app = colorize.colorize(a,value,cmap,feature,lighting=lighting)
-    #a_app.drawGL(a)
-    #if not value.startswith('n'):
     colorize.colorize(a_pc,value,cmap,lighting=lighting)
-    vis.remove("A")
-    vis.add("A",a,appearance=a_app)
-    vis.remove("B")
+    #vis.remove("A")
+    vis.add("A",a,appearance=a_app)   #a is a TriangleMesh geometry and colorize returns an Appearance
+    #vis.remove("B")
     vis.add("B",a_pc)
     vis.dirty("B")
-    #print("PC First color %08x"%(int(a_pc.getPointCloud().getProperty(0,'rgba')),))
+    
+def convert_segmentation():
+    #tests using an integer segmentation to colorize the object 
+    global cmap,lighting
+    points = a.getTriangleMesh().vertices
+    tris = a.getTriangleMesh().indices
+    segments = []  #split by face z
+    for t in tris:
+        lower = min(points[t[0]][2],points[t[1]][2],points[t[2]][2])
+        segments.append(int(math.floor(lower*7)))
+    a_app = colorize.colorize(a,segments,cmap,feature='faces')
+    vis.add("A",a,appearance=a_app)   #a is a TriangleMesh geometry and colorize returns an Appearance
+
+    pcdata = a_pc.getPointCloud()
+    segindex = pcdata.propertyIndex('segment')
+    if segindex < 0:
+        segindex = pcdata.addProperty('segment')
+        assert pcdata.propertyIndex('segment') >= 0
+    points = pcdata.points
+    segments = [int(math.floor(p[2]*7)) for p in points]  #split by z
+    pcdata.properties[:,segindex] = segments
+    assert a_pc.getPointCloud().propertyIndex('segment') >= 0  #did this write to the pc data?
+    colorize.colorize(a_pc,'segment',cmap)
+    vis.add("B",a_pc)
+    vis.dirty("B")
 
 convert('z',None,'faces')
 
@@ -76,6 +99,7 @@ vis.addAction(lambda:convert('normal',None),"normal value")
 vis.addAction(lambda:convert('nx',None),"nx value")
 vis.addAction(lambda:convert('ny',None),"ny value")
 vis.addAction(lambda:convert('nz',None),"nz value")
+vis.addAction(convert_segmentation,"segment value")
 vis.addAction(lambda:convert(None,None,'faces'),"colorize faces")
 vis.addAction(lambda:convert(None,None,'vertices'),"colorize vertices")
 vis.addAction(lambda:convert(None,None,None,[0,0,-1]),"lighting on")

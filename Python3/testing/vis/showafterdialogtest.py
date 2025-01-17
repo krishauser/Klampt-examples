@@ -3,10 +3,10 @@ from klampt import vis
 from klampt.io import resource
 import time
 
-print ("Tests threading after dialog")
+print ("Tests vis show() after vis.dialog()")
 
 world = WorldModel()
-world.readFile('../../data/objects/block.obj')
+world.readFile('../../../data/objects/block.obj')
 resource.edit("object transform",world.rigidObject(0).getTransform(),world=world)
 
 def launchdialog():
@@ -19,11 +19,15 @@ def launchwindow():
     vis.show()
     vis.setWindow(origwindow)
 
-print ("Now running show() (only works on multithreaded systems, not mac)")
 vis.add("world",world)
 vis.addAction(launchdialog,"Launch a dialog","d")
 vis.addAction(launchwindow,"Launch a window","w")
-vis.show()
-while vis.shown():
-    time.sleep(0.1)
-vis.kill()
+if not vis.multithreaded():
+    print ("Now running loop()")
+    vis.loop()
+else:
+    print ("Now running show() (only works on multithreaded systems, not mac)")
+    vis.show()
+    while vis.shown():
+        time.sleep(0.1)
+    vis.kill()

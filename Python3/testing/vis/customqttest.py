@@ -1,9 +1,16 @@
 from klampt import WorldModel
 from klampt import vis
 
-from PyQt5.QtCore import *
-from PyQt5.QtGui import *
-from PyQt5.QtWidgets import *
+vis.init('PyQt')
+from klampt.vis import glinit
+if glinit.active() == 'PyQt6':
+    from PyQt6.QtCore import *
+    from PyQt6.QtGui import *
+    from PyQt6.QtWidgets import *
+else:
+    from PyQt5.QtCore import *
+    from PyQt5.QtGui import *
+    from PyQt5.QtWidgets import *
 
 def make_world():
     w = WorldModel()
@@ -11,8 +18,6 @@ def make_world():
     #w.readFile("../../../data/robots/tx90ball.rob")
     return w
 
-#vis.init('PyQt')
-#vis.init('GLUT')
 
 def test_custom_gui():
     w = make_world()
@@ -21,7 +26,10 @@ def test_custom_gui():
         w = QMainWindow()
         w.resize(800,800)
         glwidget.setMaximumSize(4000,4000)
-        glwidget.setSizePolicy(QSizePolicy(QSizePolicy.Maximum,QSizePolicy.Maximum))
+        if glinit.active() == 'PyQt6':
+            glwidget.setSizePolicy(QSizePolicy(QSizePolicy.Policy.Maximum,QSizePolicy.Policy.Maximum))
+        else:
+            glwidget.setSizePolicy(QSizePolicy(QSizePolicy.Maximum,QSizePolicy.Maximum))
         area = QWidget(w)
         layout = QVBoxLayout()
         layout.addWidget(glwidget)
@@ -32,6 +40,7 @@ def test_custom_gui():
 
     vis.customUI(make_gui)
     vis.add("world",w)
+    #vis.loop()
     vis.show()
     vis.spin(float('inf'))
     vis.kill()

@@ -1,7 +1,11 @@
+from klampt import WorldModel,Simulator
+from klampt.control import RobotInterfaceBase,StepContext
+from klampt.model import ik
 from klampt import vis
 from klampt.math import vectorops
 from klampt import GeometricPrimitive
-from klampt.model.trajectory import Trajectory,HermiteTrajectory
+from klampt.model.trajectory import Trajectory,HermiteTrajectory,execute_path,execute_trajectory
+from klampt.model.cartesian_trajectory import cartesian_interpolate_linear,cartesian_path_interpolate
 import math
 import time
 from typing import List,Sequence,Tuple,Union
@@ -184,45 +188,11 @@ def svg_path_to_polygon(p,dt=0.1) -> GeometricPrimitive:
     g.setPolygon(verts)
     return g
 
-if __name__ == '__main__':
-    try:
-        import svgpathtools
-    except ImportError:
-        print('svgpathtools module could not be found.  Try "pip install svgpathtools".')
-        exit(1)
-    import sys
-    fn = 'test.svg'
-    if len(sys.argv) > 1:
-        fn = sys.argv[1]
-
-    from klampt import WorldModel
-    from klampt.model import ik
-    w = WorldModel()
-    w.readFile("../../data/robots/kinova_with_robotiq_85.urdf")
-    robot = w.robot(0)
-
-    trajs,attrs = svg_to_trajectories(fn,center=True,want_attributes=True)
-    for i,(traj,attr) in enumerate(zip(trajs,attrs)):
-        name = attr.get('name',"path %d"%i)
-        vis.add(name,traj)
-        for a,v in attr.items():
-            if a != 'name':
-                vis.setAttribute(name,a,v)
-
-    #place on a reasonable height and offset
-    scale = 0.4
-    xshift = 0.35
-    tableh = 0.1
-    for traj in trajs:
-        for m in traj.milestones:
-            m[0] = m[0]*scale + xshift
-            m[1] = m[1]*scale
-            m[2] = tableh
-            if len(m) == 6:  #hermite, m[3:6] are the tangents
-                m[3] *= scale
-                m[4] *= scale
-
-    vis.add("world",w)
+def animate_cartesian_path_tracker(world : WorldModel, trajs : List[Trajectory],
+                                   tableh=0.1, ee_offset=0.2, lifth=0.05,
+                                   vmax = 0.03) -> None:
+    robot = world.robot(0)
+    vis.add("world",world)
     data={
         'config':robot.getConfig(),
         'state':'moveto',
@@ -238,28 +208,27 @@ if __name__ == '__main__':
         ts = data['traj_start']
         #parameters for end effector pen
         ee = robot.link('EndEffector_Link')
-        ee_offset = 0.2
-        lifth = 0.05
         #state machine logic
         robot.setConfig(data['config'])
         vis.addText("state",state,(20,20))
+        ee_offset_tmp = ee_offset
         h = 0.1
         if state == 'moveto':
             if not data['queue']:
                 pt = trajs[idx].eval(0)
-                ee_offset += lifth
+                ee_offset_tmp += lifth
                 #objective is an axis constrained via two points
-                obj = ik.objective(ee,local=[(0,0,ee_offset-h),(0,0,ee_offset)],world=[(pt[0],pt[1],pt[2]+h),pt])
+                obj = ik.objective(ee,local=[(0,0,ee_offset_tmp-h),(0,0,ee_offset_tmp)],world=[(pt[0],pt[1],pt[2]+h),pt])
                 ik.solve(obj)
                 data['queue'] = [robot.getConfig()]
             elif robot.distance(data['queue'][-1],data['config']) < 1e-4:
                 data['state'] = 'movedown'
         elif data['state'] == 'movedown':
-            wp = ee.getWorldPosition((0,0,ee_offset))
+            wp = ee.getWorldPosition((0,0,ee_offset_tmp))
             if data['queue']:
                 robot.setConfig(data['queue'][-1])
             wp[2] = max(wp[2]-0.01,tableh)
-            obj = ik.objective(ee,local=[(0,0,ee_offset-h),(0,0,ee_offset)],world=[(wp[0],wp[1],wp[2]+h),wp])
+            obj = ik.objective(ee,local=[(0,0,ee_offset_tmp-h),(0,0,ee_offset_tmp)],world=[(wp[0],wp[1],wp[2]+h),wp])
             ik.solve_nearby(obj,maxDeviation=0.2)
             data['queue'].append(robot.getConfig())
             if wp[2] <= tableh:
@@ -270,7 +239,7 @@ if __name__ == '__main__':
             pt = trajs[idx].eval(t-ts)
             if data['queue']:
                 robot.setConfig(data['queue'][-1])
-            obj = ik.objective(ee,local=[(0,0,ee_offset-h),(0,0,ee_offset)],world=[(pt[0],pt[1],pt[2]+h),pt])
+            obj = ik.objective(ee,local=[(0,0,ee_offset_tmp-h),(0,0,ee_offset_tmp)],world=[(pt[0],pt[1],pt[2]+h),pt])
             ik.solve_nearby(obj,maxDeviation=0.2)
             data['queue'].append(robot.getConfig())
             if t-ts > trajs[idx].endTime():
@@ -282,7 +251,7 @@ if __name__ == '__main__':
             if data['queue']:
                 robot.setConfig(data['queue'][-1])
             wp[2] = min(wp[2]+0.01,tableh+lifth)
-            obj = ik.objective(ee,local=[(0,0,ee_offset-h),(0,0,ee_offset)],world=[(wp[0],wp[1],wp[2]+h),wp])
+            obj = ik.objective(ee,local=[(0,0,ee_offset_tmp-h),(0,0,ee_offset_tmp)],world=[(wp[0],wp[1],wp[2]+h),wp])
             ik.solve_nearby(obj,maxDeviation=0.2)
             data['queue'].append(robot.getConfig())
             if wp[2] >= tableh+lifth:
@@ -294,7 +263,6 @@ if __name__ == '__main__':
         while len(data['queue']) > 0:
             qdest = data['queue'][0]
             amt = 1
-            vmax = 0.03
             for i in range(len(qcur)):
                 di = qcur[i]-qdest[i]
                 if robot.getJointType(i) == 'spin':
@@ -320,3 +288,116 @@ if __name__ == '__main__':
                 break
         time.sleep(0.01)
     vis.loop(callback=callback)
+
+def cartesian_path_tracker(controller : RobotInterfaceBase, world : WorldModel, trajs : List[Trajectory],
+                                   tableh=0.1, ee_offset=0.2, lifth=0.05) -> None:
+    robot = world.robot(0)
+    vis.add("world",world)
+    data={
+        'state':'moveto',
+        'traj_index':0,
+        }
+    #TODO: end effector link is incorrect
+    controller.setToolCoordinates([0,0,ee_offset])
+    def callback(data=data):
+        #implement a finite state machine that "draws" the paths in trajs using kinematic simulation
+        with StepContext(controller):
+            if not controller.isMoving():
+                state = data['state']
+                idx = data['traj_index']
+                #parameters for end effector pen
+                ee = robot.link('EndEffector_Link')
+                #state machine logic
+                robot.setConfig(robot.configFromDrivers(controller.commandedPosition()))
+                vis.addText("state",state,(20,20))
+                h = 0.1
+                if state == 'moveto':
+                    pt = trajs[idx].eval(0)
+                    ee_offset_tmp = ee_offset
+                    ee_offset_tmp += lifth
+                    #objective is an axis constrained via two points
+                    obj = ik.objective(ee,local=[(0,0,ee_offset_tmp-h),(0,0,ee_offset_tmp)],world=[(pt[0],pt[1],pt[2]+h),pt])
+                    ik.solve(obj)
+                    controller.moveToPosition(robot.configToDrivers(robot.getConfig()))
+                    data['state'] = 'movedown'
+                elif data['state'] == 'movedown':
+                    T = controller.commandedCartesianPosition()
+                    target = list(T[1])
+                    target[2] = tableh
+                    #controller.moveToCartesianPositionLinear((T[0],target))
+                    data['state'] = 'trace'
+                elif data['state'] == 'trace':
+                    u = 0
+                    traj = []
+                    while u < trajs[idx].endTime():
+                        pt = trajs[idx].eval(u)
+                        obj = ik.objective(ee,local=[(0,0,ee_offset-h),(0,0,ee_offset)],world=[(pt[0],pt[1],pt[2]+h),pt])
+                        ik.solve_nearby(obj,maxDeviation=0.2)
+                        traj.append(robot.getConfig())
+                        u += 0.01
+                    execute_path(traj,controller,speed=100,smoothing='linear')
+                    idx = (idx + 1)%len(trajs)
+                    data['traj_index'] = idx
+                    data['state'] = 'moveup'
+                elif data['state'] == 'moveup':
+                    T = controller.commandedCartesianPosition()
+                    target = list(T[1])
+                    target[2] = tableh + lifth
+                    controller.moveToCartesianPositionLinear((T[0],target))
+                    data['state'] = 'moveto'
+            #for visualization
+            robot.setConfig(robot.configFromDrivers(controller.commandedPosition()))
+        time.sleep(0.01)
+    vis.loop(callback=callback)
+
+
+if __name__ == '__main__':
+    print("=============================================================")
+    print("svg_cartesian_test.py: This test demonstrates how to use the")
+    print("svgpathtools library to read SVG files and animate")
+    print("the paths as Cartesian trajectories for an animated robot model")
+    print("in Klampt.")
+    print("=============================================================")
+    try:
+        import svgpathtools
+    except ImportError:
+        print('svgpathtools module could not be found.  Try "pip install svgpathtools".')
+        exit(1)
+    import sys
+    fn = 'trace_test.svg'
+    if len(sys.argv) > 1:
+        fn = sys.argv[1]
+
+    w = WorldModel()
+    w.readFile("../../../data/robots/kinova_with_robotiq_85.urdf")
+    robot = w.robot(0)
+
+    trajs,attrs = svg_to_trajectories(fn,center=True,want_attributes=True)
+    for i,(traj,attr) in enumerate(zip(trajs,attrs)):
+        name = attr.get('name',"path %d"%i)
+        vis.add(name,traj)
+        for a,v in attr.items():
+            if a != 'name':
+                vis.setAttribute(name,a,v)
+
+    #place on a reasonable height and offset
+    scale = 0.4
+    xshift = 0.35
+    tableh = 0.1
+    for traj in trajs:
+        for m in traj.milestones:
+            m[0] = m[0]*scale + xshift
+            m[1] = m[1]*scale
+            m[2] = tableh
+            if len(m) == 6:  #hermite, m[3:6] are the tangents
+                m[3] *= scale
+                m[4] *= scale
+
+    animate_cartesian_path_tracker(w,trajs)
+    # sim = Simulator(w)
+    # from klampt.control.simrobotinterface import SimPositionControlInterface
+    # from klampt.control import RobotInterfaceCompleter
+    # controller = RobotInterfaceCompleter(SimPositionControlInterface(sim.controller(0),sim))
+    # if not controller.initialize():
+    #     raise RuntimeError("Controller failed to initialize")
+    # cartesian_path_tracker(controller,w,trajs)
