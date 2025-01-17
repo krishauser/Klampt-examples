@@ -9,10 +9,6 @@ def make_world():
     #w.readFile("../../../data/robots/tx90ball.rob")
     return w
 
-#vis.init('PyQt')
-#vis.init('GLUT')
-
-
 def test_debug():
     w = make_world()
     r = w.robot(0)
@@ -26,7 +22,7 @@ def test_debug():
     
     vis.debug(w.robot(0),centerCamera=True)
     g = Geometry3D()
-    g.loadFile("../../data/objects/srimugsmooth.off")
+    g.loadFile("../../../data/objects/srimugsmooth.off")
     vis.debug(g,centerCamera=True)
 
     pt = [0,0,2]
