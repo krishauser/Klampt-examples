@@ -13,10 +13,6 @@ INCLUDE_DIRECTORIES(${KLAMPT_INCLUDE_DIRS})
 
 SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY bin)
 
-ADD_EXECUTABLE(GeometryTest geometrytest.cpp)
-ADD_EXECUTABLE(StabilityTest stabilitytest.cpp)
-SET(EXAMPLES GeometryTest StabilityTest) 
-
 ADD_EXECUTABLE(CartPole cartpole.cpp)
 ADD_EXECUTABLE(ContactPlan contactplan.cpp)
 #ADD_EXECUTABLE(IKDemo ikdemo.cpp)

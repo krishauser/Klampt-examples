@@ -1,0 +1,6 @@
+geometry_test_save/
+worldio_test_save/
+worldio_test_save2/
+*.csv
+*.md
+*.xml
