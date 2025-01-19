@@ -1,5 +1,6 @@
 #C++ stuff
-CMakeFiles
+CMakeFiles/
+bin/
 *.o
 
 #CMake stuff
@@ -7,6 +8,9 @@ Makefile
 CMakeCache.txt
 cmake_install.cmake
 cmake_uninstall.cmake
+
+#Visual Studio code stuff
+.vscode/
 
 #Jupyter stuff
 .ipynb_checkpoints
