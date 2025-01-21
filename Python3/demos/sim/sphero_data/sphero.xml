@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- test on a plane -->
 <world>
-  <robot name="robot" file="sphero.rob" config="9  0 0 0.05 0 0 0 0 0 0"/>
+  <robot name="robot" file="../../../robotinfo/sphero/data/sphero.rob" config="9  0 0 0.05 0 0 0 0 0 0"/>
   <terrain file="block.off"  translation="0 0 0"/>
 
   <simulation>

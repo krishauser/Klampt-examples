@@ -1,0 +1,10 @@
+{
+    "name":"Sphero",
+    "modelFile":"data/sphero.rob",
+    "baseType":"floating",
+    "controllerFile":"klampt.control.simrobotinterface",
+    "simulatorFile":"sphero_sim.py",
+    "properties" : {
+        "description": "Simulated Sphero robot"
+    }
+}
