@@ -14,7 +14,7 @@ if __name__ == "__main__":
     
     #creates a world and loads all the items on the command line
     world = WorldModel()
-    fn = "~/Klampt-examples/data/tx90cups.xml"
+    fn = "../../../data/tx90cups.xml"
     if len(sys.argv) > 1:
         fn = sys.argv[1]
     res = world.readFile(fn)
