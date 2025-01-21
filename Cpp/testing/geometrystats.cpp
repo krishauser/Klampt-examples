@@ -463,343 +463,339 @@ void CapabilityMatrix(const vector<AnyGeometry3D>& geoms,const vector<string>& l
         cgeoms[i].SetTransform(T0);
     }
 
-    // printf("BEGINNING set transform TEST\n");
-    // for(size_t i=0;i<geoms.size();i++) {
-    //     float timing = TimeIt([&cgeoms,i,&T0]() {
-    //         RigidTransform T=T0;
-    //         T.t.x += Rand(-1.5,1.5);
-    //         cgeoms[i].SetTransform(T);
-    //         },100);
-    //     cgeoms[i].SetTransform(T0);
-    //     results.push_back(TestResults("set transform",labels[i],true,timing));
-    // }
+    printf("BEGINNING set transform TEST\n");
+    for(size_t i=0;i<geoms.size();i++) {
+        float timing = TimeIt([&cgeoms,i,&T0]() {
+            RigidTransform T=T0;
+            T.t.x += Rand(-1.5,1.5);
+            cgeoms[i].SetTransform(T);
+            },100);
+        cgeoms[i].SetTransform(T0);
+        results.push_back(TestResults("set transform",labels[i],true,timing));
+    }
     
-    // printf("BEGINNING transform TEST\n");
-    // template_.operation = "transform";
-    // template_.operation_condition = "rigid";
-    // for(size_t i=0;i<geoms.size();i++) {
-    //     AnyGeometry3D temp = geoms[i];
-    //     bool success = temp.Transform(T0);
-    //     float timing = 0;
-    //     if(success) {
-    //         timing = TimeIt([&temp,&T0]() {
-    //             RigidTransform T=T0;
-    //             T.t.x += Rand(-1.5,1.5);
-    //             temp.Transform(T);
-    //             },100);
-    //     }
-    //     results.push_back(TestResults(template_,labels[i],success,timing));
-    // }
-    // template_.operation = "transform";
-    // template_.operation_condition = "nonuniform scale";
-    // for(size_t i=0;i<geoms.size();i++) {
-    //     AnyGeometry3D temp = geoms[i];
-    //     Matrix4 m;
-    //     m.setIdentity();
-    //     m(0,0) = 2.0;
-    //     m(1,1) = 0.75;
-    //     bool success = temp.Transform(m);
-    //     float timing = 0;
-    //     if(success) {
-    //         timing = TimeIt([&geoms,i]() {
-    //             Matrix4 m;
-    //             m.setIdentity();
-    //             m(0,0) = Rand(1.0,2.0);
-    //             m(1,1) = Rand(0.5,1.0);
-    //             AnyGeometry3D temp = geoms[i];
-    //             temp.Transform(m);
-    //             },100) - TimeIt([&geoms,i]() { AnyGeometry3D temp=geoms[i]; },100);
-    //     }
-    //     results.push_back(TestResults(template_,labels[i],success,timing));
-    // }
+    printf("BEGINNING transform TEST\n");
+    template_.operation = "transform";
+    template_.operation_condition = "rigid";
+    for(size_t i=0;i<geoms.size();i++) {
+        AnyGeometry3D temp = geoms[i];
+        bool success = temp.Transform(T0);
+        float timing = 0;
+        if(success) {
+            timing = TimeIt([&temp,&T0]() {
+                RigidTransform T=T0;
+                T.t.x += Rand(-1.5,1.5);
+                temp.Transform(T);
+                },100);
+        }
+        results.push_back(TestResults(template_,labels[i],success,timing));
+    }
+    template_.operation = "transform";
+    template_.operation_condition = "nonuniform scale";
+    for(size_t i=0;i<geoms.size();i++) {
+        AnyGeometry3D temp = geoms[i];
+        Matrix4 m;
+        m.setIdentity();
+        m(0,0) = 2.0;
+        m(1,1) = 0.75;
+        bool success = temp.Transform(m);
+        float timing = 0;
+        if(success) {
+            timing = TimeIt([&geoms,i]() {
+                Matrix4 m;
+                m.setIdentity();
+                m(0,0) = Rand(1.0,2.0);
+                m(1,1) = Rand(0.5,1.0);
+                AnyGeometry3D temp = geoms[i];
+                temp.Transform(m);
+                },100) - TimeIt([&geoms,i]() { AnyGeometry3D temp=geoms[i]; },100);
+        }
+        results.push_back(TestResults(template_,labels[i],success,timing));
+    }
 
-    // template_.operation = "transform";
-    // template_.operation_condition = "rotation + uniform scale";
-    // for(size_t i=0;i<geoms.size();i++) {
-    //     AnyGeometry3D temp = geoms[i];
-    //     Matrix4 m(T0);
-    //     for(int p=0;p<3;p++) 
-    //         for(int q=0;q<3;q++) 
-    //             m(p,q) *= 1.5;
-    //     bool success = temp.Transform(m);
-    //     float timing = 0;
-    //     if(success) {
-    //         timing = TimeIt([&geoms,i,&T0]() {
-    //             Matrix4 m(T0);
-    //             for(int p=0;p<3;p++) 
-    //                 for(int q=0;q<3;q++) 
-    //                     m(p,q) *= Rand(1.0,2.0);
-    //             AnyGeometry3D temp = geoms[i];
-    //             temp.Transform(m);
-    //             },100) - TimeIt([&geoms,i]() { AnyGeometry3D temp=geoms[i]; },100);
-    //     }
-    //     results.push_back(TestResults(template_,labels[i],success,timing));
-    // }
+    template_.operation = "transform";
+    template_.operation_condition = "rotation + uniform scale";
+    for(size_t i=0;i<geoms.size();i++) {
+        AnyGeometry3D temp = geoms[i];
+        Matrix4 m(T0);
+        for(int p=0;p<3;p++) 
+            for(int q=0;q<3;q++) 
+                m(p,q) *= 1.5;
+        bool success = temp.Transform(m);
+        float timing = 0;
+        if(success) {
+            timing = TimeIt([&geoms,i,&T0]() {
+                Matrix4 m(T0);
+                for(int p=0;p<3;p++) 
+                    for(int q=0;q<3;q++) 
+                        m(p,q) *= Rand(1.0,2.0);
+                AnyGeometry3D temp = geoms[i];
+                temp.Transform(m);
+                },100) - TimeIt([&geoms,i]() { AnyGeometry3D temp=geoms[i]; },100);
+        }
+        results.push_back(TestResults(template_,labels[i],success,timing));
+    }
 
-    // printf("BEGINNING bb TEST\n");
-    // for(size_t i=0;i<geoms.size();i++) {
-    //     AABB3D bb = cgeoms[i].GetAABB();
-    //     AABB3D bbt = cgeoms[i].GetAABBTight();
-    //     //this operation is definitely successful... don't worry about checking success
-    //     float timing = TimeIt([&cgeoms,i,&T0]() {
-    //         RigidTransform T=T0;
-    //         T.t.x += Rand(-1.5,1.0); 
-    //         cgeoms[i].SetTransform(T);
-    //         cgeoms[i].GetAABB();
-    //         },100);
-    //     cgeoms[i].SetTransform(T0);
-    //     if(bb.bmin.x == -Inf) results.push_back(TestResults(template_,labels[i],false,timing));
-    //     else if(bb.bmin == bbt.bmin && bb.bmax == bbt.bmax) {
-    //         TestResults res("bb",labels[i],true,timing);
-    //         res.success_notes = "exact";
-    //         results.push_back(res);
-    //     }
-    //     else results.push_back(TestResults("bb",labels[i],true,timing));
-    // }
+    printf("BEGINNING bb TEST\n");
+    for(size_t i=0;i<geoms.size();i++) {
+        AABB3D bb = cgeoms[i].GetAABB();
+        AABB3D bbt = cgeoms[i].GetAABBTight();
+        //this operation is definitely successful... don't worry about checking success
+        float timing = TimeIt([&cgeoms,i,&T0]() {
+            RigidTransform T=T0;
+            T.t.x += Rand(-1.5,1.0); 
+            cgeoms[i].SetTransform(T);
+            cgeoms[i].GetAABB();
+            },100);
+        cgeoms[i].SetTransform(T0);
+        if(bb.bmin.x == -Inf) results.push_back(TestResults(template_,labels[i],false,timing));
+        else if(bb.bmin == bbt.bmin && bb.bmax == bbt.bmax) {
+            TestResults res("bb",labels[i],true,timing);
+            res.success_notes = "exact";
+            results.push_back(res);
+        }
+        else results.push_back(TestResults("bb",labels[i],true,timing));
+    }
 
-    // printf("BEGINNING getelement TEST\n");
-    // for(size_t i=0;i<geoms.size();i++) {
-    //     if(geoms[i].NumElements() > 0) {
-    //         shared_ptr<Geometry3D> elem = geoms[i].data->GetElement(0);
-    //         if(elem) results.push_back(TestResults("getelement",labels[i],true));
-    //         else results.push_back(TestResults("getelement",labels[i],false));
-    //     }
-    //     else
-    //         results.push_back(TestResults("getelement",labels[i],false));
-    // }
+    printf("BEGINNING getelement TEST\n");
+    for(size_t i=0;i<geoms.size();i++) {
+        if(geoms[i].NumElements() > 0) {
+            shared_ptr<Geometry3D> elem = geoms[i].data->GetElement(0);
+            if(elem) results.push_back(TestResults("getelement",labels[i],true));
+            else results.push_back(TestResults("getelement",labels[i],false));
+        }
+        else
+            results.push_back(TestResults("getelement",labels[i],false));
+    }
 
-    // printf("BEGINNING remesh TEST\n");
-    // for(size_t i=0;i<geoms.size();i++) {
-    //     AnyGeometry3D temp;
-    //     float timing = 0;
-    //     bool success = geoms[i].Remesh(0.1,temp);
-    //     if(success) {
-    //         timing = TimeIt([&geoms,i]() {
-    //             AnyGeometry3D temp;
-    //             geoms[i].Remesh(0.1,temp);
-    //             },10);
-    //     }
-    //     results.push_back(TestResults("remesh",labels[i],success,timing));
-    // }
+    printf("BEGINNING remesh TEST\n");
+    for(size_t i=0;i<geoms.size();i++) {
+        AnyGeometry3D temp;
+        float timing = 0;
+        bool success = geoms[i].Remesh(0.1,temp);
+        if(success) {
+            timing = TimeIt([&geoms,i]() {
+                AnyGeometry3D temp;
+                geoms[i].Remesh(0.1,temp);
+                },10);
+        }
+        results.push_back(TestResults("remesh",labels[i],success,timing));
+    }
 
-    // printf("BEGINNING extract ROI TEST\n");
-    // for(size_t i=0;i<geoms.size();i++) {
-    //     AABB3D bb;
-    //     bb.bmin.set(-1.5,0.5,0.5);
-    //     bb.bmax.set(1.5,1.5,1.5);
-    //     AnyCollisionGeometry3D ctemp;
-    //     AnyGeometry3D temp;
-    //     if(cgeoms[i].ExtractROI(bb,ctemp)) {
-    //         float timing = TimeIt([&cgeoms,i]() {
-    //             AABB3D bb;
-    //             bb.bmin.x = Rand(-2.0,1.0);
-    //             bb.bmin.y = Rand(0.5,1.0);
-    //             bb.bmin.z = Rand(0.5,1.0);
-    //             bb.bmax.x = Rand(1.0,3.0);
-    //             bb.bmax.y = Rand(1.0,1.5);
-    //             bb.bmax.z = Rand(0.5,1.0);
-    //             AnyCollisionGeometry3D ctemp;
-    //             cgeoms[i].ExtractROI(bb,ctemp);
-    //             },100);
-    //         results.push_back(TestResults("extract ROI",labels[i],true,timing));
-    //     }
-    //     else if(geoms[i].ExtractROI(bb,temp)) {
-    //         float timing = TimeIt([&geoms,i]() {
-    //             AABB3D bb;
-    //             bb.bmin.x = Rand(-2.0,1.0);
-    //             bb.bmin.y = Rand(0.5,1.0);
-    //             bb.bmin.z = Rand(0.5,1.0);
-    //             bb.bmax.x = Rand(1.0,3.0);
-    //             bb.bmax.y = Rand(1.0,1.5);
-    //             bb.bmax.z = Rand(0.5,1.0);
-    //             AnyGeometry3D temp;
-    //             geoms[i].ExtractROI(bb,temp);
-    //             },100);
-    //         TestResults res("extract ROI",labels[i],true,timing);
-    //         res.success_notes = "axis-aligned";
-    //         results.push_back(res);
-    //     }
-    //     else
-    //         results.push_back(TestResults("extract ROI",labels[i],false));
-    // }
+    printf("BEGINNING extract ROI TEST\n");
+    for(size_t i=0;i<geoms.size();i++) {
+        AABB3D bb;
+        bb.bmin.set(-1.5,0.5,0.5);
+        bb.bmax.set(1.5,1.5,1.5);
+        AnyCollisionGeometry3D ctemp;
+        AnyGeometry3D temp;
+        if(cgeoms[i].ExtractROI(bb,ctemp)) {
+            float timing = TimeIt([&cgeoms,i]() {
+                AABB3D bb;
+                bb.bmin.x = Rand(-2.0,1.0);
+                bb.bmin.y = Rand(0.5,1.0);
+                bb.bmin.z = Rand(0.5,1.0);
+                bb.bmax.x = Rand(1.0,3.0);
+                bb.bmax.y = Rand(1.0,1.5);
+                bb.bmax.z = Rand(0.5,1.0);
+                AnyCollisionGeometry3D ctemp;
+                cgeoms[i].ExtractROI(bb,ctemp);
+                },100);
+            results.push_back(TestResults("extract ROI",labels[i],true,timing));
+        }
+        else if(geoms[i].ExtractROI(bb,temp)) {
+            float timing = TimeIt([&geoms,i]() {
+                AABB3D bb;
+                bb.bmin.x = Rand(-2.0,1.0);
+                bb.bmin.y = Rand(0.5,1.0);
+                bb.bmin.z = Rand(0.5,1.0);
+                bb.bmax.x = Rand(1.0,3.0);
+                bb.bmax.y = Rand(1.0,1.5);
+                bb.bmax.z = Rand(0.5,1.0);
+                AnyGeometry3D temp;
+                geoms[i].ExtractROI(bb,temp);
+                },100);
+            TestResults res("extract ROI",labels[i],true,timing);
+            res.success_notes = "axis-aligned";
+            results.push_back(res);
+        }
+        else
+            results.push_back(TestResults("extract ROI",labels[i],false));
+    }
 
-    // printf("BEGINNING slice TEST\n");
-    // for(size_t i=0;i<geoms.size();i++) {
-    //     AnyCollisionGeometry3D temp;
-    //     RigidTransform T=T0;
-    //     T.t.z += 0.4;
-    //     float timing = 0;
-    //     bool success = cgeoms[i].Slice(T,temp,0.01);
-    //     if(success) {
-    //         timing = TimeIt([&cgeoms,i,&T0]() {
-    //             AnyCollisionGeometry3D temp;
-    //             RigidTransform T=T0;
-    //             T.t.z += Rand(-0.5,0.5);
-    //             cgeoms[i].Slice(T,temp,0.01);
-    //             },10);
-    //     }
-    //     results.push_back(TestResults("slice",labels[i],success,timing));
-    // }
+    printf("BEGINNING slice TEST\n");
+    for(size_t i=0;i<geoms.size();i++) {
+        AnyCollisionGeometry3D temp;
+        RigidTransform T=T0;
+        T.t.z += 0.4;
+        float timing = 0;
+        bool success = cgeoms[i].Slice(T,temp,0.01);
+        if(success) {
+            timing = TimeIt([&cgeoms,i,&T0]() {
+                AnyCollisionGeometry3D temp;
+                RigidTransform T=T0;
+                T.t.z += Rand(-0.5,0.5);
+                cgeoms[i].Slice(T,temp,0.01);
+                },10);
+        }
+        results.push_back(TestResults("slice",labels[i],success,timing));
+    }
 
-    // printf("BEGINNING union TEST\n");
-    // for(size_t i=0;i<geoms.size();i++) {
-    //     vector<AnyGeometry3D> temp(2);
-    //     temp[0] = geoms[i];
-    //     temp[1] = geoms[i];
-    //     temp[1].Transform(T0);
-    //     AnyGeometry3D temp2;
-    //     temp2.Union(temp);
-    //     float timing = 0;
-    //     bool success = (temp2.type != AnyGeometry3D::Type::Group);
-    //     if(success) {
-    //         timing = TimeIt([&geoms,i,&T0]() {
-    //             vector<AnyGeometry3D> temp(2);
-    //             temp[0] = geoms[i];
-    //             temp[1] = geoms[i];
-    //             RigidTransform T=T0;
-    //             T.t.x += Rand(-0.5,0.5);
-    //             temp[1].Transform(T);
-    //             AnyGeometry3D temp2;
-    //             temp2.Union(temp);
-    //             },10);
-    //     }
-    //     results.push_back(TestResults("union",labels[i],success,timing));
-    // }
+    printf("BEGINNING union TEST\n");
+    for(size_t i=0;i<geoms.size();i++) {
+        vector<AnyGeometry3D> temp(2);
+        temp[0] = geoms[i];
+        temp[1] = geoms[i];
+        temp[1].Transform(T0);
+        AnyGeometry3D temp2;
+        temp2.Union(temp);
+        float timing = 0;
+        bool success = (temp2.type != AnyGeometry3D::Type::Group);
+        if(success) {
+            timing = TimeIt([&geoms,i,&T0]() {
+                vector<AnyGeometry3D> temp(2);
+                temp[0] = geoms[i];
+                temp[1] = geoms[i];
+                RigidTransform T=T0;
+                T.t.x += Rand(-0.5,0.5);
+                temp[1].Transform(T);
+                AnyGeometry3D temp2;
+                temp2.Union(temp);
+                },10);
+        }
+        results.push_back(TestResults("union",labels[i],success,timing));
+    }
 
-    // printf("BEGINNING support TEST\n");
-    // for(size_t i=0;i<geoms.size();i++) {
-    //     Vector3 dir(0.3,0.5,0.7), pt;
-    //     float timing = 0;
-    //     bool success = cgeoms[i].Support(dir,pt);
-    //     if(success) {
-    //         timing = TimeIt([&cgeoms,i]() {
-    //             Vector3 dir(0.3,0.5,0.7), pt;
-    //             dir.x = Rand(-0.5,0.5);
-    //             cgeoms[i].Support(dir,pt);
-    //             },100);
-    //     }
-    //     results.push_back(TestResults("support",labels[i],success,timing));
-    // }
+    printf("BEGINNING support TEST\n");
+    for(size_t i=0;i<geoms.size();i++) {
+        Vector3 dir(0.3,0.5,0.7), pt;
+        float timing = 0;
+        bool success = cgeoms[i].Support(dir,pt);
+        if(success) {
+            timing = TimeIt([&cgeoms,i]() {
+                Vector3 dir(0.3,0.5,0.7), pt;
+                dir.x = Rand(-0.5,0.5);
+                cgeoms[i].Support(dir,pt);
+                },100);
+        }
+        results.push_back(TestResults("support",labels[i],success,timing));
+    }
 
-    // printf("BEGINNING ray cast TEST\n");
-    // for(size_t i=0;i<geoms.size();i++) {
-    //     Ray3D r;
-    //     r.source.set(-0.5,0.0,0.0);
-    //     r.direction.set(0.3,0.5,0.7);
-    //     Real dist;
-    //     int elem;
-    //     Vector3 pt;
-    //     float timing = 0;
-    //     bool success = cgeoms[i].collider->RayCast(r,0.0,dist,elem);
-    //     if(success) {
-    //         timing = TimeIt([&cgeoms,i]() {
-    //             Ray3D r;
-    //             r.source.set(Rand(-1.5,1.5),0.0,0.0);
-    //             r.direction.set(Rand(-0.5,0.5),0.5,0.7);
-    //             Real dist;
-    //             int elem;
-    //             cgeoms[i].collider->RayCast(r,0.0,dist,elem);
-    //             },100);
-    //     }
-    //     results.push_back(TestResults("ray cast",labels[i],success,timing));
-    // }
+    printf("BEGINNING ray cast TEST\n");
+    for(size_t i=0;i<geoms.size();i++) {
+        Ray3D r;
+        r.source.set(-0.5,0.0,0.0);
+        r.direction.set(0.3,0.5,0.7);
+        Real dist;
+        int elem;
+        Vector3 pt;
+        float timing = 0;
+        bool success = cgeoms[i].collider->RayCast(r,0.0,dist,elem);
+        if(success) {
+            timing = TimeIt([&cgeoms,i]() {
+                Ray3D r;
+                r.source.set(Rand(-1.5,1.5),0.0,0.0);
+                r.direction.set(Rand(-0.5,0.5),0.5,0.7);
+                Real dist;
+                int elem;
+                cgeoms[i].collider->RayCast(r,0.0,dist,elem);
+                },100);
+        }
+        results.push_back(TestResults("ray cast",labels[i],success,timing));
+    }
     
-    // printf("BEGINNING point containment TEST\n");
-    // for(size_t i=0;i<geoms.size();i++) {
-    //     Vector3 pt(0.5,0.5,0.5);
-    //     bool res;
-    //     float timing = 0;
-    //     bool success = cgeoms[i].collider->Contains(pt,res);
-    //     if(success) {
-    //         timing = TimeIt([&cgeoms,i]() {
-    //             Vector3 pt(0.5,0.5,0.5);
-    //             bool res;
-    //             pt.x = Rand(-1.5,1.5);
-    //             cgeoms[i].collider->Contains(pt,res);
-    //             },100);
-    //     }
-    //     results.push_back(TestResults("point containment",labels[i],success,timing));
-    // }
+    printf("BEGINNING point containment TEST\n");
+    for(size_t i=0;i<geoms.size();i++) {
+        Vector3 pt(0.5,0.5,0.5);
+        bool res;
+        float timing = 0;
+        bool success = cgeoms[i].collider->Contains(pt,res);
+        if(success) {
+            timing = TimeIt([&cgeoms,i]() {
+                Vector3 pt(0.5,0.5,0.5);
+                bool res;
+                pt.x = Rand(-1.5,1.5);
+                cgeoms[i].collider->Contains(pt,res);
+                },100);
+        }
+        results.push_back(TestResults("point containment",labels[i],success,timing));
+    }
 
-    // printf("BEGINNING point distance TEST\n");
-    // for(size_t i=0;i<geoms.size();i++) {
-    //     Vector3 pt(0.5,0.5,0.5);
-    //     Real res = cgeoms[i].Distance(pt);
-    //     float timing = 0;
-    //     bool success = !IsInf(res);
-    //     if(success) {
-    //         timing = TimeIt([&cgeoms,i]() {
-    //             Vector3 pt(0.5,0.5,0.5);
-    //             pt.x = Rand(-1.5,1.5);
-    //             cgeoms[i].Distance(pt);
-    //             },100);
-    //     }
-    //     results.push_back(TestResults("point distance",labels[i],success,timing));
-    // }
+    printf("BEGINNING point distance TEST\n");
+    for(size_t i=0;i<geoms.size();i++) {
+        Vector3 pt(0.5,0.5,0.5);
+        Real res = cgeoms[i].Distance(pt);
+        float timing = 0;
+        bool success = !IsInf(res);
+        if(success) {
+            timing = TimeIt([&cgeoms,i]() {
+                Vector3 pt(0.5,0.5,0.5);
+                pt.x = Rand(-1.5,1.5);
+                cgeoms[i].Distance(pt);
+                },100);
+        }
+        results.push_back(TestResults("point distance",labels[i],success,timing));
+    }
 
-    // printf("BEGINNING convert TEST\n");
-    // for(int i=0;i<(int)Geometry3D::Type::Group;i++) {
-    //     conversionResults.resize(conversionResults.size()+1);
-    //     for(size_t j=0;j<geoms.size();j++) {
-    //         shared_ptr<AnyGeometry3D> temp = make_shared<AnyGeometry3D>();
-    //         bool success;
-    //         success = geoms[j].Convert((Geometry3D::Type)i,*temp);
-    //         if(!success)
-    //             temp.reset();
-    //         float timing = 0;
-    //         if(success) {
-    //             timing = TimeIt([&geoms,j,i]() {
-    //                 shared_ptr<AnyGeometry3D> temp = make_shared<AnyGeometry3D>();
-    //                 geoms[j].Convert((Geometry3D::Type)i,*temp);
-    //                 },10);
-    //         }
-    //         string target=Geometry3D::TypeName((Geometry3D::Type)i);
-    //         results.push_back(TestResults("convert",labels[j],target,success,timing));
-    //         conversionResults.back().push_back(temp);
-    //     }
-    // }
+    printf("BEGINNING convert TEST\n");
+    for(int i=0;i<(int)Geometry3D::Type::Group;i++) {
+        conversionResults.resize(conversionResults.size()+1);
+        for(size_t j=0;j<geoms.size();j++) {
+            shared_ptr<AnyGeometry3D> temp = make_shared<AnyGeometry3D>();
+            bool success;
+            success = geoms[j].Convert((Geometry3D::Type)i,*temp);
+            if(!success)
+                temp.reset();
+            float timing = 0;
+            if(success) {
+                timing = TimeIt([&geoms,j,i]() {
+                    shared_ptr<AnyGeometry3D> temp = make_shared<AnyGeometry3D>();
+                    geoms[j].Convert((Geometry3D::Type)i,*temp);
+                    },10);
+            }
+            string target=Geometry3D::TypeName((Geometry3D::Type)i);
+            results.push_back(TestResults("convert",labels[j],target,success,timing));
+            conversionResults.back().push_back(temp);
+        }
+    }
 
-    // printf("BEGINNING collision TEST\n");
-    // for(size_t i=0;i<geoms.size();i++) {
-    //     for(size_t j=i;j<geoms.size();j++) {
-    //         printf("Testing collision between %s and %s\n",labels[i].c_str(),labels[j].c_str());
-    //         AnyCollisionGeometry3D temp = cgeoms[j];
-    //         RigidTransform T = temp.GetTransform();
-    //         T.t.x += 0.5;
-    //         temp.SetTransform(T);
-    //         bool res;
-    //         bool success;
-    //         //usually would just use cgeoms[j].Collides(temp) but if the test is not implemented Collides will return false.
-    //         if(cgeoms[i].collider->Collides(temp.collider.get(),res)) {
-    //             printf("%s collides with %s\n",cgeoms[i].TypeName(),temp.TypeName());
-    //             success = true;
-    //         }
-    //         else if(temp.collider->Collides(cgeoms[i].collider.get(),res)) { 
-    //             printf("%s collides with %s\n",temp.TypeName(),cgeoms[i].TypeName());
-    //             success = true;
-    //         }
-    //         else {
-    //             success = false;
-    //         }
-    //         float timing = 0;
-    //         if(success) {
-    //             timing = TimeIt([&cgeoms,&temp,i,&T0]() {
-    //                 RigidTransform T = T0;
-    //                 T.t.x += Rand(-1.5,1.5);
-    //                 T.t.z += 0.4;
-    //                 temp.SetTransform(T);
-    //                 cgeoms[i].Collides(temp);
-    //                 },100);
-    //         }
-    //         results.push_back(TestResults("collides",labels[i],labels[j],success,timing));
-    //         if(i!=j)
-    //             results.push_back(TestResults("collides",labels[j],labels[i],success,timing));
-    //     }
-    // }
-
-    //early output for debugging
-    // // CapabilityOutput(labels,results,fn_prefix);
-    // // return;
+    printf("BEGINNING collision TEST\n");
+    for(size_t i=0;i<geoms.size();i++) {
+        for(size_t j=i;j<geoms.size();j++) {
+            printf("Testing collision between %s and %s\n",labels[i].c_str(),labels[j].c_str());
+            AnyCollisionGeometry3D temp = cgeoms[j];
+            RigidTransform T = temp.GetTransform();
+            T.t.x += 0.5;
+            temp.SetTransform(T);
+            bool res;
+            bool success;
+            //usually would just use cgeoms[j].Collides(temp) but if the test is not implemented Collides will return false.
+            if(cgeoms[i].collider->Collides(temp.collider.get(),res)) {
+                printf("%s collides with %s\n",cgeoms[i].TypeName(),temp.TypeName());
+                success = true;
+            }
+            else if(temp.collider->Collides(cgeoms[i].collider.get(),res)) { 
+                printf("%s collides with %s\n",temp.TypeName(),cgeoms[i].TypeName());
+                success = true;
+            }
+            else {
+                success = false;
+            }
+            float timing = 0;
+            if(success) {
+                timing = TimeIt([&cgeoms,&temp,i,&T0]() {
+                    RigidTransform T = T0;
+                    T.t.x += Rand(-1.5,1.5);
+                    T.t.z += 0.4;
+                    temp.SetTransform(T);
+                    cgeoms[i].Collides(temp);
+                    },100);
+            }
+            results.push_back(TestResults("collides",labels[i],labels[j],success,timing));
+            if(i!=j)
+                results.push_back(TestResults("collides",labels[j],labels[i],success,timing));
+        }
+    }
 
     printf("BEGINNING within distance TEST\n");
     for(size_t i=0;i<geoms.size();i++) {
@@ -855,7 +851,7 @@ void CapabilityMatrix(const vector<AnyGeometry3D>& geoms,const vector<string>& l
         }
     }
 
-    // printf("BEGINNING contacts TEST\n");
+    printf("BEGINNING contacts TEST\n");
     for(size_t i=0;i<geoms.size();i++) {
         for(size_t j=i;j<geoms.size();j++) {
             AnyCollisionGeometry3D temp = cgeoms[j];
