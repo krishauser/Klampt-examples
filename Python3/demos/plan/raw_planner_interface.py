@@ -8,10 +8,6 @@ from klampt.vis.glcommon import GLWidgetPlugin
 from klampt.math import vectorops,so2,so3,se3
 import random
 
-problem = "1"
-#problem = "2"
-#problem = "3"
-
 
 class Circle:
     def __init__(self,x=0,y=0,radius=1):
@@ -206,7 +202,7 @@ class CSpaceObstacleProgram(GLProgram):
     def display(self):
         glMatrixMode(GL_PROJECTION)
         glLoadIdentity()
-        glOrtho(0,1,1,0,-1,1);
+        glOrtho(0,1,1,0,-1,1)
         glMatrixMode(GL_MODELVIEW)
         glLoadIdentity()
 
@@ -384,11 +380,26 @@ class RigidObjectCSpacePlugin(GLWidgetPlugin):
         return True
 
 if __name__=='__main__':
+    print("==================================================================")
+    print("Raw planner interface demo")
+    print()
+    print("An educational demo of the raw planner interface, showing how to")
+    print("implement feasibility tests.  Fill out the TODOs in the code to")
+    print("fix the planner")
+    print()
+    print("Press p to plan 100 steps, space to plan one step, r to reset")
+    print("==================================================================")
+    print()
+    print("Enter the problem number you wish to show:")
+    print("1: basic 2D C-space")
+    print("2: rigid planar object C-space")
+    print("3: 3D rigid object C-space")
+    problem = input("> ")
     if problem == "3":
         from klampt import WorldModel
         from klampt import vis
         world = WorldModel()
-        world.readFile("../../data/tx90cuptable.xml")
+        world.readFile("../../../data/tx90cuptable.xml")
         plugin = RigidObjectCSpacePlugin(world,world.rigidObject(0))
         vis.setWindowTitle("Rigid object planning")
         vis.run(plugin)
