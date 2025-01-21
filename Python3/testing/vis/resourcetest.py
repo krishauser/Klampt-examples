@@ -47,7 +47,7 @@ def test_geometry_editing():
     print(result)
 
 if __name__ == '__main__':
-    #test_trajectory_editing()
+    test_trajectory_editing()
     test_geometry_editing()
     vis.kill()
     
