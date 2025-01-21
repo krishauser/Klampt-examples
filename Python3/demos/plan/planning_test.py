@@ -454,7 +454,7 @@ def main(worldfn,inWaypointsFn,outputPathFn):
     vis.kill()
 
 if __name__ == '__main__':
-    fn = "../../data/robots/jaco.rob"
+    fn = "../../../data/robots/jaco.rob"
     if len(sys.argv) > 1:
         fn = sys.argv[1]
     main(fn,'planningtest.configs','test.path')

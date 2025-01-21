@@ -626,7 +626,7 @@ vis_template.py: Demonstrates examples about how to run the visualization
 framework.""")
     if len(sys.argv)<=1:
         print("USAGE: vis_template.py [world_file]")
-        print("   (Try python vis_template.py ../../data/athlete_plane.xml)")
+        print("   (Try python vis_template.py ../../../data/athlete_plane.xml)")
     print("""================================================================================""")
     if len(sys.argv)<=1:
         exit()

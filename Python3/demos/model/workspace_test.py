@@ -8,7 +8,7 @@ import numpy as np
 import time
 import sys
 
-fn = "../../data/tx90scenario0.xml"
+fn = "../../../data/tx90scenario0.xml"
 if len(sys.argv) > 1:
     fn = sys.argv[1]
 
@@ -37,11 +37,7 @@ for i in range(robot.numLinks()):
         fixed_indices.append(i)
 
 #extract all objects and terrains as obstacles
-obstacles = []
-for i in range(world.numRigidObjects()):
-    obstacles.append(world.rigidObject(i))
-for i in range(world.numTerrains()):
-    obstacles.append(world.terrain(i))
+obstacles = list(o for o in world.rigidObjects) + list(t for t in world.terrains)
 
 """
 pts = np.random.random((10000,3))
@@ -76,7 +72,7 @@ for k in res.keys():
     if k == 'workspace': continue
     workspace2 = res[k]
     print("Reached:",np.sum(workspace2.getValues()),"/",np.prod(workspace.getValues().shape),"constraint",k)
-print("Bound",[v for v in workspace.bbox[:3]],[v for v in workspace.bbox[3:]])
+print("Bound",workspace.bmin,workspace.bmax)
 print()
 print()
 vis.add("world",world)

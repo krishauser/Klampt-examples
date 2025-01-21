@@ -65,13 +65,11 @@ class GLTest(GLRealtimeProgram):
 
 if __name__ == "__main__":
     print("================================================================")
-    print("gl_vis.py: This example demonstrates how to use the GL visualization interface")
-    print("   to tie directly into the GUI.")
-    print()
-    print("   The demo simulates a world and reads a force sensor")
+    print("io_povray: This example demonstrates how the povray module can be")
+    print("used to render a scene to a file.")
     print("================================================================")
     world = klampt.WorldModel()
-    res = world.readFile("../../data/hubo_plane.xml")
+    res = world.readFile("../../../data/hubo_plane.xml")
     if not res:
         raise RuntimeError("Unable to load world")
     sim = klampt.Simulator(world)

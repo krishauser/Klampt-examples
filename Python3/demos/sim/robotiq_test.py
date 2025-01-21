@@ -9,7 +9,7 @@ from klampt.vis.glrobotprogram import GLSimulationPlugin
 class MyGLViewer(GLSimulationPlugin):
     def __init__(self,world):
         GLSimulationPlugin.__init__(self,world)
-        rinfo = RobotInfo.load("../../robotinfo/robotiq_3finger/robotiq_3finger_sim.json")
+        rinfo = RobotInfo.load("../../../robotinfo/robotiq_3finger/robotiq_3finger_sim.json")
         rinfo.configureSimulator(self.sim,0)
         assert len(self.sim.actuatorEmulators) == 1,"Assumed to have one actuator emulator"
         print(self.sim.actuatorEmulators)

@@ -7,7 +7,7 @@ import time
 import sys
 
 #load the robot / world file
-fn = "../../data/robots/jaco.rob"
+fn = "../../../data/robots/jaco.rob"
 if len(sys.argv) > 1:
     fn = sys.argv[1]
 world = klampt.WorldModel()

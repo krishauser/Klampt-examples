@@ -49,8 +49,8 @@ if __name__ == "__main__":
         res = world.readFile(fn)
         if not res:
             raise RuntimeError("Unable to load model "+fn)
-    # viewer = MyGLViewer(world)
-    # vis.run(viewer)
+    viewer = MyGLViewer(world)
+    vis.run(viewer)
     # Equivalent code using vis interface    
     # import time
     # vis.init()

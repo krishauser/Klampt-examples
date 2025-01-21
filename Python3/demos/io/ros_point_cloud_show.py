@@ -45,7 +45,7 @@ def updatePointCloud():
 			print("empty")
 		else:
 			pc = g.getPointCloud()
-			print(pc.numPoints(),"points and",pc.numProperties(),"properties")
+			print(len(pc.points),"points and",pc.numProperties(),"properties")
 			point_cloud_count += 1
 			if dosave:
 				print("Saving pcd file to temp%04d.pcd..."%(point_cloud_count,))

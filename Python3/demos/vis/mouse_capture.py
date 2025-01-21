@@ -36,7 +36,7 @@ if __name__ == "__main__":
     """)
 
     world = klampt.WorldModel()
-    res = world.readFile("../../data/tx90blocks.xml")
+    res = world.readFile("../../../data/tx90blocks.xml")
     if not res:
         raise RuntimeError("Unable to load world")
     
