@@ -105,8 +105,5 @@ vis.addAction(lambda:convert(None,None,'vertices'),"colorize vertices")
 vis.addAction(lambda:convert(None,None,None,[0,0,-1]),"lighting on")
 vis.addAction(lambda:convert(None,None,None,'none'),"lighting off")
 
-
-vis.show()
-while vis.shown():
-    time.sleep(0.001)
+vis.loop()
 vis.kill()
