@@ -14,7 +14,7 @@ import time
 from kbdrive import load_world_and_interface
 
 if __name__ == "__main__":
-    print("pose_RIL.py: This example demonstrates how to pose a robot (via Robot Interface Layer)")
+    print("pose.py: This example demonstrates how to pose a robot (via Robot Interface Layer)")
     if len(sys.argv)<=1:
         print("USAGE: python pose.py world_file(s) [controller_file]")
         print("   OR")
