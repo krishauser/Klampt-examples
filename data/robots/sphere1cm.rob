@@ -16,7 +16,9 @@ automass
 torqueMax  5 5 5
 accMax     5 5 5
 
-joint floating 2 -1
+joint normal 0
+joint normal 1
+joint normal 2
 driver translation 0 2
 driver translation 1 2
 driver translation 2 2
