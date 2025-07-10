@@ -1,0 +1,76 @@
+links	"base_link" "left_inner_knuckle" "left_outer_knuckle" "left_outer_finger" "left_inner_finger" "left_inner_finger_pad" "right_inner_knuckle" "right_outer_knuckle" "right_outer_finger" "right_inner_finger" "right_inner_finger_pad" 
+
+parents	-1 0 0 2 3 4 0 0 7 8 9 
+
+axis	0 0 1	-1 0 0	-1 0 0	0 0 1	1 0 0	0 0 1	-1 0 0	-1 0 0	0 0 1	1 0 0	0 0 1	
+
+jointtype	r r r r r r r r r r r 
+
+#orientation change so that the fingers are aligned along x axis
+Tparent	0 1 0	-1 0 0	0 0 1	0 0 0 \
+1 0 0	0 -0.663135 -0.7485	0 0.7485 -0.663135	0 -0.0127 0.06142 \
+1 0 0	0 -0.663135 -0.7485	0 0.7485 -0.663135	0 -0.030601 0.054905 \
+1 0 0	0 1 0	0 0 1	0 0.01822 0.0260018 \
+1 -0 0	0 0.748499 0.663135	-0 -0.663135 0.748499	0 0.0817554 -0.0282203 \
+1 0 0	0 1 0	0 0 1	0 0.0457554 -0.0272203 \
+-1 -3.55373e-08 -4.01119e-08	-5.35898e-08 0.663135 0.7485	-3.30872e-24 0.7485 -0.663135	0 0.0127 0.06142 \
+-1 3.55373e-08 4.01119e-08	5.35898e-08 0.663135 0.7485	3.30872e-24 0.7485 -0.663135	0 0.030601 0.054905 \
+1 0 0	0 1 0	0 0 1	0 0.01822 0.0260018 \
+1 -0 0	0 0.748499 0.663135	-0 -0.663135 0.748499	0 0.0817554 -0.0282203 \
+1 0 0	0 1 0	0 0 1	0 0.0457554 -0.0272203
+
+q	0 0 0 0 0 0 0 0 0 0 0 
+
+qmin	0 0 0 0 0 0 0 0 0 0 0 
+
+qmax	0 0.8757 0.7 0 0.8757 0 0.8757 0.725 0 0.8757 0 
+
+geometry	"robotiq_140/base_link.off" "robotiq_140/left_inner_knuckle.off" "robotiq_140/left_outer_knuckle.off" "robotiq_140/left_outer_finger.off" "robotiq_140/left_inner_finger.off" "robotiq_140/left_inner_finger_pad.off" "robotiq_140/right_inner_knuckle.off" "robotiq_140/right_outer_knuckle.off" "robotiq_140/right_outer_finger.off" "robotiq_140/right_inner_finger.off" "robotiq_140/right_inner_finger_pad.off" 
+
+mass	0.86247164 0.0271177 0.00853198 0.0226142 0.0104003 0.01 0.0271177 0.00853198 0.0226142 0.0104003 0.01 
+
+com	-0.12713 -5.73414e-05 0.379647	0.000123012 0.0507851 0.00103969	-0.0002 0.0199436 0.0292245	0.000301159 0.0373908 -0.0208027	0.0003 0.0160078 -0.0136946	0 0 0	0.000123012 0.0507851 0.00103969	-0.0002 0.0199436 0.0292245	0.000301159 0.0373908 -0.0208027	0.0003 0.0160078 -0.0136946	0 0 0	
+
+inertia	0.021254832 -9.20385454866265E-07 -5.62706088874975E-05 -9.20385454866265E-07 0.0233050969 -2.58771696262302E-08 -5.62706088874975E-05 -2.58771696262302E-08 0.0233124605 \
+    2.6191e-05 -2.43617e-07 -6.3779e-09 -2.43617e-07 2.82702e-06 -5.37201e-07 -6.3779e-09 -5.37201e-07 2.83696e-05	2.89328e-06 -1.57935e-19 -1.9398e-19 -1.57935e-19 1.8672e-06 -1.21859e-06 -1.9398e-19 -1.21859e-06 1.21905e-06	1.52518e-05 9.76583e-10 -5.43839e-10 9.76583e-10 6.17694e-06 6.78636e-06 -5.43839e-10 6.78636e-06 1.16495e-05	2.71909e-06 1.35402e-21 -7.18173e-22 1.35402e-21 7.691e-07 6.74715e-07 -7.18173e-22 6.74715e-07 2.30315e-06	1e-06 0 0 0 1e-06 0 0 0 1e-06	2.6191e-05 -2.43617e-07 -6.3779e-09 -2.43617e-07 2.82702e-06 -5.37201e-07 -6.3779e-09 -5.37201e-07 2.83696e-05	2.89328e-06 -1.57935e-19 -1.9398e-19 -1.57935e-19 1.8672e-06 -1.21859e-06 -1.9398e-19 -1.21859e-06 1.21905e-06	1.52518e-05 9.76583e-10 -5.43839e-10 9.76583e-10 6.17694e-06 6.78636e-06 -5.43839e-10 6.78636e-06 1.16495e-05	2.71909e-06 1.35402e-21 -7.18173e-22 1.35402e-21 7.691e-07 6.74715e-07 -7.18173e-22 6.74715e-07 2.30315e-06	1e-06 0 0 0 1e-06 0 0 0 1e-06
+
+torquemax	inf 1 1 inf 1 inf 1 1 inf 1 inf 
+
+velmax	0 2 2 0 2 0 2 2 0 2 0 
+
+accmax	0 4 4 0 4 0 4 4 0 4 0 
+
+noselfcollision	0 3	0 4	0 5	0 8	0 9	0 10	
+noselfcollision	1 2	1 3	1 4	1 5	1 6	1 7	1 8	1 9	1 10	
+noselfcollision	2 4	2 5	2 6	2 7	2 8	2 9	2 10	
+noselfcollision	3 5	3 6	3 7	3 8	3 9	3 10	
+noselfcollision	4 6	4 7	4 8	4 9	4 10	
+noselfcollision	5 6	5 7	5 8	5 9	5 10	
+noselfcollision	6 7	6 8	6 9	6 10	
+noselfcollision	7 9	7 10	
+noselfcollision	8 10	
+
+joint weld 0
+joint normal 1
+joint normal 2
+joint weld 3
+joint normal 4
+joint weld 5
+joint normal 6
+joint normal 7
+joint weld 8
+joint normal 9
+joint weld 10
+
+
+driver affine   6    1 2 4 6 7 9     0.7 0.7 0.7 0.7 0.7 0.7     0 0 0 0 0 0    0 1 -1 1 -4 4
+
+
+servoP	2
+servoI	1
+servoD	.05
+
+dryFriction	0.05
+viscousFriction	1
+
+
