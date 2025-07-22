@@ -9,8 +9,8 @@ from klampt import vis
 import matplotlib.pyplot as plt
 import numpy as np
 
-WORLD_FILE = '../../data/mirobot_6blocks.xml'
-ROBOTINFO_FILE = '../../robotinfo/mirobot/mirobot_vacuum_sim.json'
+WORLD_FILE = '../../../data/manipulation_worlds/mirobot_6blocks.xml'
+ROBOTINFO_FILE = '../../../robotinfo/mirobot/mirobot_vacuum_sim.json'
 
 class VacuumBindingBlock(RobotControllerBlock):
     """RobotControllerBlock interface to Mirobot vacuum"""
