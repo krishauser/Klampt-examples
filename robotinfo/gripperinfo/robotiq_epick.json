@@ -1,0 +1,12 @@
+{
+    "name": "robotiq_epick",
+    "type": "vacuum", 
+    "baseLink": 0, 
+    "minimumSpan": 0.01, 
+    "maximumSpan": 0.03,
+    "center": [0, 0, 0.02],
+    "klamptModel": "../../data/gripper_robots/robotiq_epick.rob",
+    "primaryAxis": [0, 0, 1],
+    "fingerLength" : 0.02,
+    "gripperLinks": null
+}

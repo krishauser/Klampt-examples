@@ -1,0 +1,20 @@
+links   Link_0 
+parents	-1 
+
+axis	0 0 1
+Tparent	1 0 0	0 1 0	0 0 1	0 0 0 
+
+q       0
+
+qmin	0 
+
+qmax	0 
+
+geometry	"robotiq_epick/robotiq_epick_simplified.dae"
+geomscale 0.001
+
+mass	0.710
+
+automass 
+
+

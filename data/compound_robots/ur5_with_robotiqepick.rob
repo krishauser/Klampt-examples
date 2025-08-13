@@ -1,0 +1,4 @@
+mount -1 "../arm_robots/ur5.rob" 1 0 0  0 1 0  0 0 1  0 0 0
+mount 7 "../gripper_robots/robotiq_epick.rob"     0 0 1 -1 0 0 0 -1 0     0.094 0 0 as "gripper"
+
+noselfcollision 0 2    4 6   
