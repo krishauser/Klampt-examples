@@ -8,7 +8,7 @@ import numpy as np
 import time
 import sys
 
-fn = "../../../data/tx90scenario0.xml"
+fn = "../../../data/manipulation_worlds/tx90scenario0.xml"
 if len(sys.argv) > 1:
     fn = sys.argv[1]
 

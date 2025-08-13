@@ -20,7 +20,7 @@ if __name__ == "__main__":
         print("   OR")
         print("python pose.py robotinfo_file [world_files]")
         print()
-        print('try "python pose.py ../../data/tx90cuptable.xml"')
+        print('try "python pose.py ../../data/manipulation_worlds/tx90cuptable.xml"')
         exit()
 
     world, interface = load_world_and_interface(sys.argv[1:])

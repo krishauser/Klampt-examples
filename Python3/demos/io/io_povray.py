@@ -69,7 +69,7 @@ if __name__ == "__main__":
     print("used to render a scene to a file.")
     print("================================================================")
     world = klampt.WorldModel()
-    res = world.readFile("../../../data/hubo_plane.xml")
+    res = world.readFile("../../../data/locomotion_worlds/hubo_plane.xml")
     if not res:
         raise RuntimeError("Unable to load world")
     sim = klampt.Simulator(world)

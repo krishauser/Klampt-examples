@@ -369,7 +369,7 @@ if __name__ == '__main__':
         fn = sys.argv[1]
 
     w = WorldModel()
-    w.readFile("../../../data/robots/kinova_with_robotiq_85.urdf")
+    w.readFile("../../../data/compound_robots/kinova_with_robotiq_85.urdf")
     robot = w.robot(0)
 
     trajs,attrs = svg_to_trajectories(fn,center=True,want_attributes=True)

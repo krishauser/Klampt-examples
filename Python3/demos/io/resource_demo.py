@@ -113,7 +113,7 @@ if __name__ == '__main__':
     ============================================================
     """)
 
-    worldfile = "../../../data/athlete_plane.xml"
+    worldfile = "../../../data/locomotion_worlds/athlete_plane.xml"
     if len(sys.argv) > 1:
         worldfile = sys.argv[1]
     world = klampt.WorldModel()

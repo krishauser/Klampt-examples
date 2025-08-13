@@ -6,7 +6,7 @@ import os
 
 
 world = klampt.WorldModel()
-world.readFile("../../../data/baxter_apc.xml")
+world.readFile("../../../data/manipulation_worlds/baxter_apc.xml")
 robot = world.robot(0)
 sensor = robot.addSensor("camera","CameraSensor")
 sensor.setSetting("rgb","1")

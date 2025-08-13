@@ -25,7 +25,7 @@ KINEMATIC_SIMULATE = False       #whether to run the full physics simulation or 
 
 world = klampt.WorldModel()
 world.readFile("../../../data/simulation_test_worlds/sensortest.xml")
-#world.readFile("../../../data/tx90scenario0.xml")
+#world.readFile("../../../data/manipulation_worlds/tx90scenario0.xml")
 robot = world.robot(0)
 
 vis.add("world",world)
@@ -90,21 +90,22 @@ class SensorTestCallbacks:
 				input("Saved...")
 		def toggle_view():
 			if self.original_view is None:
-				self.original_view = self.view
+				self.original_view = vis.getViewport()
 				v = sensing.camera_to_viewport(sensor,robot)
-				self.window.program.set_view(v)
-				self.view = v
+				vis.setViewport(v)
+				vis.resizeWindow(v.w,v.h)
 			else:
-				self.window.program.set_view(self.original_view)
-				self.view = self.original_view
+				vis.setViewport(self.original_view)
+				vis.resizeWindow(self.original_view.w,self.original_view.h)
 				self.original_view = None
 		def print_view():
+			view = vis.getViewport()
 			if klampt_version >= (0,10,0):
-				print("Tgt",self.view.controller.tgt)
-				print("Rot",self.view.controller.rot)
+				print("Tgt",view.controller.tgt)
+				print("Rot",view.controller.rot)
 			else:
-				print("Tgt",self.view.camera.tgt)
-				print("Rot",self.view.camera.rot)
+				print("Tgt",view.camera.tgt)
+				print("Rot",view.camera.rot)
 
 		if HAVE_PYPLOT:
 			vis.addAction(plot_rgb,'Plot color','c')

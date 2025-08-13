@@ -3,7 +3,7 @@ import os
 import time
 from klampt import *
 
-WORLD_FN = "../../../data/baxter_apc.xml"
+WORLD_FN = "../../../data/manipulation_worlds/baxter_apc.xml"
 SAVE_DIR = 'worldio_tmp'
 N = 100
 

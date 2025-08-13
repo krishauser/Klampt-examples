@@ -13,7 +13,7 @@ SAVE_POINT_CLOUDS = True
 
 world = klampt.WorldModel()
 world.readFile("../../../data/simulation_test_worlds/sensortest.xml")
-#world.readFile("../../../data/tx90scenario0.xml")
+#world.readFile("../../../data/manipulation_worlds/tx90scenario0.xml")
 robot = world.robot(0)
 
 #vis.add("world",world)

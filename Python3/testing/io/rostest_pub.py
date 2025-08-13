@@ -5,7 +5,7 @@ import rospy
 import tf
 
 w = WorldModel()
-w.loadFile("../../data/athlete_fractal_1.xml")
+w.loadFile("../../data/locomotion_worlds/athlete_fractal_1.xml")
 #you can configure the JointState message with its arguments
 print(kros.to_JointState(w.robot(0)))
 print(kros.to_JointState(w.robot(0),dq=None))
