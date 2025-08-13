@@ -1,0 +1,45 @@
+### Kinematics of two Staubli TX90L robots ###
+
+mount -1 "../arm_robots/tx90ball.rob"  1 0 0  0 1 0   0 0 1  0 0 0  as "tx90-left"
+
+mount -1 "../arm_robots/tx90ball.rob"  -1 0 0 0 -1 0 0 0 1    0.7 0 0  as "tx90-right"
+
+noselfcollision 0 2
+noselfcollision 0 3
+noselfcollision 1 3
+noselfcollision 1 4
+noselfcollision 1 5
+noselfcollision 2 4
+noselfcollision 2 5
+noselfcollision 2 6
+noselfcollision 3 5
+noselfcollision 3 6
+noselfcollision 4 6
+
+noselfcollision 0 7
+noselfcollision 0 8
+noselfcollision 0 9
+noselfcollision 0 10
+noselfcollision 0 11
+noselfcollision 0 12
+noselfcollision 0 13
+noselfcollision 1 7
+noselfcollision 1 8
+noselfcollision 1 9
+noselfcollision 1 10
+noselfcollision 1 11
+noselfcollision 1 12
+noselfcollision 1 13
+
+noselfcollision 2 9
+
+noselfcollision 2 7
+noselfcollision 2 8
+noselfcollision 3 7
+noselfcollision 3 8
+noselfcollision 4 7
+noselfcollision 4 8
+noselfcollision 5 7
+noselfcollision 5 8
+noselfcollision 6 7
+noselfcollision 6 8

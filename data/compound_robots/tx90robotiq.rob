@@ -1,0 +1,47 @@
+### Kinematics of the Staubli TX90L robot ###
+
+mount -1 "../arm_robots/tx90l.rob" 1 0 0  0 1 0  0 0 1  0 0 0
+
+#mounted with orientation pi+0.125156 radians orientation about z axis
+mount 6 "../gripper_robots/robotiq_3finger.rob"  -0.99217820589793865345916299856371 0.1248295147036455133524368152559 0    -0.1248295147036455133524368152559 -0.99217820589793865345916299856371  0     0 0 1    0 0 0.09   as "gripper"
+
+#links "base" "link1" "link2" "link3" "link4" "link5"  "link6"  "flange"  "thumb_proximal" "thumb_medial" "thumb_distal" "finger1_proximal" "finger1_medial" "finger1_distal" "finger2_proximal" "finger2_medial" "finger2_distal"
+
+noselfcollision 0 2
+noselfcollision 0 3
+noselfcollision 1 3
+noselfcollision 1 4
+noselfcollision 1 5
+noselfcollision 1 6
+noselfcollision 2 4
+noselfcollision 2 5
+noselfcollision 2 6
+noselfcollision 3 5
+noselfcollision 3 6
+noselfcollision 4 6
+
+#palm cant self collide with links 2 and up
+noselfcollision 2 7  3 7   4 7   5 7
+#fingers can't collide with links 3 and up
+noselfcollision 3 8 3 9 3 10 3 11 3 12 3 13 3 14 3 15 3 16 3 17 3 18 3 19
+noselfcollision 4 8 4 9 4 10 4 11 4 12 4 13 4 14 4 15 4 16 4 17 4 18 4 19
+noselfcollision 5 8 5 9 5 10 5 11 5 12 5 13 5 14 5 15 5 16 5 17 5 18 5 19
+noselfcollision 6 8 6 9 6 10 6 11 6 12 6 13 6 14 6 15 6 16 6 17 6 18 6 19
+
+#finger 1 
+noselfcollision 7 14              #palm
+noselfcollision 8 15   8 16        #scissor 1 
+noselfcollision 9 14  9 15  9 16    #scissor 2 
+noselfcollision 10 14  10 15  10 16    #scissor 3 
+#finger 2 
+noselfcollision 7 17                #palm
+noselfcollision 7 19                #palm
+noselfcollision 7 18                #palm
+noselfcollision 9 18   9 19         #scissor 2 
+noselfcollision 8 17  8 18  8 19    #scissor 1 
+noselfcollision 10 17  10 18  10 19    #scissor 3 
+#finger 3 
+noselfcollision 7 11              #palm
+noselfcollision 10 11  10 12  10 13   #scissor 3 
+noselfcollision 8 11  8 12  8 13    #scissor 1 
+noselfcollision 9 11  9 12  9 13    #scissor 2 

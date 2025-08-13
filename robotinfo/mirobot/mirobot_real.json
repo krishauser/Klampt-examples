@@ -1,6 +1,6 @@
 {
     "name":"Mirobot",
-    "modelFile":"../../data/robots/mirobot.urdf",
+    "modelFile":"../../data/arm_robots/mirobot.urdf",
     "baseType":"fixed",
     "controllerFile":"controller/mirobot_ril.py",
     "resourceDir":"resources",

@@ -1,0 +1,3 @@
+### Kinematics of the PUMA 760 robot, scaled by half, with a PR2 gripper attached ###
+mount -1 "../arm_robots/puma760.rob" 1 0 0   0 1 0   0 0 1   0 0 0
+mount 6 "../gripper_robots/pr2gripper.rob"   0 0 -1    0 1 0    1 0 0   0 0 0.06  as "gripper"

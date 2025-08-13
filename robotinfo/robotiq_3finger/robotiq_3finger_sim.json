@@ -1,6 +1,6 @@
 {
     "name":"Robotiq 3-finger",
-    "modelFile":"../../data/robots/robotiQ_3finger.rob",
+    "modelFile":"../../data/gripper_robots/robotiq_3finger.rob",
     "baseType":"fixed",
     "controllerFile":"klampt.control.simrobotinterface",
     "simulatorFile":"robotiq_sim.py",

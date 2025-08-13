@@ -1,0 +1,10 @@
+<robot name="GEN3_URDF_V12_WITH_ROBOTIQ85" version="1.0">
+
+  <klampt world_frame="world" defaultAccMax="4">
+    <mount file="../arm_robots/kinova_gen3_7dof.urdf" />
+
+    <mount link="EndEffector_Link" file = "../gripper_robots/robotiq_85.rob" transform = "1 0 0   0 1 0  0 0 1  0 0 0" prefix="gripper"/>
+    <noselfcollision group1="ForeArm_Link SphericalWrist1_Link SphericalWrist2_Link Bracelet_Link" group2="gripper:Link_0 gripper:Link_1 gripper:Link_2 gripper:Link_3 gripper:Link_4 gripper:Link_5 gripper:Link_6 gripper:Link_7 gripper:Link_8" />
+    <noselfcollision group1="HalfArm2_Link" group2="gripper:Link_0" />
+  </klampt>
+</robot>

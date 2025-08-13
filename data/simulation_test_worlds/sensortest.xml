@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <world>
   <terrain file="../terrains/plane.off"  translation="0 0 0"/>
-  <robot file="../robots/tx90ball.rob">
+  <robot file="../arm_robots/tx90ball.rob">
     <sensors>
       <JointPositionSensor name="encoders" />
       <JointVelocitySensor name="dencoders" />

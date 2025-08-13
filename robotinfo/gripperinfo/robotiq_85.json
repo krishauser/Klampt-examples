@@ -1,0 +1,19 @@
+{
+    "name": "robotiq_85",
+    "type": "parallel", 
+    "baseLink": 0, 
+    "minimumSpan": 0, 
+    "fingerDrivers": [0], 
+    "fingerLinks": [1, 2, 3, 4, 5, 6, 7, 8], 
+    "fingerDepth": 0.01, 
+    "fingerLength": 0.06, 
+    "fingerWidth": 0.02,
+    "secondaryAxis": [1, 0, 0],
+    "openConfig": [0, 0, 0, 0, 0, 0, 0, 0],
+    "center": [0, 0, 0.1],
+    "klamptModel": "../../data/gripper_robots/robotiq_85.rob",
+    "closedConfig": [0.723, 0, 0.723, -0.723, -0.723, 0.723, -0.723, 0],
+    "primaryAxis": [0, 0, 1],
+    "maximumSpan": 0.075,
+    "gripperLinks": null
+}

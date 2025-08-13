@@ -1,6 +1,6 @@
 {
     "name":"Robotiq 2f85",
-    "modelFile":"../../data/robots/robotiq_85.rob",
+    "modelFile":"../../data/gripper_robots/robotiq_85.rob",
     "baseType":"fixed",
     "controllerFile":"klampt.control.simrobotinterface",
     "properties" : {

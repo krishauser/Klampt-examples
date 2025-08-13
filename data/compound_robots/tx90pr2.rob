@@ -1,0 +1,43 @@
+### Kinematics of the Staubli TX90L robot ###
+mount -1 "../arm_robots/tx90l.rob"
+mount 6 "../gripper_robots/pr2gripper.rob"  0 0 -1    0 1  0     1 0 0    0 0 0.025 as "gripper"
+
+noselfcollision 0 2
+noselfcollision 0 3
+noselfcollision 1 3
+noselfcollision 1 4
+noselfcollision 1 5
+noselfcollision 1 6
+noselfcollision 2 4
+noselfcollision 2 5
+noselfcollision 2 6
+noselfcollision 2 7
+noselfcollision 3 5
+noselfcollision 3 6
+noselfcollision 3 7
+noselfcollision 3 8
+noselfcollision 3 9
+noselfcollision 3 10
+noselfcollision 3 11
+noselfcollision 4 6
+noselfcollision 4 7
+noselfcollision 4 8
+noselfcollision 4 9
+noselfcollision 4 10
+noselfcollision 4 11
+noselfcollision 5 7
+noselfcollision 5 8
+noselfcollision 5 9
+noselfcollision 5 10
+noselfcollision 5 11
+#clear all PR2 self collisions
+noselfcollision 7 8
+noselfcollision 7 9
+noselfcollision 7 10
+noselfcollision 7 11
+noselfcollision 8 9
+noselfcollision 8 10
+noselfcollision 8 11
+noselfcollision 9 10
+noselfcollision 9 11
+noselfcollision 10 11

@@ -1,6 +1,6 @@
 {
     "name": "KinovaGen3",
-    "modelFile": "../../data/robots/kinova_gen3_7dof.urdf",
+    "modelFile": "../../data/arm_robots/kinova_gen3_7dof.urdf",
     "baseType":"fixed",
     "controllerFile": "controller/kinova_gen3_7dof.py", 
     "properties" : {

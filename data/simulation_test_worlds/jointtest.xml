@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <world>
-  <robot name="tx90pr2" file="../robots/tx90pr2.rob" />
+  <robot name="tx90pr2" file="../compound_robots/tx90pr2.rob" />
   <terrain name="floor" file="../terrains/block.off" />
   <!-- The table -->
   <terrain name="table" file="../terrains/cube.off" scale="0.6 0.6 0.03" translation="0.3 -0.175 0.615">

@@ -1,0 +1,18 @@
+{
+    "name": "pr2gripper",
+    "klamptModel": "../../data/gripper_robots/pr2gripper.rob", 
+    "type": null,
+    "baseLink": 0, 
+    "fingerLinks": [1, 2, 3, 4], 
+    "fingerDrivers": [0],
+    "center": [0, 0, 0.16],
+    "primaryAxis": [1, 0, 0],
+    "secondaryAxis": [0, 1, 0],
+    "minimumSpan": 0, 
+    "maximumSpan": 0.16,
+    "fingerDepth": 0.01,
+    "fingerLength": 0.04,
+    "fingerWidth": 0.02,
+    "openConfig": [1.095,1.095,-1.095,1.095],
+    "closedConfig": [0.048014,0.048014,-0.048014,0.04801]
+}

@@ -1,6 +1,6 @@
 {
     "name":"Mirobot with vacuum",
-    "modelFile":"../../data/robots/mirobot_vacuum.urdf",
+    "modelFile":"../../data/arm_robots/mirobot_vacuum.urdf",
     "baseType":"fixed",
     "controllerFile":"klampt.control.simrobotinterface",
     "simulatorFile":"simulation/vacuum.py",

@@ -1,11 +1,11 @@
 {
     "name":"Mirobot with vacuum",
-    "modelFile":"../../data/robots/mirobot_vacuum.urdf",
+    "modelFile":"../../data/arm_robots/mirobot_vacuum.urdf",
     "baseType":"fixed",
     "controllerFile":"controller/mirobot_ril.py",
     "resourceDir":"resources/vacuum",
     "properties" : {
-        "description": "kinematically simulated Wlkata Mirobot robot"
+        "description": "Real Wlkata Mirobot arm with a vacuum gripper"
     },
     "endEffectors":{
         "wrist":{
@@ -24,7 +24,19 @@
                 "localPosition":[0,0,-0.0300],
                 "endPosition":[0,0,0],
                 "endRotation":[0,0,0]
-            }
+            },
+            "gripper":"vacuum"
+        }
+    },
+    "grippers":{
+        "vacuum":{
+            "type":"vacuum",
+            "baseLink":6,
+            "fingerLinks":[],
+            "center":[0,0,-0.0300],
+            "primaryAxis":[0,0,1],
+            "openConfig":[],
+            "closedConfig":[]
         }
     }
 }

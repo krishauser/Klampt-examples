@@ -1,6 +1,6 @@
 {
     "name": "KinovaGen3",
-    "modelFile": "../../data/robots/kinova_with_robotiq_85.urdf",
+    "modelFile": "../../data/compound_robots/kinova_with_robotiq_85.urdf",
     "baseType":"fixed",
     "controllerFile": "klampt.control.simrobotinterface", 
     "properties" : {
@@ -18,24 +18,6 @@
         }
     },
     "grippers": {
-        "robotiq85":{
-            "name": "robotiq_85-kinova",
-            "type": "parallel", 
-            "baseLink": 8, 
-            "minimumSpan": 0, 
-            "fingerDrivers": [6], 
-            "fingerLinks": [9, 10, 11, 12, 13, 14, 15, 16], 
-            "fingerDepth": 0.01, 
-            "fingerLength": 0.06, 
-            "fingerWidth": 0.02,
-            "secondaryAxis": [1, 0, 0],
-            "openConfig": [0, 0, 0, 0, 0, 0, 0, 0],
-            "center": [0, 0, 0.1],
-            "klamptModel": "../data/robots/ur5_with_robotiq85.rob",
-            "closedConfig": [0.723, 0, 0.723, -0.723, -0.723, 0.723, -0.723, 0],
-            "primaryAxis": [0, 0, 1],
-            "maximumSpan": 0.075,
-            "gripperLinks": null
-        }
+        "robotiq_85":"!mounted ../gripperinfo/robotiq_85.json wrist"
     }
 }
