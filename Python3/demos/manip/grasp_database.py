@@ -12,7 +12,7 @@ def browse_database(gripper : GripperInfo, object_patterns : List[str], dbfile :
         if dbfile.endswith('.json'):
             db.load(dbfile)
         else:
-            db.loadfolder(dbfile)
+            db.loadFolder(dbfile)
 
     def _find_object(name):
         for pat in object_patterns:
