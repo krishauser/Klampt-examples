@@ -1,6 +1,8 @@
 from klampt.manip.grasp_space import GraspParameterSpace
+from klampt.manip.grasp_space_sampler import GraspSpaceSampler
 from klampt.model.gripperinfo import GripperInfo
 from klampt.math import se3
+from klampt import Geometry3D
 import random
 from klampt import vis
 
@@ -19,14 +21,25 @@ if __name__ == '__main__':
     print(space.featureBounds())
     print(space.toGrasp([0]*nd))
     print(space.toGrasp([1]*nd))
+    
+    #testing raw sampling
+    # featureBounds = space.featureBounds()
+    # grasps = []
+    # for i in range(100):
+    #     f = [random.uniform(b[0], b[1]) for b in zip(*featureBounds)]
+    #     g = space.toGrasp(f)
+    #     grasps.append(g)
+
+    #testing GraspSpaceSampler
+    sampler = GraspSpaceSampler(space, score_function = lambda g:1.0, distance_to_object=0.02)
+    target = Geometry3D('../../../data/objects/sphere.off')
+    target.scale(0.1)
+    sampler.init(None, target)
+    grasps = sampler.samples
 
     vis.setWindowTitle("Sampled grasps")
     vis.add("origin",se3.identity(),hide_label=True,fancy=True,length=1.0)
-    featureBounds = space.featureBounds()
-    for i in range(100):
-        f = [random.uniform(b[0], b[1]) for b in zip(*featureBounds)]
-        g = space.toGrasp(f)
-        # T = g.asFixedGrasp().ikConstraint.getTransform()
-        # robotiq_85.addToVis(base_xform=T, prefix="grasp_%d" % i, hide_label=False
+    vis.add("target",target)
+    for i,g in enumerate(grasps):
         g.addToVis("grasp_%d" % i, gripper=robotiq_85, hide_label=True)
     vis.loop()
