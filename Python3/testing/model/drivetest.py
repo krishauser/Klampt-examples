@@ -4,36 +4,7 @@ import math
 import numpy as np
 import time
 
-def test_traj():
-    times = np.linspace(0, 1, 1000)
-    milestones = np.vstack((np.linspace(0,100,1000),np.linspace(0,0,1000))).T.tolist()
-    traj = Trajectory(times, milestones)
-    t0 = time.time()
-    ts = []
-    ms = []
-    scanIndex = None
-    for t in np.arange(0,1,0.0003):
-        scanIndex,u = traj.getSegment(t,scanIndex=scanIndex)
-        ts.append(t)
-        ms.append(traj.evalSegment_state(scanIndex,u))
-    duplicate = Trajectory(ts,ms)
-    t1 = time.time()
-    print("Trajectory eval with scanIndex time:",t1-t0,len(duplicate.milestones))
-    t0 = time.time()
-    ts = []
-    ms = []
-    for t in np.arange(0,1,0.0003):
-        ts.append(t)
-        ms.append(traj.eval(t))
-    duplicate = Trajectory(ts,ms)
-    t1 = time.time()
-    print("Trajectory eval time:",t1-t0,len(duplicate.milestones))
-    t0 = time.time()
-    duplicate = traj.discretize(0.0003)
-    t1 = time.time()
-    print("Trajectory discretization time:",t1-t0,len(duplicate.milestones))
-
-def plot_se2_traj(se2_traj):
+def plot_se2_traj(se2_traj : SE2Trajectory):
     import matplotlib.pyplot as plt
     fig,axs = plt.subplots(1,2,figsize=(10,5))
     ax1 = axs[0]
@@ -72,6 +43,5 @@ def test_dd():
     plot_se2_traj(traj)
 
 if __name__ == '__main__':
-    #test_traj()
     # test_dd_traj()
     test_dd()

@@ -21,7 +21,7 @@ resource.set_directory("resources/"+robot.getName())
 
 #Generate some waypoint configurations using the resource editor
 configs = resource.get("pathtest.configs","Configs",description="Set multiple configurations to interpolate",default=[robot.getConfig()],world=world,doedit=True)
-if len(configs) < 2:
+if configs is None or len(configs) < 2:
     print("Didn't add 2 or more milestones, quitting")
     exit(-1)
 for q in configs:
@@ -43,8 +43,7 @@ for i in range(world.numTerrains()):
 traj0 = trajectory.RobotTrajectory(robot,times=list(range(len(configs))),milestones=configs)
 
 #show the path in the visualizer, repeating for 60 seconds
-traj = trajectory.path_to_trajectory(traj0,speed=1.0)
-print("*** Resulting duration",traj.endTime(),"***")
+traj = trajectory.path_to_trajectory(traj0,speed=1.0,dt=0.2)
 vis.animate("robot",traj)
 vis.addText("label","Default values")
 vis.addPlot("plot")
@@ -88,7 +87,7 @@ def setHermite():
     dtraj = trajectory.RobotTrajectory(robot,dtraj.times,dtraj.milestones)
     traj = trajectory.path_to_trajectory(dtraj,velocities='constant',timing='limited',smoothing=None,
         stoptol=10.0,vmax=robot.getVelocityLimits(),amax=robot.getAccelerationLimits(),
-        speed=1.0,)
+        speed=1.0)
     print("*** Resulting duration",traj.endTime(),"***")
     #vis.animate("robot",ltraj)
     #vis.animate("robot",dtraj)
