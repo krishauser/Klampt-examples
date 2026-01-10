@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<world>
+  <robot name="scooping_bot" file="scooping_bot.urdf" rotateZ="0" translation="0 0 0.05"  />
+
+  <!-- world floor -->
+  <terrain file="../../../../data/terrains/block.off" scale="0.5 0.5 0.01" translation="0.0 0.0 0.0">
+     <display color="0.5 0.5 0.5"/>
+   </terrain>
+
+   <!-- tray -->
+   <terrain file="meshes/tray_wood_bottomless.STL" scale="1 1 1" rotateZ="1.57" translation="0 0.55 0.06">
+     <display color="1. 1. 1."/>
+   </terrain>
+  <!-- <terrain file="meshes/tray.STL" scale="1 1 1" rotateZ="0." translation="0 0.65 0.05">
+     <display color="1. 1. 1."/>
+   </terrain> -->
+
+</world>
