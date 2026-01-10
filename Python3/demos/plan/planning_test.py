@@ -376,7 +376,7 @@ def main(worldfn,inWaypointsFn,outputPathFn):
     print("#########################################")
     print("Editing the waypoints in resources/{}/{}".format(robot.getName(),inWaypointsFn))
     print("#########################################")
-    resource.setDirectory("resources/"+robot.getName())
+    resource.set_directory("resources/"+robot.getName())
     configs = resource.get(inWaypointsFn,"Configs",default=[],world=world,doedit=False)
     cindex = 0
     while True:

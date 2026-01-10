@@ -123,8 +123,8 @@ if __name__ == '__main__':
     robotname = world.robot(0).getName()
 
     #look in resources/athlete/
-    resource.setDirectory('resources/'+robotname)
-    print("Configured the resource module to read from",resource.getDirectory())
+    resource.set_directory('resources/'+robotname)
+    print("Configured the resource module to read from",resource.get_directory())
 
     templates = {'1':config_edit_template,'2':xform_edit_template,'3':load_save_template,
                 '4':thumbnail_template,'5':vis_interaction_test}

@@ -17,7 +17,7 @@ if not res:
     exit(0)
 
 robot = world.robot(0)
-resource.setDirectory("resources/"+robot.getName())
+resource.set_directory("resources/"+robot.getName())
 
 #Generate some waypoint configurations using the resource editor
 configs = resource.get("pathtest.configs","Configs",description="Set multiple configurations to interpolate",default=[robot.getConfig()],world=world,doedit=True)
