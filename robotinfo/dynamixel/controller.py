@@ -1,12 +1,6 @@
 import atexit
 import math
-import time
-from threading import Thread, Lock, RLock
-import threading
-import numpy as np
-from copy import copy
 from klampt.control.robotinterface import RobotInterfaceBase
-from klampt.control.utils import TimedLooper
 import dynamixel_sdk
 
 print(dynamixel_sdk.__file__)
@@ -49,7 +43,7 @@ DXL_MAXIMUM_POSITION_VALUE  = 4000            # and this value (note that the Dy
 
 
 class DynamixelInterface(RobotInterfaceBase):
-    """
+    """A Klampt RIL for a set of Dynamixel motors communicating on the dynamixel SDK.
     """
     def __init__(self, deviceName, dynamixel_ids, zero_offsets = None, max_speeds = None):
         RobotInterfaceBase.__init__(self)
@@ -160,7 +154,7 @@ class DynamixelInterface(RobotInterfaceBase):
             if dxl_present_position != dxl_goal_position:
                 return True
         else:
-            for id in self.dynamixel_ids
+            for id in self.dynamixel_ids:
                 dxl_present_position, dxl_comm_result, dxl_error = self.dynamixel.read2ByteTxRx(self.portHandler, id, ADDR_MX_PRESENT_POSITION)
                 dxl_goal_position, dxl_comm_result, dxl_error = self.dynamixel.read2ByteTxRx(self.portHandler, id, ADDR_MX_GOAL_POSITION)
                 if dxl_present_position != dxl_goal_position:
